@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package de.hsmainz.iiwa.messages.protocolbuffers;
+
+option java_package = "de.hsmainz.iiwa.messages.protocolbuffers";
+option java_outer_classname = "iiwaStates";
+
+message States {
+	message Frame {
+		required Position position = 1;
+		required Rotation rotation = 2;
+
+		message Position {
+			required double x = 1;
+			required double y = 2;
+			required double z = 3;
+		}
+
+		message Rotation {
+			required double a = 1;
+			required double b = 2;
+			required double c = 3;
+		}
+	}
+}
+
