@@ -4,11 +4,16 @@
 #include <string>
 #include <sstream>
 
+#define min_wrap_member(x) ohlano::make_func<atoms(const atoms&, int)>(std::bind(x, this, _1, _2))
+
 
 namespace ohlano {
 
 	class console_stream_adapter {
 	public:
+
+
+		console_stream_adapter() = delete;
 
 		class endl_type {};
 		typedef std::function<void(std::string)> handler_function_type;
@@ -23,6 +28,13 @@ namespace ohlano {
 			string_handler = other.string_handler;
 			separator_char = other.separator_char;
 			space_separator = other.space_separator;
+		}
+
+		console_stream_adapter* operator=(const console_stream_adapter& other){
+			string_handler = other.string_handler;
+			separator_char = other.separator_char;
+			space_separator = other.space_separator;
+			return this;
 		}
 
 		bool has_sep_char() {
@@ -68,7 +80,6 @@ namespace ohlano {
 
 
 		handler_function_type string_handler;
-		console_stream_adapter() = delete;
 
 		std::stringstream sstr;
 		std::string separator_char;
@@ -76,4 +87,10 @@ namespace ohlano {
 	};
 
 	static console_stream_adapter::endl_type endl;
+
+
+	template<typename F, typename T>
+	std::enable_if_t<std::is_bind_expression<T>::value, std::function<F>> make_func(T&& bind_expr){
+		return std::function<F>(std::forward<T>(bind_expr));
+	}
 }

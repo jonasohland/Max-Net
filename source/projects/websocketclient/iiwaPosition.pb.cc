@@ -6,23 +6,18 @@
 #include <algorithm>
 
 #include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/port.h>
 #include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite_inl.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-// This is a temporary google only hack
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-#include "third_party/protobuf/version.h"
-#endif
 // @@protoc_insertion_point(includes)
+#include <google/protobuf/port_def.inc>
 
-namespace protobuf_iiwaPosition_2eproto {
-extern PROTOBUF_INTERNAL_EXPORT_protobuf_iiwaPosition_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Position;
-extern PROTOBUF_INTERNAL_EXPORT_protobuf_iiwaPosition_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Rotation;
-}  // namespace protobuf_iiwaPosition_2eproto
+extern PROTOBUF_INTERNAL_EXPORT_iiwaPosition_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Position_iiwaPosition_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_iiwaPosition_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Rotation_iiwaPosition_2eproto;
 namespace de {
 namespace hsmainz {
 namespace iiwa {
@@ -30,31 +25,26 @@ namespace messages {
 namespace protocolbuffers {
 class States_Frame_PositionDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame_Position>
-      _instance;
+  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame_Position> _instance;
 } _States_Frame_Position_default_instance_;
 class States_Frame_RotationDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame_Rotation>
-      _instance;
+  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame_Rotation> _instance;
 } _States_Frame_Rotation_default_instance_;
 class States_FrameDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame>
-      _instance;
+  ::google::protobuf::internal::ExplicitlyConstructed<States_Frame> _instance;
 } _States_Frame_default_instance_;
 class StatesDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<States>
-      _instance;
+  ::google::protobuf::internal::ExplicitlyConstructed<States> _instance;
 } _States_default_instance_;
 }  // namespace protocolbuffers
 }  // namespace messages
 }  // namespace iiwa
 }  // namespace hsmainz
 }  // namespace de
-namespace protobuf_iiwaPosition_2eproto {
-static void InitDefaultsStates_Frame_Position() {
+static void InitDefaultsStates_Frame_Position_iiwaPosition_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
@@ -65,10 +55,10 @@ static void InitDefaultsStates_Frame_Position() {
   ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Position =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates_Frame_Position}, {}};
+::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Position_iiwaPosition_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates_Frame_Position_iiwaPosition_2eproto}, {}};
 
-static void InitDefaultsStates_Frame_Rotation() {
+static void InitDefaultsStates_Frame_Rotation_iiwaPosition_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
@@ -79,10 +69,10 @@ static void InitDefaultsStates_Frame_Rotation() {
   ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Rotation =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates_Frame_Rotation}, {}};
+::google::protobuf::internal::SCCInfo<0> scc_info_States_Frame_Rotation_iiwaPosition_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates_Frame_Rotation_iiwaPosition_2eproto}, {}};
 
-static void InitDefaultsStates_Frame() {
+static void InitDefaultsStates_Frame_iiwaPosition_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
@@ -93,12 +83,12 @@ static void InitDefaultsStates_Frame() {
   ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<2> scc_info_States_Frame =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsStates_Frame}, {
-      &protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Position.base,
-      &protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Rotation.base,}};
+::google::protobuf::internal::SCCInfo<2> scc_info_States_Frame_iiwaPosition_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsStates_Frame_iiwaPosition_2eproto}, {
+      &scc_info_States_Frame_Position_iiwaPosition_2eproto.base,
+      &scc_info_States_Frame_Rotation_iiwaPosition_2eproto.base,}};
 
-static void InitDefaultsStates() {
+static void InitDefaultsStates_iiwaPosition_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
@@ -109,57 +99,59 @@ static void InitDefaultsStates() {
   ::de::hsmainz::iiwa::messages::protocolbuffers::States::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<0> scc_info_States =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates}, {}};
+::google::protobuf::internal::SCCInfo<0> scc_info_States_iiwaPosition_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsStates_iiwaPosition_2eproto}, {}};
 
-void InitDefaults() {
-  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame_Position.base);
-  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame_Rotation.base);
-  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame.base);
-  ::google::protobuf::internal::InitSCC(&scc_info_States.base);
+void InitDefaults_iiwaPosition_2eproto() {
+  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame_Position_iiwaPosition_2eproto.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame_Rotation_iiwaPosition_2eproto.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_States_Frame_iiwaPosition_2eproto.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_States_iiwaPosition_2eproto.base);
 }
 
-::google::protobuf::Metadata file_level_metadata[4];
+::google::protobuf::Metadata file_level_metadata_iiwaPosition_2eproto[4];
+constexpr ::google::protobuf::EnumDescriptor const** file_level_enum_descriptors_iiwaPosition_2eproto = nullptr;
+constexpr ::google::protobuf::ServiceDescriptor const** file_level_service_descriptors_iiwaPosition_2eproto = nullptr;
 
-const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, _internal_metadata_),
+const ::google::protobuf::uint32 TableStruct_iiwaPosition_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, x_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, y_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, z_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, x_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, y_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position, z_),
   0,
   1,
   2,
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, a_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, b_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, c_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, a_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, b_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation, c_),
   0,
   1,
   2,
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, position_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, rotation_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, position_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame, rotation_),
   0,
   1,
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::de::hsmainz::iiwa::messages::protocolbuffers::States, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
 };
-static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+static const ::google::protobuf::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 8, sizeof(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position)},
   { 11, 19, sizeof(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation)},
   { 22, 29, sizeof(::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame)},
@@ -173,55 +165,39 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::de::hsmainz::iiwa::messages::protocolbuffers::_States_default_instance_),
 };
 
-void protobuf_AssignDescriptors() {
-  AddDescriptors();
-  AssignDescriptors(
-      "iiwaPosition.proto", schemas, file_default_instances, TableStruct::offsets,
-      file_level_metadata, NULL, NULL);
-}
+::google::protobuf::internal::AssignDescriptorsTable assign_descriptors_table_iiwaPosition_2eproto = {
+  {}, AddDescriptors_iiwaPosition_2eproto, "iiwaPosition.proto", schemas,
+  file_default_instances, TableStruct_iiwaPosition_2eproto::offsets,
+  file_level_metadata_iiwaPosition_2eproto, 4, file_level_enum_descriptors_iiwaPosition_2eproto, file_level_service_descriptors_iiwaPosition_2eproto,
+};
 
-void protobuf_AssignDescriptorsOnce() {
-  static ::google::protobuf::internal::once_flag once;
-  ::google::protobuf::internal::call_once(once, protobuf_AssignDescriptors);
-}
+const char descriptor_table_protodef_iiwaPosition_2eproto[] =
+  "\n\022iiwaPosition.proto\022(de.hsmainz.iiwa.me"
+  "ssages.protocolbuffers\"\222\002\n\006States\032\207\002\n\005Fr"
+  "ame\022Q\n\010position\030\001 \002(\0132\?.de.hsmainz.iiwa."
+  "messages.protocolbuffers.States.Frame.Po"
+  "sition\022Q\n\010rotation\030\002 \002(\0132\?.de.hsmainz.ii"
+  "wa.messages.protocolbuffers.States.Frame"
+  ".Rotation\032+\n\010Position\022\t\n\001x\030\001 \002(\001\022\t\n\001y\030\002 "
+  "\002(\001\022\t\n\001z\030\003 \002(\001\032+\n\010Rotation\022\t\n\001a\030\001 \002(\001\022\t\n"
+  "\001b\030\002 \002(\001\022\t\n\001c\030\003 \002(\001B6\n(de.hsmainz.iiwa.m"
+  "essages.protocolbuffersB\niiwaStates"
+  ;
+::google::protobuf::internal::DescriptorTable descriptor_table_iiwaPosition_2eproto = {
+  false, InitDefaults_iiwaPosition_2eproto, 
+  descriptor_table_protodef_iiwaPosition_2eproto,
+  "iiwaPosition.proto", &assign_descriptors_table_iiwaPosition_2eproto, 395,
+};
 
-void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
-void protobuf_RegisterTypes(const ::std::string&) {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 4);
-}
-
-void AddDescriptorsImpl() {
-  InitDefaults();
-  static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\022iiwaPosition.proto\022(de.hsmainz.iiwa.me"
-      "ssages.protocolbuffers\"\222\002\n\006States\032\207\002\n\005Fr"
-      "ame\022Q\n\010position\030\001 \002(\0132\?.de.hsmainz.iiwa."
-      "messages.protocolbuffers.States.Frame.Po"
-      "sition\022Q\n\010rotation\030\002 \002(\0132\?.de.hsmainz.ii"
-      "wa.messages.protocolbuffers.States.Frame"
-      ".Rotation\032+\n\010Position\022\t\n\001x\030\001 \002(\001\022\t\n\001y\030\002 "
-      "\002(\001\022\t\n\001z\030\003 \002(\001\032+\n\010Rotation\022\t\n\001a\030\001 \002(\001\022\t\n"
-      "\001b\030\002 \002(\001\022\t\n\001c\030\003 \002(\001B6\n(de.hsmainz.iiwa.m"
-      "essages.protocolbuffersB\niiwaStates"
+void AddDescriptors_iiwaPosition_2eproto() {
+  static constexpr ::google::protobuf::internal::InitFunc deps[1] =
+  {
   };
-  ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 395);
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
-    "iiwaPosition.proto", &protobuf_RegisterTypes);
+ ::google::protobuf::internal::AddDescriptors(&descriptor_table_iiwaPosition_2eproto, deps, 0);
 }
 
-void AddDescriptors() {
-  static ::google::protobuf::internal::once_flag once;
-  ::google::protobuf::internal::call_once(once, AddDescriptorsImpl);
-}
-// Force AddDescriptors() to be called at dynamic initialization time.
-struct StaticDescriptorInitializer {
-  StaticDescriptorInitializer() {
-    AddDescriptors();
-  }
-} static_descriptor_initializer;
-}  // namespace protobuf_iiwaPosition_2eproto
+// Force running AddDescriptors() at dynamic initialization time.
+static bool dynamic_init_dummy_iiwaPosition_2eproto = []() { AddDescriptors_iiwaPosition_2eproto(); return true; }();
 namespace de {
 namespace hsmainz {
 namespace iiwa {
@@ -232,6 +208,19 @@ namespace protocolbuffers {
 
 void States_Frame_Position::InitAsDefaultInstance() {
 }
+class States_Frame_Position::HasBitSetters {
+ public:
+  static void set_has_x(States_Frame_Position* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+  static void set_has_y(States_Frame_Position* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+  static void set_has_z(States_Frame_Position* msg) {
+    msg->_has_bits_[0] |= 0x00000004u;
+  }
+};
+
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int States_Frame_Position::kXFieldNumber;
 const int States_Frame_Position::kYFieldNumber;
@@ -239,15 +228,13 @@ const int States_Frame_Position::kZFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 States_Frame_Position::States_Frame_Position()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  ::google::protobuf::internal::InitSCC(
-      &protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Position.base);
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position)
 }
 States_Frame_Position::States_Frame_Position(const States_Frame_Position& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&x_, &from.x_,
@@ -273,13 +260,8 @@ void States_Frame_Position::SharedDtor() {
 void States_Frame_Position::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* States_Frame_Position::descriptor() {
-  ::protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const States_Frame_Position& States_Frame_Position::default_instance() {
-  ::google::protobuf::internal::InitSCC(&protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Position.base);
+  ::google::protobuf::internal::InitSCC(&::scc_info_States_Frame_Position_iiwaPosition_2eproto.base);
   return *internal_default_instance();
 }
 
@@ -291,7 +273,7 @@ void States_Frame_Position::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 7u) {
+  if (cached_has_bits & 0x00000007u) {
     ::memset(&x_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&z_) -
         reinterpret_cast<char*>(&x_)) + sizeof(z_));
@@ -300,9 +282,73 @@ void States_Frame_Position::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* States_Frame_Position::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<States_Frame_Position*>(object);
+  ::google::protobuf::uint32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = Varint::Parse32Inline(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // required double x = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 9) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_x(val);
+        break;
+      }
+      // required double y = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 17) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_y(val);
+        break;
+      }
+      // required double z = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 25) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_z(val);
+        break;
+      }
+      default: {
+      handle_unusual: (void)&&handle_unusual;
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+len_delim_till_end: (void)&&len_delim_till_end;
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                                 {parser_till_end, object}, size);
+group_continues: (void)&&group_continues;
+  GOOGLE_DCHECK(ptr >= end);
+  GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->StoreGroup({_InternalParse, msg}, {parser_till_end, object}, depth, tag));
+  return ptr;
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool States_Frame_Position::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position)
   for (;;) {
@@ -312,9 +358,8 @@ bool States_Frame_Position::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required double x = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(9u /* 9 & 0xFF */)) {
-          set_has_x();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (9 & 0xFF)) {
+          HasBitSetters::set_has_x(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &x_)));
@@ -326,9 +371,8 @@ bool States_Frame_Position::MergePartialFromCodedStream(
 
       // required double y = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(17u /* 17 & 0xFF */)) {
-          set_has_y();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (17 & 0xFF)) {
+          HasBitSetters::set_has_y(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &y_)));
@@ -340,9 +384,8 @@ bool States_Frame_Position::MergePartialFromCodedStream(
 
       // required double z = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(25u /* 25 & 0xFF */)) {
-          set_has_z();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (25 & 0xFF)) {
+          HasBitSetters::set_has_z(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &z_)));
@@ -371,6 +414,7 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void States_Frame_Position::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
@@ -475,6 +519,10 @@ size_t States_Frame_Position::ByteSizeLong() const {
   } else {
     total_size += RequiredFieldsByteSizeFallback();
   }
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -484,9 +532,9 @@ void States_Frame_Position::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position)
   GOOGLE_DCHECK_NE(&from, this);
   const States_Frame_Position* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const States_Frame_Position>(
+      ::google::protobuf::DynamicCastToGenerated<States_Frame_Position>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -503,7 +551,7 @@ void States_Frame_Position::MergeFrom(const States_Frame_Position& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 7u) {
+  if (cached_has_bits & 0x00000007u) {
     if (cached_has_bits & 0x00000001u) {
       x_ = from.x_;
     }
@@ -542,16 +590,16 @@ void States_Frame_Position::Swap(States_Frame_Position* other) {
 }
 void States_Frame_Position::InternalSwap(States_Frame_Position* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   swap(x_, other->x_);
   swap(y_, other->y_);
   swap(z_, other->z_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
 ::google::protobuf::Metadata States_Frame_Position::GetMetadata() const {
-  protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages];
+  ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_iiwaPosition_2eproto);
+  return ::file_level_metadata_iiwaPosition_2eproto[kIndexInFileMessages];
 }
 
 
@@ -559,6 +607,19 @@ void States_Frame_Position::InternalSwap(States_Frame_Position* other) {
 
 void States_Frame_Rotation::InitAsDefaultInstance() {
 }
+class States_Frame_Rotation::HasBitSetters {
+ public:
+  static void set_has_a(States_Frame_Rotation* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+  static void set_has_b(States_Frame_Rotation* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+  static void set_has_c(States_Frame_Rotation* msg) {
+    msg->_has_bits_[0] |= 0x00000004u;
+  }
+};
+
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int States_Frame_Rotation::kAFieldNumber;
 const int States_Frame_Rotation::kBFieldNumber;
@@ -566,15 +627,13 @@ const int States_Frame_Rotation::kCFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 States_Frame_Rotation::States_Frame_Rotation()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  ::google::protobuf::internal::InitSCC(
-      &protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Rotation.base);
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation)
 }
 States_Frame_Rotation::States_Frame_Rotation(const States_Frame_Rotation& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&a_, &from.a_,
@@ -600,13 +659,8 @@ void States_Frame_Rotation::SharedDtor() {
 void States_Frame_Rotation::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* States_Frame_Rotation::descriptor() {
-  ::protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const States_Frame_Rotation& States_Frame_Rotation::default_instance() {
-  ::google::protobuf::internal::InitSCC(&protobuf_iiwaPosition_2eproto::scc_info_States_Frame_Rotation.base);
+  ::google::protobuf::internal::InitSCC(&::scc_info_States_Frame_Rotation_iiwaPosition_2eproto.base);
   return *internal_default_instance();
 }
 
@@ -618,7 +672,7 @@ void States_Frame_Rotation::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 7u) {
+  if (cached_has_bits & 0x00000007u) {
     ::memset(&a_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&c_) -
         reinterpret_cast<char*>(&a_)) + sizeof(c_));
@@ -627,9 +681,73 @@ void States_Frame_Rotation::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* States_Frame_Rotation::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<States_Frame_Rotation*>(object);
+  ::google::protobuf::uint32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = Varint::Parse32Inline(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // required double a = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 9) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_a(val);
+        break;
+      }
+      // required double b = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 17) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_b(val);
+        break;
+      }
+      // required double c = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 25) goto handle_unusual;
+        double val;
+        ::std::memcpy(&val, ptr, 8);
+        ptr += 8;
+        msg->set_c(val);
+        break;
+      }
+      default: {
+      handle_unusual: (void)&&handle_unusual;
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+len_delim_till_end: (void)&&len_delim_till_end;
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                                 {parser_till_end, object}, size);
+group_continues: (void)&&group_continues;
+  GOOGLE_DCHECK(ptr >= end);
+  GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->StoreGroup({_InternalParse, msg}, {parser_till_end, object}, depth, tag));
+  return ptr;
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool States_Frame_Rotation::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation)
   for (;;) {
@@ -639,9 +757,8 @@ bool States_Frame_Rotation::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required double a = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(9u /* 9 & 0xFF */)) {
-          set_has_a();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (9 & 0xFF)) {
+          HasBitSetters::set_has_a(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &a_)));
@@ -653,9 +770,8 @@ bool States_Frame_Rotation::MergePartialFromCodedStream(
 
       // required double b = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(17u /* 17 & 0xFF */)) {
-          set_has_b();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (17 & 0xFF)) {
+          HasBitSetters::set_has_b(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &b_)));
@@ -667,9 +783,8 @@ bool States_Frame_Rotation::MergePartialFromCodedStream(
 
       // required double c = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(25u /* 25 & 0xFF */)) {
-          set_has_c();
+        if (static_cast< ::google::protobuf::uint8>(tag) == (25 & 0xFF)) {
+          HasBitSetters::set_has_c(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &c_)));
@@ -698,6 +813,7 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void States_Frame_Rotation::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
@@ -802,6 +918,10 @@ size_t States_Frame_Rotation::ByteSizeLong() const {
   } else {
     total_size += RequiredFieldsByteSizeFallback();
   }
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -811,9 +931,9 @@ void States_Frame_Rotation::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation)
   GOOGLE_DCHECK_NE(&from, this);
   const States_Frame_Rotation* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const States_Frame_Rotation>(
+      ::google::protobuf::DynamicCastToGenerated<States_Frame_Rotation>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -830,7 +950,7 @@ void States_Frame_Rotation::MergeFrom(const States_Frame_Rotation& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 7u) {
+  if (cached_has_bits & 0x00000007u) {
     if (cached_has_bits & 0x00000001u) {
       a_ = from.a_;
     }
@@ -869,16 +989,16 @@ void States_Frame_Rotation::Swap(States_Frame_Rotation* other) {
 }
 void States_Frame_Rotation::InternalSwap(States_Frame_Rotation* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   swap(a_, other->a_);
   swap(b_, other->b_);
   swap(c_, other->c_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
 ::google::protobuf::Metadata States_Frame_Rotation::GetMetadata() const {
-  protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages];
+  ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_iiwaPosition_2eproto);
+  return ::file_level_metadata_iiwaPosition_2eproto[kIndexInFileMessages];
 }
 
 
@@ -890,37 +1010,57 @@ void States_Frame::InitAsDefaultInstance() {
   ::de::hsmainz::iiwa::messages::protocolbuffers::_States_Frame_default_instance_._instance.get_mutable()->rotation_ = const_cast< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation*>(
       ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation::internal_default_instance());
 }
+class States_Frame::HasBitSetters {
+ public:
+  static const ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position& position(const States_Frame* msg);
+  static void set_has_position(States_Frame* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+  static const ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation& rotation(const States_Frame* msg);
+  static void set_has_rotation(States_Frame* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+};
+
+const ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position&
+States_Frame::HasBitSetters::position(const States_Frame* msg) {
+  return *msg->position_;
+}
+const ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation&
+States_Frame::HasBitSetters::rotation(const States_Frame* msg) {
+  return *msg->rotation_;
+}
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int States_Frame::kPositionFieldNumber;
 const int States_Frame::kRotationFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 States_Frame::States_Frame()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  ::google::protobuf::internal::InitSCC(
-      &protobuf_iiwaPosition_2eproto::scc_info_States_Frame.base);
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame)
 }
 States_Frame::States_Frame(const States_Frame& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from.has_position()) {
     position_ = new ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position(*from.position_);
   } else {
-    position_ = NULL;
+    position_ = nullptr;
   }
   if (from.has_rotation()) {
     rotation_ = new ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation(*from.rotation_);
   } else {
-    rotation_ = NULL;
+    rotation_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame)
 }
 
 void States_Frame::SharedCtor() {
+  ::google::protobuf::internal::InitSCC(
+      &scc_info_States_Frame_iiwaPosition_2eproto.base);
   ::memset(&position_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&rotation_) -
       reinterpret_cast<char*>(&position_)) + sizeof(rotation_));
@@ -939,13 +1079,8 @@ void States_Frame::SharedDtor() {
 void States_Frame::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* States_Frame::descriptor() {
-  ::protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const States_Frame& States_Frame::default_instance() {
-  ::google::protobuf::internal::InitSCC(&protobuf_iiwaPosition_2eproto::scc_info_States_Frame.base);
+  ::google::protobuf::internal::InitSCC(&::scc_info_States_Frame_iiwaPosition_2eproto.base);
   return *internal_default_instance();
 }
 
@@ -957,13 +1092,13 @@ void States_Frame::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 3u) {
+  if (cached_has_bits & 0x00000003u) {
     if (cached_has_bits & 0x00000001u) {
-      GOOGLE_DCHECK(position_ != NULL);
+      GOOGLE_DCHECK(position_ != nullptr);
       position_->Clear();
     }
     if (cached_has_bits & 0x00000002u) {
-      GOOGLE_DCHECK(rotation_ != NULL);
+      GOOGLE_DCHECK(rotation_ != nullptr);
       rotation_->Clear();
     }
   }
@@ -971,9 +1106,76 @@ void States_Frame::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* States_Frame::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<States_Frame*>(object);
+  ::google::protobuf::uint32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = Varint::Parse32Inline(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position position = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 10) goto handle_unusual;
+        ptr = Varint::Parse32Inline(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        parser_till_end = ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position::_InternalParse;
+        object = msg->mutable_position();
+        if (size > end - ptr) goto len_delim_till_end;
+        auto newend = ptr + size;
+        bool ok = ctx->ParseExactRange({parser_till_end, object},
+                                       ptr, newend);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ok);
+        ptr = newend;
+        break;
+      }
+      // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation rotation = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 18) goto handle_unusual;
+        ptr = Varint::Parse32Inline(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        parser_till_end = ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation::_InternalParse;
+        object = msg->mutable_rotation();
+        if (size > end - ptr) goto len_delim_till_end;
+        auto newend = ptr + size;
+        bool ok = ctx->ParseExactRange({parser_till_end, object},
+                                       ptr, newend);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ok);
+        ptr = newend;
+        break;
+      }
+      default: {
+      handle_unusual: (void)&&handle_unusual;
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+len_delim_till_end: (void)&&len_delim_till_end;
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                                 {parser_till_end, object}, size);
+group_continues: (void)&&group_continues;
+  GOOGLE_DCHECK(ptr >= end);
+  GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->StoreGroup({_InternalParse, msg}, {parser_till_end, object}, depth, tag));
+  return ptr;
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool States_Frame::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame)
   for (;;) {
@@ -983,8 +1185,7 @@ bool States_Frame::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position position = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (10 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                input, mutable_position()));
         } else {
@@ -995,8 +1196,7 @@ bool States_Frame::MergePartialFromCodedStream(
 
       // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation rotation = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (18 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                input, mutable_rotation()));
         } else {
@@ -1024,6 +1224,7 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void States_Frame::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
@@ -1035,13 +1236,13 @@ void States_Frame::SerializeWithCachedSizes(
   // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Position position = 1;
   if (cached_has_bits & 0x00000001u) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->_internal_position(), output);
+      1, HasBitSetters::position(this), output);
   }
 
   // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation rotation = 2;
   if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->_internal_rotation(), output);
+      2, HasBitSetters::rotation(this), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1063,14 +1264,14 @@ void States_Frame::SerializeWithCachedSizes(
   if (cached_has_bits & 0x00000001u) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, this->_internal_position(), deterministic, target);
+        1, HasBitSetters::position(this), deterministic, target);
   }
 
   // required .de.hsmainz.iiwa.messages.protocolbuffers.States.Frame.Rotation rotation = 2;
   if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, this->_internal_rotation(), deterministic, target);
+        2, HasBitSetters::rotation(this), deterministic, target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1124,6 +1325,10 @@ size_t States_Frame::ByteSizeLong() const {
   } else {
     total_size += RequiredFieldsByteSizeFallback();
   }
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -1133,9 +1338,9 @@ void States_Frame::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame)
   GOOGLE_DCHECK_NE(&from, this);
   const States_Frame* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const States_Frame>(
+      ::google::protobuf::DynamicCastToGenerated<States_Frame>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:de.hsmainz.iiwa.messages.protocolbuffers.States.Frame)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -1152,7 +1357,7 @@ void States_Frame::MergeFrom(const States_Frame& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 3u) {
+  if (cached_has_bits & 0x00000003u) {
     if (cached_has_bits & 0x00000001u) {
       mutable_position()->::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position::MergeFrom(from.position());
     }
@@ -1193,15 +1398,15 @@ void States_Frame::Swap(States_Frame* other) {
 }
 void States_Frame::InternalSwap(States_Frame* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   swap(position_, other->position_);
   swap(rotation_, other->rotation_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
 ::google::protobuf::Metadata States_Frame::GetMetadata() const {
-  protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages];
+  ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_iiwaPosition_2eproto);
+  return ::file_level_metadata_iiwaPosition_2eproto[kIndexInFileMessages];
 }
 
 
@@ -1209,19 +1414,21 @@ void States_Frame::InternalSwap(States_Frame* other) {
 
 void States::InitAsDefaultInstance() {
 }
+class States::HasBitSetters {
+ public:
+};
+
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 States::States()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  ::google::protobuf::internal::InitSCC(
-      &protobuf_iiwaPosition_2eproto::scc_info_States.base);
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:de.hsmainz.iiwa.messages.protocolbuffers.States)
 }
 States::States(const States& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:de.hsmainz.iiwa.messages.protocolbuffers.States)
@@ -1241,13 +1448,8 @@ void States::SharedDtor() {
 void States::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* States::descriptor() {
-  ::protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const States& States::default_instance() {
-  ::google::protobuf::internal::InitSCC(&protobuf_iiwaPosition_2eproto::scc_info_States.base);
+  ::google::protobuf::internal::InitSCC(&::scc_info_States_iiwaPosition_2eproto.base);
   return *internal_default_instance();
 }
 
@@ -1262,9 +1464,46 @@ void States::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* States::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<States*>(object);
+  ::google::protobuf::uint32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = Varint::Parse32Inline(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      default: {
+      handle_unusual: (void)&&handle_unusual;
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+len_delim_till_end: (void)&&len_delim_till_end;
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                                 {parser_till_end, object}, size);
+group_continues: (void)&&group_continues;
+  GOOGLE_DCHECK(ptr >= end);
+  GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->StoreGroup({_InternalParse, msg}, {parser_till_end, object}, depth, tag));
+  return ptr;
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool States::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:de.hsmainz.iiwa.messages.protocolbuffers.States)
   for (;;) {
@@ -1286,6 +1525,7 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void States::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
@@ -1324,6 +1564,10 @@ size_t States::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         _internal_metadata_.unknown_fields());
   }
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -1333,9 +1577,9 @@ void States::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:de.hsmainz.iiwa.messages.protocolbuffers.States)
   GOOGLE_DCHECK_NE(&from, this);
   const States* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const States>(
+      ::google::protobuf::DynamicCastToGenerated<States>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:de.hsmainz.iiwa.messages.protocolbuffers.States)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -1377,13 +1621,13 @@ void States::Swap(States* other) {
 }
 void States::InternalSwap(States* other) {
   using std::swap;
-  swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
 }
 
 ::google::protobuf::Metadata States::GetMetadata() const {
-  protobuf_iiwaPosition_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_iiwaPosition_2eproto::file_level_metadata[kIndexInFileMessages];
+  ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_iiwaPosition_2eproto);
+  return ::file_level_metadata_iiwaPosition_2eproto[kIndexInFileMessages];
 }
 
 
@@ -1395,19 +1639,20 @@ void States::InternalSwap(States* other) {
 }  // namespace de
 namespace google {
 namespace protobuf {
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position >(Arena* arena) {
   return Arena::CreateInternal< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Position >(arena);
 }
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation >(Arena* arena) {
   return Arena::CreateInternal< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame_Rotation >(arena);
 }
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame >(Arena* arena) {
   return Arena::CreateInternal< ::de::hsmainz::iiwa::messages::protocolbuffers::States_Frame >(arena);
 }
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::de::hsmainz::iiwa::messages::protocolbuffers::States* Arena::CreateMaybeMessage< ::de::hsmainz::iiwa::messages::protocolbuffers::States >(Arena* arena) {
   return Arena::CreateInternal< ::de::hsmainz::iiwa::messages::protocolbuffers::States >(arena);
 }
 }  // namespace protobuf
 }  // namespace google
 
 // @@protoc_insertion_point(global_scope)
+#include <google/protobuf/port_undef.inc>

@@ -4,6 +4,7 @@
 #include "../shared/ohlano_min.h"
 
 using namespace c74::min;
+using namespace std::placeholders;
 
 
 class websocketclient : public object<websocketclient> {
@@ -19,21 +20,27 @@ public:
 	outlet<> status_out{ this, "status out" };
 
 
-	ohlano::state_relevant_value<long> val{ [this](long val) { cout << "value changed!" << endl; } };
+    atoms set_host(const atoms& args, int inlet){ host_val = static_cast<std::string>(args[0]); return args; }
 
-	attribute<long> port { this, "port", 80,
-		setter{[this](const c74::min::atoms& args, int inlet) -> c74::min::atoms {
-			cout << "got: " << std::string(args[0]) << endl;
-			val = static_cast<long>(args[0]);
-			return args;
-		}},
-		description{ "remote port to connect to" },
-		range{ 0, 65535 },
-	};
+    atoms set_port(const atoms& args, int inlet){ port_val = static_cast<long>(args[0]); return args; }
+
+    void changed_port(long val){}
+
+    void changed_host(std::string val){}
+
+
+	ohlano::state_relevant_value<long> port_val { std::bind(&websocketclient::changed_port, this, _1) };
+    ohlano::state_relevant_value<std::string> host_val { std::bind(&websocketclient::changed_host, this, _1) };
+
+	attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+		description{ "remote port to connect to" }, range{ 0, 65535 }};
+
+	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
+
+
+
 	
-	websocketclient(const atoms& args = {}) {
-
-		cout << "hello!" << endl;
+	explicit websocketclient(const atoms& args = {}) {
 
 		for(auto& arg : args) {
 
@@ -43,16 +50,12 @@ public:
 			WebSocketUrl url;
 
 			switch (arg.a_type) {
-
 			case c74::max::e_max_atomtypes::A_SYM:
 
 				url = WebSocketUrl::from_string(arg, ec);
-
 				if (ec != WebSocketUrl::error_code::SUCCESS)
 					cerr << "symbol argument could not be decoded to an url" << endl;
-
 				cout << "assuming host: " << url.get_host() << ", port: " << url.get_port() << ", path: " << url.get_handshake() << endl;
-
 				break;
 
 			case c74::max::e_max_atomtypes::A_FLOAT:
@@ -63,17 +66,13 @@ public:
 			case c74::max::e_max_atomtypes::A_LONG:
 
 				cout << "int" << endl;
-
 				break;
 
 			default:
-
 				cerr << "unsupported argument type" << endl;
 				break;
-
 			}
 		}
-
 	}
 
 
@@ -90,4 +89,7 @@ private:
 
 };
 
-MIN_EXTERNAL(websocketclient);
+void ext_main(void* r) {
+        c74::max::cpost("websockets for max (c) Jonas Ohland 2018");
+		c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
+}

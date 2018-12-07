@@ -6,7 +6,7 @@ WebSocketClientSession::WebSocketClientSession(console_stream_adapter cout_, con
 
     session = std::make_shared<BeastSession>(ioc);
 
-	error << "created session" << endl;
+	post << "created session" << endl;
 
     ioc.stop();
 

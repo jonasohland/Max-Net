@@ -6,7 +6,7 @@ set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../min-api) 	# C74 support di
 
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
-set(BOOST_ROOT "C:/boost")
+# set(BOOST_ROOT "C:/boost")
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)									# BOOST Module settings
 
@@ -46,7 +46,7 @@ add_library( 													# target config
 )
 
 
-add_compile_definitions(_WIN32_WINNT=0x0A00)					# definition for Windows.h 
+# add_compile_definitions(_WIN32_WINNT=0x0A00)					# definition for Windows.h 
 																# (Makes Boost.Asio happy)
 
 																

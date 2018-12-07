@@ -16,7 +16,6 @@ tests
 tmp
 .DS_Store
 
-source/min-api/
 tests/
 
 package-info.json
