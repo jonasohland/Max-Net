@@ -118,20 +118,13 @@ namespace ohlano {
             
         }
         
-        void run();
         void end_session();
-        
-        void setHost(std::string);
-        void setServide(std::string);
-        void setUri(std::string);
-        
+
         void disconnect();
-        void connect(std::string host, std::string port = "80", std::string handshake = "/");
         void connect();
         
-        bool setUrl(std::string);
+        bool setUrl(WebSocketUrl url);
         
-        void handshake();
         
 
         void report_status();

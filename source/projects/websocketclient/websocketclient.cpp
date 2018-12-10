@@ -42,38 +42,58 @@ public:
 	
 	explicit websocketclient(const atoms& args = {}) {
 
+		WebSocketUrl::error_code ec;
+		WebSocketUrl url;
+		WebSocketUrl t_url;
+
 		for(auto& arg : args) {
-
-			cout << "processing: " << std::string(arg) << endl;
-
-			WebSocketUrl::error_code ec;
-			WebSocketUrl url;
 
 			switch (arg.a_type) {
 			case c74::max::e_max_atomtypes::A_SYM:
 
-				url = WebSocketUrl::from_string(arg, ec);
+				t_url = WebSocketUrl::from_string(arg, ec);
+
 				if (ec != WebSocketUrl::error_code::SUCCESS)
 					cerr << "symbol argument could not be decoded to an url" << endl;
-				cout << "assuming host: " << url.get_host() << ", port: " << url.get_port() << ", path: " << url.get_handshake() << endl;
+
+				if (url.port_provided() && t_url.port_provided()) {
+					cerr << "Found multiple port arguments!" << endl;
+				}
+
+				url = t_url;
+
 				break;
 
 			case c74::max::e_max_atomtypes::A_FLOAT:
-
 				cerr << "float not supported as argument" << endl;
 				break;
-
 			case c74::max::e_max_atomtypes::A_LONG:
-
-				cout << "int" << endl;
+				if (!url.port_provided()) { url.set_port(arg); }
+				else { cerr << "Found multiple port arguments!" << endl; }
 				break;
-
 			default:
 				cerr << "unsupported argument type" << endl;
 				break;
 			}
+			
 		}
+
+		if (url.valid()) {
+			session.setUrl(url);
+			session.connect();
+		}
+		else {
+			cout << "no valid websocket address provided" << endl;
+		}
+
 	}
+
+	atoms report_status(const atoms& args, int inlet) {
+		session.report_status();
+		return args;
+	}
+
+	message<> status { this, "status", "report current status", min_wrap_member(&websocketclient::report_status) };
 
 
 private:

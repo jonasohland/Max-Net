@@ -45,9 +45,9 @@ add_library( 													# target config
 	${SOURCE_FILES}
 )
 
-
-# add_compile_definitions(_WIN32_WINNT=0x0A00)					# definition for Windows.h 
-																# (Makes Boost.Asio happy)
+if(WIN32)
+	add_compile_definitions(_WIN32_WINNT=0x0A00)					# definition for Windows.h 
+endif()															# (Makes Boost.Asio happy)
 
 																
 
