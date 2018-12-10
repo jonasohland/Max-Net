@@ -108,17 +108,10 @@ namespace ohlano {
             
             ioc.restart();
             ioc.run();
+
+			DBG("ioc.run() call returned");
             
         }
-        
-        void run_obs_io_context() {
-           
-            observer_ioc.restart();
-            observer_ioc.run();
-            
-        }
-        
-        void end_session();
 
         void disconnect();
         void connect();

@@ -40,7 +40,9 @@ namespace ohlano {
         OHLANO_NODEFAULT(BeastSession);
         OHLANO_NOCOPY(BeastSession);
         
-        ~BeastSession() {}
+        ~BeastSession() {
+			DBG("BEAST SESSION DECTRUCTOR");
+		}
         
         bool is_online() noexcept { return session_online.load(); }
         bool blocked() noexcept { return is_blocked.load(); }

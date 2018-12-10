@@ -46,46 +46,51 @@ public:
 		WebSocketUrl url;
 		WebSocketUrl t_url;
 
-		for(auto& arg : args) {
+		if (args.size() > 0) {
 
-			switch (arg.a_type) {
-			case c74::max::e_max_atomtypes::A_SYM:
+			for (auto& arg : args) {
 
-				t_url = WebSocketUrl::from_string(arg, ec);
+				switch (arg.a_type) {
+				case c74::max::e_max_atomtypes::A_SYM:
 
-				if (ec != WebSocketUrl::error_code::SUCCESS)
-					cerr << "symbol argument could not be decoded to an url" << endl;
+					t_url = WebSocketUrl::from_string(arg, ec);
 
-				if (url.port_provided() && t_url.port_provided()) {
-					cerr << "Found multiple port arguments!" << endl;
+					if (ec != WebSocketUrl::error_code::SUCCESS)
+						cerr << "symbol argument could not be decoded to an url" << endl;
+
+					if (url.port_provided() && t_url.port_provided()) {
+						cerr << "Found multiple port arguments!" << endl;
+					}
+
+					url = t_url;
+
+					break;
+
+				case c74::max::e_max_atomtypes::A_FLOAT:
+					cerr << "float not supported as argument" << endl;
+					break;
+				case c74::max::e_max_atomtypes::A_LONG:
+					if (!url.port_provided()) { url.set_port(arg); }
+					else { cerr << "Found multiple port arguments!" << endl; }
+					break;
+				default:
+					cerr << "unsupported argument type" << endl;
+					break;
 				}
 
-				url = t_url;
-
-				break;
-
-			case c74::max::e_max_atomtypes::A_FLOAT:
-				cerr << "float not supported as argument" << endl;
-				break;
-			case c74::max::e_max_atomtypes::A_LONG:
-				if (!url.port_provided()) { url.set_port(arg); }
-				else { cerr << "Found multiple port arguments!" << endl; }
-				break;
-			default:
-				cerr << "unsupported argument type" << endl;
-				break;
 			}
-			
-		}
 
-		if (url.valid()) {
-			session.setUrl(url);
-			session.connect();
+			if (url.valid()) {
+				session.setUrl(url);
+				session.connect();
+			}
+			else {
+				cout << "no valid websocket address provided" << endl;
+			}
 		}
 		else {
-			cout << "no valid websocket address provided" << endl;
+		
 		}
-
 	}
 
 	atoms report_status(const atoms& args, int inlet) {

@@ -4,7 +4,6 @@ namespace ohlano {
 
 WebSocketClientSession::WebSocketClientSession(console_stream_adapter cout_, console_stream_adapter cerr_) : post(cout_), error(cerr_){
 
-    session = std::make_shared<BeastSession>(ioc, cout_, cerr_);
     ioc.stop();
 
 }
@@ -12,12 +11,24 @@ WebSocketClientSession::WebSocketClientSession(console_stream_adapter cout_, con
 
 WebSocketClientSession::~WebSocketClientSession()
 {
-	disconnect();
+
+	DBG("SESSION DESTRUCTOR");
+
+	if (session) {
+
+		DBG("DISCONNECTING FROM DESTRUCTOR");
+
+		disconnect();
+
+		session.reset();
+	}
 }
 
 void WebSocketClientSession::connect() {
 
     if(ioc.stopped()){
+
+		session = std::make_shared<BeastSession>(ioc, post, error);
         
         if(client_thread.joinable()){
             client_thread.join();
@@ -57,10 +68,16 @@ bool WebSocketClientSession::setUrl(WebSocketUrl _url){
 
 
 void WebSocketClientSession::report_status(){
-	post << ((session->is_online()) ? "online" : "offline") << "host:" << url.get_host() << "port:" << url.get_port() << endl;
 
-	if(session->get_url().has_resolver_results())
-		post << "Address Info:" << session->get_url().get_pretty_resolver_results() << endl;
+	if (session) {
+		
+		post << ((session->is_online()) ? "online" : "offline") << "host:" << url.get_host() << "port:" << url.get_port() << endl;
+
+		if (session->get_url().has_resolver_results())
+			post << "Address Info:" << session->get_url().get_pretty_resolver_results() << endl;
+
+	}
+	
 }
 
 
