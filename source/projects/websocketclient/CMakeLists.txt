@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../min-api) 	# C74 support dirs
 
-file(GLOB PROTOS "*.proto")
+file(GLOB PROTOS "proto/*.proto")
 
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
@@ -34,8 +34,6 @@ foreach(FILE ${PROTOS})
 	message(STATUS "Generated: ${PROTO_SRC} | ${PROTO_HDR}")
 endforeach()
 
-include_directories(${PROTO_HDR})
-
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
@@ -64,7 +62,7 @@ endif()															# (Makes Boost.Asio happy)
 #------------------------------------------LINKER--------------------------------------------#
 
 
-include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)			#C74 post build tasks
+include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)			# C74 post build tasks
 
 target_link_libraries(${PROJECT_NAME} PUBLIC 					# link boost libs
 						${Boost_LIBRARIES})
