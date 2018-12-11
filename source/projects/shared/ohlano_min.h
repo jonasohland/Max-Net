@@ -76,6 +76,17 @@ namespace ohlano {
 			return *this;
 		}
 
+		template<typename T>
+		void operator()(T&& thing_to_post) {
+			*this << thing_to_post << endl;
+		}
+
+		template<typename C, typename ...T>
+		void operator()(C&& current, T&& ...rest) {
+			*this << std::forward<C>(current);
+			this->operator(rest);
+		}
+
 	private:
 
 

@@ -11,8 +11,7 @@
 #include <thread>
 #include <functional>
 
-
-#include "iiwaPosition.pb.h"
+#include "../../../build/source/projects/websocketclient/iiwaPosition.pb.h"
 
 
 
@@ -108,30 +107,16 @@ namespace ohlano {
             
             ioc.restart();
             ioc.run();
+
+			DBG("ioc.run() call returned");
             
         }
-        
-        void run_obs_io_context() {
-           
-            observer_ioc.restart();
-            observer_ioc.run();
-            
-        }
-        
-        void run();
-        void end_session();
-        
-        void setHost(std::string);
-        void setServide(std::string);
-        void setUri(std::string);
-        
+
         void disconnect();
-        void connect(std::string host, std::string port = "80", std::string handshake = "/");
         void connect();
         
-        bool setUrl(std::string);
+        bool setUrl(WebSocketUrl url);
         
-        void handshake();
         
 
         void report_status();

@@ -13,6 +13,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/asio/ip/address.hpp>
 #include "../shared/ohlano.h"
+#include <boost/asio/ip/tcp.hpp>
 
 class WebSocketUrl {
     
@@ -23,6 +24,8 @@ public:
         FAIL, SUCCESS
     } error_code;
     
+	typedef std::vector<std::pair<std::string, std::string>> trivial_resolver_results_type;
+
     OHLANO_COPY_ASSIGN(WebSocketUrl){
         handshake = other.handshake;
         port = other.port;
@@ -39,7 +42,7 @@ public:
     }
     
     WebSocketUrl() noexcept {
-    }
+	}
     
     WebSocketUrl(std::string url, error_code& ec){
         
@@ -77,7 +80,6 @@ public:
             } else {
                 DBG("assuming ", *token_it, " is hostname/ip");
                 hostname = *token_it;
-                port = "80";
             }
         } else {
             ec = error_code::FAIL;
@@ -101,8 +103,6 @@ public:
         } else {
             handshake = "/";
         }
-        
-        DBG("Handshake: ", handshake);
         
         is_valid = true;
         
@@ -128,7 +128,6 @@ public:
         hostname = _hostname;
         
         if(port.size() == 0){
-            port = "80";
         }
         if(handshake.size() == 0){
             port = "/";
@@ -150,8 +149,47 @@ public:
     }
     
     std::string get_port(){
-        return port;
+        
+		if (port_provided()) {
+			return port;
+		}
+		else {
+			return { "80" };
+		}
+		
     }
+
+	void set_resolver_results(const boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>& results) {
+
+		resolver_results.clear();
+
+		std::for_each(results.begin(), results.end(), [this](auto& result) {
+			resolver_results.push_back(std::make_pair(result.host_name(), result.endpoint().address().to_string()));
+			DBG("pushing result to vector");
+		});
+	}
+
+	trivial_resolver_results_type get_resolver_results() {
+		return resolver_results;
+	}
+
+	bool has_resolver_results() {
+		return !(resolver_results.empty());
+	}
+
+	std::string get_pretty_resolver_results() {
+		
+		std::string output;
+
+		for (auto& result : resolver_results) {
+			output.append(result.first);
+			output.append(" : ");
+			output.append(result.second);
+			output.append(" ");
+		}
+
+		return output;
+	}
     
     std::string get_handshake(){
         return handshake;
@@ -167,6 +205,11 @@ public:
     bool valid(){
         return is_valid;
     }
+
+	bool port_provided() {
+		return port.size() > 0;
+	}
+
     
     bool operator==(const WebSocketUrl& other){
         return other.hostname == hostname &&
@@ -198,6 +241,8 @@ private:
     std::string hostname;
     port_type port;
     std::string handshake;
+
+	trivial_resolver_results_type resolver_results;
     
     bool is_valid = false;
 };

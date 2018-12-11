@@ -23,6 +23,7 @@
 
 #include "WebSocketUrl.h"
 #include "../shared/ohlano.h"
+#include "../shared/ohlano_min.h"
 
 
 using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
@@ -35,13 +36,13 @@ namespace ohlano {
     public:
         
         
-        boost::asio::io_context& ioc;
-        boost::asio::io_context::strand _send_strand;
 
         OHLANO_NODEFAULT(BeastSession);
         OHLANO_NOCOPY(BeastSession);
         
-        ~BeastSession() { DBG("destructor called ", 5); }
+        ~BeastSession() {
+			DBG("BEAST SESSION DECTRUCTOR");
+		}
         
         bool is_online() noexcept { return session_online.load(); }
         bool blocked() noexcept { return is_blocked.load(); }
@@ -52,12 +53,12 @@ namespace ohlano {
         
         void clear_output_queue();
         
-        explicit BeastSession(boost::asio::io_context& _ioc);
+        explicit BeastSession(boost::asio::io_context& _ioc, console_stream_adapter post_adapter, console_stream_adapter error_adapter);
         
         void set_url(WebSocketUrl _url);
-        WebSocketUrl get_url();
+
+		WebSocketUrl& get_url();
         
-        void connect(std::string, std::string, std::string);
         void connect();
         void send(std::string input);
         
@@ -67,9 +68,9 @@ namespace ohlano {
         
         void disconnect();
         
-        void on_resolve(boost::system::error_code ec, tcp::resolver::results_type results, std::string, std::string);
+        void on_resolve(boost::system::error_code ec, tcp::resolver::results_type results);
         
-        void on_connect(boost::system::error_code ec, std::string, std::string);
+        void on_connect(boost::system::error_code ec);
         
         void on_handshake(boost::system::error_code ec);
         
@@ -83,21 +84,38 @@ namespace ohlano {
         
 	private:
         
+		// networking objects
         tcp::resolver resolver;
         websocket::stream<tcp::socket> ws;
         boost::beast::multi_buffer buffer;
+
+		//executors
+		boost::asio::io_context& ioc;
+		boost::asio::io_context::strand _send_strand;
+
+		//timers etc
+		boost::asio::steady_timer disconnector;
+		boost::asio::steady_timer sender_timeout;
+
+		void set_disconnect_tmt();
+
+
+		//logging
+		console_stream_adapter post;
+		console_stream_adapter error;
         
-        
-        typedef int  uint16_t ;
-        
+        //status
         std::atomic<bool> is_blocked;
         std::atomic<bool> session_online;
         
-        void online() noexcept { session_online.store(true); DBG("Stream status: online") }
-        void offline() noexcept { session_online.store(false); DBG("Stream status: offline") }
+		//status setters
+		void online() noexcept { session_online.store(true); DBG("Stream status: online"); post << "WebSocket online" << endl;  }
+		void offline() noexcept { session_online.store(false); DBG("Stream status: offline"); post << "WebSocket offline" << endl; }
         
+		//containers
         std::deque<std::string> output_queue;
-        
+		
+		//internal data
         WebSocketUrl url;
 
         

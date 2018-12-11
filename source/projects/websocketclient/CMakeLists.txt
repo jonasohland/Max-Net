@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../min-api) 	# C74 support dirs
 
+file(GLOB PROTOS "*.proto")
+
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
 # set(BOOST_ROOT "C:/boost")
@@ -23,18 +25,26 @@ include_directories("${C74_INCLUDES}")							# C74 Headers
 include_directories(${Protobuf_INCLUDE_DIRS})					# Protobuf Headers
 include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
+
 #-------------------------------------SOURCE / TARGET----------------------------------------#
 
+foreach(FILE ${PROTOS})
+	message(STATUS "generating protoc rules for: ${FILE}")
+	protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${FILE})
+	message(STATUS "Generated: ${PROTO_SRC} | ${PROTO_HDR}")
+endforeach()
+
+include_directories(${PROTO_HDR})
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
+	${PROTO_SRC}
+	${PROTO_HDR}
 	BeastSession.cpp
 	BeastSession.h
 	WebSocketClientSession.cpp
 	WebSocketClientSession.h
 	WebSocketUrl.h
-	iiwaPosition.pb.cc
-	iiwaPosition.pb.h
 	../shared/ohlano_min.h
 	../shared/ohlano.h
 )
@@ -47,7 +57,7 @@ add_library( 													# target config
 
 if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				# definition for Windows.h 
-endif(WIN32)													# (Makes Boost.Asio happy)
+endif()															# (Makes Boost.Asio happy)
 
 																
 
