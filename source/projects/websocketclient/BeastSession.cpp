@@ -10,7 +10,7 @@
 namespace ohlano {
 
 BeastSession::BeastSession(boost::asio::io_context& _ioc, console_stream_adapter post_adapter, console_stream_adapter error_adapter) : 
-	ioc(_ioc), _send_strand(_ioc), disconnector(_ioc), sender_timeout(_ioc), resolver(_ioc), ws(_ioc), is_blocked(false), session_online(false), post(post_adapter), error(error_adapter)
+	resolver(_ioc), ws(_ioc), ioc(_ioc), _send_strand(_ioc), disconnector(_ioc), sender_timeout(_ioc), post(post_adapter), error(error_adapter), is_blocked(false), session_online(false)
 {
 }
 
@@ -44,43 +44,7 @@ void BeastSession::connect() {
     }
 }
 
-void BeastSession::send(std::string input) {
-    
-    //push to output queue
-    output_queue.push_back(input);
-    
-    //if more than one task is on the queue return
-    if (output_queue.size() > 1) {
-        DBG("pushing \"", input, "\" to queue")
-        return;
-    }
-    DBG("sending: ", input)
-    //else run send command
-    boost::asio::post<boost::asio::io_context::strand>(
-                                                       _send_strand,
-                                                       std::bind(&BeastSession::send_impl, shared_from_this(), input)
-                                                       );
-}
 
-void BeastSession::send_impl(std::string input) {
-    //perform if socket is online and not blocked
-    if (is_online() && !blocked()) {
-        ws.async_write(
-                       boost::asio::buffer(input),
-                       boost::asio::bind_executor<boost::asio::io_context::strand>(_send_strand,
-                                                                                   std::bind(
-                                                                                             &BeastSession::on_write,
-                                                                                             shared_from_this(),
-                                                                                             std::placeholders::_1,
-                                                                                             std::placeholders::_2
-                                                                                             )
-                                                                                   )
-                       );
-    }
-    else {
-        DBG("This websocket client is offline")
-    }
-}
 
 void BeastSession::disconnect() {
     
@@ -121,10 +85,6 @@ void BeastSession::on_resolve(boost::system::error_code ec, tcp::resolver::resul
         DBG("connecting... ");
 
 		url.set_resolver_results(results);
-
-		post(url.has_resolver_results());
-		post << url.get_pretty_resolver_results() << endl;
-
         
         boost::asio::async_connect(
                                    ws.next_layer(),
@@ -174,9 +134,6 @@ void BeastSession::on_handshake(boost::system::error_code ec) {
     else if(!blocked()){
         
 		online();
-        
-
-
         ws.async_read(
                       buffer,
                       std::bind(
@@ -189,42 +146,6 @@ void BeastSession::on_handshake(boost::system::error_code ec) {
     } else {
         DBG("Could not start listening, because the stream is blocked")
     }
-}
-
-void BeastSession::send_next() {
-    
-    DBG("Sending next message from Queue")
-    
-    boost::asio::post<boost::asio::io_context::strand>(_send_strand, [=] () {
-        ws.async_write(
-                       boost::asio::buffer(output_queue.front()),
-                       boost::asio::bind_executor<boost::asio::io_context::strand>(_send_strand,
-                                                                                   std::bind(
-                                                                                             &BeastSession::on_write,
-                                                                                             shared_from_this(),
-                                                                                             std::placeholders::_1,
-                                                                                             std::placeholders::_2
-                                                                                             )
-                                                                                   )
-                       );
-    });
-}
-
-void BeastSession::on_write(boost::system::error_code ec, std::size_t bytes) {
-    
-    output_queue.pop_front();
-    
-    if (ec) {
-        DBG("Write Error: ", ec.message())
-    }
-    else {
-        if (!output_queue.empty() && !blocked()) {
-            send_next();
-        }
-    }
-    
-    
-    DBG("done writing ", bytes, " bytes")
 }
 
 void BeastSession::on_read(boost::system::error_code ec, std::size_t bytes) {

@@ -2,6 +2,7 @@
 #include "WebSocketUrl.h"
 #include "c74_min.h"
 #include "../shared/ohlano_min.h"
+#include <mutex>
 
 using namespace c74::min;
 using namespace std::placeholders;
@@ -18,7 +19,9 @@ public:
 	inlet<> main_inlet {this, "(anything) data in"};
 	outlet<> data_out{this, "data out"};
 	outlet<> status_out{ this, "status out" };
-
+    
+    std::mutex hello_mtx;
+    
 
     atoms set_host(const atoms& args, int inlet){ host_val = static_cast<std::string>(args[0]); return args; }
 
@@ -106,7 +109,7 @@ public:
 
 	message<> status { this, "status", "report current status", min_wrap_member(&websocketclient::report_status) };
 
-	message<> hello { this, "hello", "send hello message", min_wrap_member(&websocketclient::send_hello) };
+	message<threadsafe::yes> hello { this, "hello", "send hello message", min_wrap_member(&websocketclient::send_hello) };
 
 
 private:

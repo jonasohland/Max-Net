@@ -8,14 +8,19 @@
 
 
 namespace ohlano {
+    
+    
 
 	class console_stream_adapter {
 	public:
 
-
+    
 		console_stream_adapter() = delete;
 
 		class endl_type {};
+        
+        static endl_type endl;
+        
 		typedef std::function<void(std::string)> handler_function_type;
 
 		console_stream_adapter(handler_function_type handler, bool _space_separated = false, std::string _separator_char = std::string("")) {
@@ -84,11 +89,10 @@ namespace ohlano {
 		template<typename C, typename ...T>
 		void operator()(C&& current, T&& ...rest) {
 			*this << std::forward<C>(current);
-			this->operator(rest);
+            (*this)(rest...);
 		}
 
 	private:
-
 
 		handler_function_type string_handler;
 
@@ -97,11 +101,10 @@ namespace ohlano {
 		bool space_separator;
 	};
 
-	static console_stream_adapter::endl_type endl;
-
-
 	template<typename F, typename T>
 	std::enable_if_t<std::is_bind_expression<T>::value, std::function<F>> make_func(T&& bind_expr){
 		return std::function<F>(std::forward<T>(bind_expr));
 	}
+    
+    static console_stream_adapter::endl_type endl;
 }

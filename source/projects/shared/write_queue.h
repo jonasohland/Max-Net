@@ -2,8 +2,12 @@
 
 #include <deque>
 #include <mutex>
+#include <chrono>
 #include <type_traits>
+#include "../shared/ohlano.h"
 #include <boost/asio/io_context.hpp>
+#include <boost/asio/bind_executor.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/beast/core/type_traits.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -19,8 +23,8 @@ public:
 
 
 	write_queue() = delete;
-
-	write_queue(StreamType* stream): ctx_(stream->get_executor()) {
+    
+    write_queue(StreamType* stream): exec_(stream->get_executor()), strand_(exec_.context()) {
 		stream_ = stream;
 	}
 
@@ -28,15 +32,15 @@ public:
 
 		std::unique_lock<std::mutex>{queue_mtx_};
 
-		Message* new_msg = new Message();
-
-		std::swap(msg, *new_msg);
-
-		msg_queue.push_back(new_msg);
-
-		if (msg_queue.size() == 1) {
-			perform_write(new_msg);
-		}
+		msg_queue.push_back(msg);
+        DBG("Msg pushed to queue, queue size: ", msg_queue.size());
+        
+		if (msg_queue.size() < 2) {
+            DBG("Performing write operation...");
+			perform_write(msg);
+        } else {
+            DBG("Write already in progress");
+        }
 	}
 
 	void purge() {
@@ -47,43 +51,45 @@ public:
 
 private:
 
-	void perform_write(Message* msg) {
-		stream_->async_write(
-			boost::asio::buffer(msg->data(), msg->size()),
-			std::bind(&write_queue::write_complete_handler,
-				this,
-				std::placeholders::_1,
-				std::placeholders::_2
-			)
-		);
+	void perform_write(Message& msg) {
+        stream_->async_write(
+            boost::asio::buffer(msg.data(), msg.size()),
+            boost::asio::bind_executor(
+                   strand_,
+                   std::bind(&write_queue::write_complete_handler,
+                             this,
+                             std::placeholders::_1,
+                             std::placeholders::_2
+                 )
+            )
+        );
 	}
 
 
 	void write_complete_handler(boost::system::error_code ec, std::size_t bytes) {
-		std::unique_lock<std::mutex>{queue_mtx_};
-		
-		delete msg_queue.front();
-		msg_queue.pop_front();
-		
-		perform_next_write();
-	
-	}
+        
+        std::unique_lock<std::mutex>{queue_mtx_};
 
-
-	void perform_next_write() {
-		std::unique_lock<std::mutex>{queue_mtx_};
-
-		if (msg_queue.size() > 0) {
-			perform_write(msg_queue.front());
-		}
+        msg_queue.pop_front();
+        
+        DBG("popped one element from queue front");
+        
+        if (msg_queue.size() > 0) {
+            perform_write(msg_queue.front());
+            DBG("Performing write to clear queue, queue size: ", msg_queue.size());
+        } else {
+            DBG("no more elements in queue");
+        }
 	}
 
 	std::mutex queue_mtx_;
 
 	StreamType* stream_;
-	boost::asio::io_context::executor_type& ctx_;
+	boost::asio::io_context::executor_type exec_;
+    boost::asio::io_context::strand strand_;
+    boost::asio::steady_timer wait_timer{exec_.context()};
 
-	std::deque<Message*> msg_queue;
+	std::deque<Message> msg_queue;
 
 };
 }
