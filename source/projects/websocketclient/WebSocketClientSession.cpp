@@ -60,6 +60,12 @@ void WebSocketClientSession::disconnect() {
 	session->clear_output_queue();
 }
 
+void WebSocketClientSession::send(std::string msg) {
+	if (session) {
+		session->send_queue(msg);
+	}
+}
+
 bool WebSocketClientSession::setUrl(WebSocketUrl _url){
 	url = _url;
     return true;

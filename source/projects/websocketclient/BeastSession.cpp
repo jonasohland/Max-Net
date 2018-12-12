@@ -14,6 +14,10 @@ BeastSession::BeastSession(boost::asio::io_context& _ioc, console_stream_adapter
 {
 }
 
+void BeastSession::send_queue(std::string msg) {
+	out_queue.submit(msg);
+}
+
 void BeastSession::connect() {
     
     //connect if socket is offline and not blocked
@@ -236,10 +240,10 @@ void BeastSession::on_read(boost::system::error_code ec, std::size_t bytes) {
         offline();
     }
     else {
-
-        DBG("received ", bytes, " bytes of data: ", boost::beast::buffers_to_string(buffer.data()));
         
         buffer.consume(bytes);
+
+		post << "received:" << boost::beast::buffers_to_string(buffer.data()) << "bytes:" << bytes << endl;
         
         ws.async_read(
                       buffer,

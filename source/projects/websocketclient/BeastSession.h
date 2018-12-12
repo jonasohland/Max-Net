@@ -22,6 +22,7 @@
 #include <deque>
 
 #include "WebSocketUrl.h"
+#include "../shared/write_queue.h"
 #include "../shared/ohlano.h"
 #include "../shared/ohlano_min.h"
 
@@ -48,6 +49,8 @@ namespace ohlano {
         bool blocked() noexcept { return is_blocked.load(); }
         void block() noexcept { is_blocked.store(true); DBG("Stream is blocked now"); }
         void unblock() noexcept { is_blocked.store(false); DBG("Stream is free now"); }
+
+		void send_queue(std::string msg);
         
         void cancel_socket();
         
@@ -87,7 +90,9 @@ namespace ohlano {
 		// networking objects
         tcp::resolver resolver;
         websocket::stream<tcp::socket> ws;
-        boost::beast::multi_buffer buffer;
+		boost::beast::multi_buffer buffer;
+
+		write_queue<std::string, websocket::stream<tcp::socket>> out_queue{&ws};
 
 		//executors
 		boost::asio::io_context& ioc;

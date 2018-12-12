@@ -117,7 +117,7 @@ namespace ohlano {
         
         bool setUrl(WebSocketUrl url);
         
-        
+		void send(std::string msg);
 
         void report_status();
 

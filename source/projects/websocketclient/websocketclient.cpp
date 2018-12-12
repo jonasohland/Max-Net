@@ -98,7 +98,15 @@ public:
 		return args;
 	}
 
+	atoms send_hello(const atoms& args, int inlet) {
+		session.send("hello");
+		return args;
+	}
+
+
 	message<> status { this, "status", "report current status", min_wrap_member(&websocketclient::report_status) };
+
+	message<> hello { this, "hello", "send hello message", min_wrap_member(&websocketclient::send_hello) };
 
 
 private:
