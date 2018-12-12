@@ -1,1 +1,0 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -g -arch x86_64 -dynamiclib -Wl,-headerpad_max_install_names  -o ../../../../../tests/libmock_kernel.dylib -install_name @rpath/libmock_kernel.dylib CMakeFiles/mock_kernel.dir/c74_mock.cpp.o 
