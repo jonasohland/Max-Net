@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="mock_kernel"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\source\;CMake Files\source\min-api\;CMake Files\source\min-api\script\;CMake Files\source\min-api\max-api\;CMake Files\source\min-api\max-api\script\;CMake Files\source\min-api\doc\;CMake Files\source\min-api\test\;CMake Files\source\min-api\test\mock\;CMake Files\source\projects\;CMake Files\source\projects\websocketclient\;CMake Files\.git\;CMake Files\.git\refs\;CMake Files\.git\refs\heads\;CMake Files\.git\modules\;CMake Files\.git\modules\source\;CMake Files\.git\modules\source\min-api\;CMake Files\.git\modules\source\min-api\refs\;CMake Files\.git\modules\source\min-api\refs\heads\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mock_kernel">
+				<Option output="/Users/jonasohland/hsmainz/max-websockets/tests/libmock_kernel.dylib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/../../../min-api/max-api/include"/>
+					<Add directory="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/."/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 mock_kernel"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mock_kernel/fast">
+				<Option output="/Users/jonasohland/hsmainz/max-websockets/tests/libmock_kernel.dylib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/../../../min-api/max-api/include"/>
+					<Add directory="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/."/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 mock_kernel/fast"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/c74_mock.cpp">
+			<Option target="mock_kernel"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/c74_mock.h">
+			<Option target="mock_kernel"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\source\min-api\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/script/min-package.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/script/min-posttarget.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/script/min-pretarget.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/GetGitRevisionDescription.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/GetGitRevisionDescription.cmake.in">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/Info.plist.in">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/git-rev.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/max-package.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/max-posttarget.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/max-api/script/max-pretarget.cmake">
+			<Option virtualFolder="CMake Files\source\min-api\max-api\script\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/doc/doxyfile.in">
+			<Option virtualFolder="CMake Files\source\min-api\doc\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/min-api/test/mock/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\source\min-api\test\mock\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/source/projects/websocketclient/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\source\projects\websocketclient\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/.git/HEAD">
+			<Option virtualFolder="CMake Files\.git\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/.git/refs/heads/master">
+			<Option virtualFolder="CMake Files\.git\refs\heads\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/.git/modules/source/min-api/HEAD">
+			<Option virtualFolder="CMake Files\.git\modules\source\min-api\"/>
+		</Unit>
+		<Unit filename="/Users/jonasohland/hsmainz/max-websockets/.git/modules/source/min-api/refs/heads/master">
+			<Option virtualFolder="CMake Files\.git\modules\source\min-api\refs\heads\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

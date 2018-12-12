@@ -1,0 +1,12 @@
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/CMakeFiles/rebuild_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/CMakeFiles/edit_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/CMakeFiles/doc.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/CMakeFiles/API.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/CMakeFiles/rebuild_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/CMakeFiles/edit_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/min-api/test/mock/CMakeFiles/mock_kernel.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/projects/websocketclient/CMakeFiles/rebuild_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/projects/websocketclient/CMakeFiles/edit_cache.dir
+/Users/jonasohland/hsmainz/max-websockets/cmake-build-debug/source/projects/websocketclient/CMakeFiles/websocketclient.dir
