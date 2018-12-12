@@ -43,7 +43,7 @@ set( SOURCE_FILES												# Project source files
 	WebSocketClientSession.cpp
 	WebSocketClientSession.h
 	WebSocketUrl.h
-	connection.h
+	../shared/connection.h
 	../shared/write_queue.h
 	../shared/ohlano_min.h
 	../shared/ohlano.h
