@@ -10,6 +10,8 @@ extensions
 support
 build
 tests
+cmake-buil-debug
+.idea
 *.o
 *.dylib
 *.bat
