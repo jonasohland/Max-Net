@@ -1,9 +1,10 @@
 #pragma once
 
 #include "BeastSession.h"
-#include "WebSocketUrl.h"
+#include "../shared/net_url.h"
 #include "../shared/ohlano.h"
 #include "../shared/ohlano_min.h"
+#include "../shared/multi_resolver.h"
 
 #include <boost/asio/basic_waitable_timer.hpp>
 #include <chrono>
@@ -95,7 +96,9 @@ namespace ohlano {
 		console_stream_adapter post;
 		console_stream_adapter error;
 
-        WebSocketUrl url;
+        net_url<> url;
+        
+        multi_resolver<boost::asio::ip::tcp> res;
         
 		de::hsmainz::iiwa::messages::protocolbuffers::States::Frame frame;
         
@@ -115,7 +118,7 @@ namespace ohlano {
         void disconnect();
         void connect();
         
-        bool setUrl(WebSocketUrl url);
+        bool setUrl(net_url<> url);
         
 		void send(std::string msg);
 

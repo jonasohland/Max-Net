@@ -42,9 +42,10 @@ set( SOURCE_FILES												# Project source files
 	BeastSession.h
 	WebSocketClientSession.cpp
 	WebSocketClientSession.h
-	WebSocketUrl.h
+	../shared/net_url.h
 	../shared/connection.h
 	../shared/write_queue.h
+	../shared/multi_resolver.h
 	../shared/ohlano_min.h
 	../shared/ohlano.h
 )

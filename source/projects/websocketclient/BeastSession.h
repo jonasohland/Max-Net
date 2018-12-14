@@ -21,7 +21,7 @@
 #include <atomic>
 #include <deque>
 
-#include "WebSocketUrl.h"
+#include "../shared/net_url.h"
 #include "../shared/write_queue.h"
 #include "../shared/ohlano.h"
 #include "../shared/ohlano_min.h"
@@ -58,9 +58,9 @@ namespace ohlano {
         
         explicit BeastSession(boost::asio::io_context& _ioc, console_stream_adapter post_adapter, console_stream_adapter error_adapter);
         
-        void set_url(WebSocketUrl _url);
+        void set_url(net_url<> _url);
 
-		WebSocketUrl& get_url();
+		net_url<>& get_url();
         
         void connect();
         void send(std::string input);
@@ -121,7 +121,7 @@ namespace ohlano {
         std::deque<std::string> output_queue;
 		
 		//internal data
-        WebSocketUrl url;
+        net_url<> url;
 
         
     };

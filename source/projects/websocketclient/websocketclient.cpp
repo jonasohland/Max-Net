@@ -1,7 +1,8 @@
 #include "WebSocketClientSession.h"
-#include "WebSocketUrl.h"
+#include "../shared/net_url.h"
 #include "c74_min.h"
 #include "../shared/ohlano_min.h"
+#include "../shared/connection.h"
 #include <mutex>
 
 using namespace c74::min;
@@ -45,9 +46,9 @@ public:
 	
 	explicit websocketclient(const atoms& args = {}) {
 
-		WebSocketUrl::error_code ec;
-		WebSocketUrl url;
-		WebSocketUrl t_url;
+		net_url<>::error_code ec;
+		net_url<> url;
+		net_url<> t_url;
 
 		if (args.size() > 0) {
 
@@ -56,12 +57,12 @@ public:
 				switch (arg.a_type) {
 				case c74::max::e_max_atomtypes::A_SYM:
 
-					t_url = WebSocketUrl::from_string(arg, ec);
+					t_url = net_url<>(arg, ec);
 
-					if (ec != WebSocketUrl::error_code::SUCCESS)
+					if (ec != net_url<>::error_code::SUCCESS)
 						cerr << "symbol argument could not be decoded to an url" << endl;
 
-					if (url.port_provided() && t_url.port_provided()) {
+					if (url.has_port() && t_url.has_port()) {
 						cerr << "Found multiple port arguments!" << endl;
 					}
 
@@ -73,7 +74,7 @@ public:
 					cerr << "float not supported as argument" << endl;
 					break;
 				case c74::max::e_max_atomtypes::A_LONG:
-					if (!url.port_provided()) { url.set_port(arg); }
+					if (!url.has_port()) { url.set_port(arg); }
 					else { cerr << "Found multiple port arguments!" << endl; }
 					break;
 				default:
@@ -83,9 +84,9 @@ public:
 
 			}
 
-			if (url.valid()) {
-				session.setUrl(url);
-				session.connect();
+			if (url) {
+				//session.setUrl(url);
+				//session.connect();
 			}
 			else {
 				cout << "no valid websocket address provided" << endl;
@@ -117,6 +118,7 @@ private:
 	ohlano::console_stream_adapter console_adapter{ [this](std::string str) { cout << str << endl; }, true};
 	ohlano::console_stream_adapter console_error_adapter{ [this](std::string str) { cerr << str << endl; }, true };
 	
+    
  
 	ohlano::WebSocketClientSession session{ 
 		console_adapter, 

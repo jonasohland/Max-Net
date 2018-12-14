@@ -2,7 +2,7 @@
 
 namespace ohlano {
 
-WebSocketClientSession::WebSocketClientSession(console_stream_adapter cout_, console_stream_adapter cerr_) : post(cout_), error(cerr_){
+WebSocketClientSession::WebSocketClientSession(console_stream_adapter cout_, console_stream_adapter cerr_) : post(cout_), error(cerr_), res(ioc){
 
     ioc.stop();
 
@@ -66,7 +66,7 @@ void WebSocketClientSession::send(std::string msg) {
 	}
 }
 
-bool WebSocketClientSession::setUrl(WebSocketUrl _url){
+bool WebSocketClientSession::setUrl(net_url<> _url){
 	url = _url;
     return true;
 }
@@ -77,7 +77,7 @@ void WebSocketClientSession::report_status(){
 
 	if (session) {
 		
-		post << ((session->is_online()) ? "online" : "offline") << "host:" << url.get_host() << "port:" << url.get_port() << endl;
+		post << ((session->is_online()) ? "online" : "offline") << "host:" << url.host() << "port:" << url.port() << endl;
 
 		if (session->get_url().has_resolver_results())
 			post << "Address Info:" << session->get_url().get_pretty_resolver_results() << endl;

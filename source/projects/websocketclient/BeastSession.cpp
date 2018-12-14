@@ -24,11 +24,11 @@ void BeastSession::connect() {
     if(url.valid()){
         if (!is_online() && !blocked()) {
 
-			post << "Connecting to:" << url.get_host() << "port:" << url.get_port() << endl;
+			post << "Connecting to:" << url.host() << "port:" << url.port() << endl;
 
-            DBG("Resolving Host: ", url.get_host(), ", Port: ", url.get_port());
+            DBG("Resolving Host: ", url.host(), ", Port: ", url.port());
             resolver.async_resolve(
-                                   url.get_host(), url.get_port(), std::bind(
+                                   url.host(), url.port(), std::bind(
                                                             &BeastSession::on_resolve,
                                                             shared_from_this(),
                                                             std::placeholders::_1,
@@ -104,14 +104,14 @@ void BeastSession::on_connect(boost::system::error_code ec) {
     if (ec) {
         offline();
 		DBG("Connection error: ", ec.message());
-		error << "Could not connect to:" << url.get_host() << endl;
+		error << "Could not connect to:" << url.host() << endl;
 		ioc.stop();
     }
     else if(!blocked()){
         
         DBG("performing handshake... ");
         
-        ws.async_handshake(url.get_host(), url.get_handshake(),
+        ws.async_handshake(url.host(), url.path(),
                            std::bind(
                                      &BeastSession::on_handshake,
                                      shared_from_this(),
@@ -236,11 +236,11 @@ void BeastSession::clear_output_queue() {
 /* data management */
 
 
-void BeastSession::set_url(WebSocketUrl _url) {
+void BeastSession::set_url(net_url<> _url) {
 	url = _url;
 }
 
-WebSocketUrl& BeastSession::get_url() {
+net_url<>& BeastSession::get_url() {
 	return url;
 }
 
