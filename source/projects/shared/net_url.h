@@ -36,6 +36,8 @@ public:
     typedef std::string port_type;
     typedef std::string hostname_type;
     typedef std::string path_type;
+
+	typedef typename std::vector<typename ProtocolType::endpoint> endpoint_sequence_type;
     
     typedef net_url<boost::asio::ip::tcp, websocket_decoder_template> websocket_url;
     
@@ -47,10 +49,10 @@ public:
     typedef typename boost::asio::ip::basic_resolver<ProtocolType>::results_type resolver_results_type;
 
     net_url* operator=(const net_url& other){
-        resolver_results = resolver_results_type(other.resolver_results);
         hostname_ = hostname_type(other.hostname_);
         port_ = port_type(other.port_);
         path_ = path_type(other.path_);
+		endpoint_seq = endpoint_sequence_type(other.endpoint_seq);
         return this;
     }
     
@@ -58,7 +60,7 @@ public:
         hostname_(other.hostname_),
         port_(other.port_),
         path_(other.path_),
-        resolver_results(other.resolver_results)
+		endpoint_seq(other.endpoint_seq)
     {
     }
     
@@ -87,7 +89,7 @@ public:
             if(port_pos != std::string::npos){
                 DBG("found host:port combination");
                 
-                hostname_ = (*token_it).substr(0, port_pos);
+				hostname_ = (*token_it).substr(0, port_pos);
 
                 port_ = (*token_it).substr(port_pos + 1);
                 
@@ -124,6 +126,9 @@ public:
             path_ = UrlTemplate::url_separator_char;
         }
         
+		if (is_ip()) {
+			endpoint_seq = endpoint_seq_from_string(host(), port_int());
+		}
         
         ec = error_code::SUCCESS;
     }
@@ -186,20 +191,32 @@ public:
 		
     }
 
-	void set_resolver_results(resolver_results_type&& results) {
-
+	short port_int(bool default = true) {
+		if (has_port()) {
+			return std::stoi(port());
+		}
+		else {
+			if (default) {
+				return std::stoi(UrlTemplate::std_port);
+			}
+			else {
+				return 0;
+			}
+		}
 	}
-    
+
+	endpoint_sequence_type endpoints() {
+		return endpoint_seq;
+	}
+
     void set_resolver_results(const resolver_results_type& results) {
-        
+		endpoint_seq.clear();
+		std::copy(results.begin(), results.end(), std::back_inserter(endpoint_seq));
+		endpoint_seq.shrink_to_fit();
     }
 
-	resolver_results_type get_resolver_results() {
-		return resolver_results;
-	}
-
-	bool has_resolver_results() {
-        return !resolver_results.empty();
+	bool is_resolved() {
+        return !endpoint_seq.empty();
 	}
 
 	std::string get_pretty_resolver_results() {
@@ -214,12 +231,16 @@ public:
         port_.clear();
         hostname_.clear();
         path_.clear();
+		endpoint_seq.clear();
     }
     
     
 
 	bool has_port() {
-		return port_.size() > 0;
+		if (is_number(port_)) {
+			return port_.size() > 0 && std::stoi(port_) <= 65535;
+		}
+		else return false;
 	}
     
     bool is_ip(){
@@ -260,12 +281,16 @@ private:
 		return !s.empty() && std::find_if(s.begin(),
 			s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 	}
+
+	endpoint_sequence_type endpoint_seq_from_string(std::string& str, short port) {
+		return { ProtocolType::endpoint(boost::asio::ip::address::from_string(str), port) };
+	}
     
     hostname_type hostname_;
     port_type port_;
     path_type path_;
 
-    resolver_results_type resolver_results;
+	endpoint_sequence_type endpoint_seq;
     
 };
 

@@ -29,14 +29,29 @@
 
 	<methodlist>
 
-		<method name='hello'>
-			<digest>send hello message </digest>
-			<description>send hello message </description>
+		<method name='host'>
+			<digest>set host </digest>
+			<description>set host </description>
 		</method>
 
 		<method name='status'>
-			<digest>report current status </digest>
-			<description>report current status </description>
+			<digest>report status </digest>
+			<description>report status </description>
+		</method>
+
+		<method name='port'>
+			<digest>set port </digest>
+			<description>set port </description>
+		</method>
+
+		<method name='connect'>
+			<digest>connect websocket </digest>
+			<description>connect websocket </description>
+		</method>
+
+		<method name='hello'>
+			<digest>send hello message </digest>
+			<description>send hello message </description>
 		</method>
 
 	</methodlist>
@@ -46,14 +61,14 @@
 
 	<attributelist>
 
-		<attribute name='host' get='1' set='1' type='symbol' size='1' >
-			<digest></digest>
-			<description></description>
-		</attribute>
-
 		<attribute name='port' get='1' set='1' type='float64' size='1' >
 			<digest>remote port to connect to </digest>
 			<description>remote port to connect to </description>
+		</attribute>
+
+		<attribute name='host' get='1' set='1' type='symbol' size='1' >
+			<digest></digest>
+			<description></description>
 		</attribute>
 
 	</attributelist>

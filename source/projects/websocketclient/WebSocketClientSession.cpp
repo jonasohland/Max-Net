@@ -79,8 +79,6 @@ void WebSocketClientSession::report_status(){
 		
 		post << ((session->is_online()) ? "online" : "offline") << "host:" << url.host() << "port:" << url.port() << endl;
 
-		if (session->get_url().has_resolver_results())
-			post << "Address Info:" << session->get_url().get_pretty_resolver_results() << endl;
 
 	}
 	
