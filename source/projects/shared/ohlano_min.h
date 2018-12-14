@@ -100,11 +100,13 @@ namespace ohlano {
 		std::string separator_char;
 		bool space_separator;
 	};
+    
+    static console_stream_adapter::endl_type endl = console_stream_adapter::endl_type();
 
 	template<typename F, typename T>
 	std::enable_if_t<std::is_bind_expression<T>::value, std::function<F>> make_func(T&& bind_expr){
 		return std::function<F>(std::forward<T>(bind_expr));
 	}
     
-    static console_stream_adapter::endl_type endl;
+    
 }
