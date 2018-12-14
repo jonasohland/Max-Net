@@ -191,12 +191,12 @@ public:
 		
     }
 
-	short port_int(bool default = true) {
+	short port_int(bool default_ = true) {
 		if (has_port()) {
 			return std::stoi(port());
 		}
 		else {
-			if (default) {
+			if (default_) {
 				return std::stoi(UrlTemplate::std_port);
 			}
 			else {
@@ -282,8 +282,8 @@ private:
 			s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 	}
 
-	endpoint_sequence_type endpoint_seq_from_string(std::string& str, short port) {
-		return { ProtocolType::endpoint(boost::asio::ip::address::from_string(str), port) };
+	endpoint_sequence_type endpoint_seq_from_string(std::string str, short port) {
+		return { typename ProtocolType::endpoint(boost::asio::ip::address::from_string(str), port) };
 	}
     
     hostname_type hostname_;
