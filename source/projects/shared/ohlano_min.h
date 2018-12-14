@@ -9,17 +9,15 @@
 
 namespace ohlano {
     
-    
+	class console_stream_adapter_endl_marker {};
+
+	static console_stream_adapter_endl_marker endl;
 
 	class console_stream_adapter {
 	public:
 
     
 		console_stream_adapter() = delete;
-
-		class endl_type {};
-        
-        static endl_type endl;
         
 		typedef std::function<void(std::string)> handler_function_type;
 
@@ -68,7 +66,7 @@ namespace ohlano {
 			return *this;
 		}
 
-		console_stream_adapter& operator<<(endl_type x) {
+		console_stream_adapter& operator<<(console_stream_adapter_endl_marker x) {
 
 			std::string out = sstr.str();
 
@@ -101,7 +99,7 @@ namespace ohlano {
 		bool space_separator;
 	};
     
-    static console_stream_adapter::endl_type endl = console_stream_adapter::endl_type();
+    // static console_stream_adapter::endl_type endl = console_stream_adapter::endl_type();
 
 	template<typename F, typename T>
 	std::enable_if_t<std::is_bind_expression<T>::value, std::function<F>> make_func(T&& bind_expr){
