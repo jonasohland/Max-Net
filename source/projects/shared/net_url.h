@@ -243,15 +243,6 @@ public:
 		else return false;
 	}
     
-    bool is_ip(){
-        try {
-            boost::asio::ip::make_address_v4(host());
-            return true;
-        } catch(...){
-            return false;
-        }
-    }
-    
     bool operator==(const net_url& other){
         return other.hostname_ == hostname_ &&
         other.port_ == port_ &&
@@ -280,6 +271,16 @@ private:
 	bool is_number(const std::string& s) const {
 		return !s.empty() && std::find_if(s.begin(),
 			s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+	}
+
+	bool is_ip() {
+		try {
+			boost::asio::ip::make_address_v4(host());
+			return true;
+		}
+		catch (...) {
+			return false;
+		}
 	}
 
 	endpoint_sequence_type endpoint_seq_from_string(std::string str, short port) {

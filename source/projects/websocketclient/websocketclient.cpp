@@ -2,6 +2,7 @@
 #include "../shared/net_url.h"
 #include "../shared/write_queue.h"
 #include "../shared/multi_resolver.h"
+#include "../shared/connection.h"
 #include "../shared/ohlano_min.h"
 #include "../shared/connection.h"
 #include "c74_min.h"
@@ -32,7 +33,7 @@ public:
 	ohlano::state_relevant_value<long> port_val { std::bind(&websocketclient::changed_port, this, _1) };
     ohlano::state_relevant_value<std::string> host_val { std::bind(&websocketclient::changed_host, this, _1) };
 
-	attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+	attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
@@ -98,32 +99,74 @@ public:
 					cout << "finished running io service thread" << endl;
 				});
 
-				if (!url.is_resolved()) {
+				make_connection(url);
 
-					cout << "resolving host: " << url.host() << endl;
-
-					resolver.resolve(url, [this](boost::system::error_code ec, net_url<> _url) {
-						if (!ec.failed()) {
-							for (auto& endpoint : _url.endpoints()) {
-								cout << "result: ip: " << endpoint.address().to_string() << " port: " << endpoint.port() << endl;
-							}
-						}
-						else {
-							cerr << "resolve failed: " << ec.message() << endl;
-						}
-					});
-				}
 			}
 			else {
 				cout << "no valid websocket address provided" << endl;
 			}
 		}
 		else {
-		
+		// nop
 		}
 	}
 
+	void make_connection(net_url<> url) {
+
+		if (!url.is_resolved()) {
+
+			cout << "resolving " << url.host() << endl;
+
+			resolver.resolve(url, [this](boost::system::error_code ec, net_url<> _url) {
+				if (!ec.failed()) {
+					for (auto& endpoint : _url.endpoints()) {
+						cout << "result: " << endpoint.address().to_string() << ":" << endpoint.port() << endl;
+					}
+					cout << "connecting..." << endl;
+					connection_ = std::make_shared<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>>(_url, io_context_);
+					perform_connect();
+				}
+				else {
+					cerr << "resolving failed: " << ec.message() << endl;
+				}
+			});
+		}
+		else {
+			cout << "connecting..." << endl;
+			connection_ = std::make_shared<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>>(url, io_context_);
+			io_context_.post([=]() { perform_connect(); });
+		}
+	}
+
+	void perform_connect() {
+		if (connection_) {
+			connection_->connect([=](boost::system::error_code ec) {
+				if (!ec.failed()) {
+					cout << "conection established" << endl;
+					begin_read();
+				}
+				else {
+					cerr << "connection error: " << ec.message() << endl;
+				}
+			});
+		}
+	}
+
+	void begin_read() {
+		if (connection_) {
+			connection_->begin_read([=](std::string mess, size_t bytes_transferred) {
+				cout << "received: " << mess << endl;
+			});
+		}
+	}
+
+
 	~websocketclient(){
+
+		if (connection_) {
+			connection_->close();
+		}
+
 		if (work.owns_work()) {
 			work.reset();
 		}
@@ -136,10 +179,16 @@ public:
 	}
 
 	atoms report_status(const atoms& args, int inlet) {
+		if (connection_) { status_out.send(connection_->status_string()); }
+		else { status_out.send("offline"); }
 		return args;
 	}
 
 	atoms send_hello(const atoms& args, int inlet) {
+		if (connection_) {
+			auto mess = std::string("hellooooo!!!!!");
+			connection_->wq().submit(mess);
+		}
 		return args;
 	}
 
@@ -175,9 +224,7 @@ private:
 	/** This object is responsible for resolving hostnames to ip addresses */
 	multi_resolver<boost::asio::ip::tcp> resolver{ io_context_ };
 
-	boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws_stream{ io_context_ };
-
-	ohlano::write_queue<std::string, boost::beast::websocket::stream<boost::asio::ip::tcp::socket>> output_writer{ &ws_stream };
+	std::shared_ptr<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>> connection_;
 
 	std::shared_ptr<std::thread> client_thread_ptr;
 

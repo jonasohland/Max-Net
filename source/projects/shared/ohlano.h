@@ -76,6 +76,19 @@ namespace ohlano{
 #endif
 }
 
+#ifdef _MSC_VER
+#ifdef _DEBUG
+#define DBG(...) ohlano::log(__VA_ARGS__);
+#else
+#define DBG(...) ;
+#endif
+
+#ifdef _DEBUG
+#define LOG(...) std::cout << __FILE__ << " " << __LINE__ << ": "; ohlano::log(__VA_ARGS__);
+#else
+#define LOG(...) ;
+#endif
+#else
 #ifdef DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
 #else
@@ -87,6 +100,9 @@ namespace ohlano{
 #else
 #define LOG(...) ;
 #endif
+#endif
+
+
 
 #define DISABLE_DBG \
     _Pragma("push_macro(\"DBG\")")

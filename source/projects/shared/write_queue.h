@@ -30,7 +30,7 @@ public:
 
 	void submit(Message& msg) {
 
-		std::unique_lock<std::mutex>{queue_mtx_};
+		std::unique_lock<std::mutex> lock{queue_mtx_};
 
 		msg_queue.push_back(msg);
         DBG("Msg pushed to queue, queue size: ", msg_queue.size());
@@ -44,7 +44,7 @@ public:
 	}
 
 	void purge() {
-		std::unique_lock<std::mutex>{queue_mtx_};
+		std::unique_lock<std::mutex> lock{queue_mtx_};
 		msg_queue.clear();
 	}
 
@@ -68,7 +68,7 @@ private:
 
 	void write_complete_handler(boost::system::error_code ec, std::size_t bytes) {
         
-        std::unique_lock<std::mutex>{queue_mtx_};
+        std::unique_lock<std::mutex> lock{queue_mtx_};
 
         msg_queue.pop_front();
         
