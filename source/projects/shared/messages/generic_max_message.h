@@ -6,27 +6,59 @@
 #include "../../../build/source/projects/websocketclient/generic_max.pb.h"
 
 namespace ohlano {
-	class generic_max_message {
+    
+    template<typename Proto>
+	class basic_proto_message {
+        
 	public:
-		generic_max* max_msg;
+        
+        basic_proto_message()
+        {}
 
-		static google::protobuf::Arena arena;
-
-		generic_max_message(){}
+        basic_proto_message(basic_proto_message&& other): msg_(std::forward<Proto>(other.msg_))
+        {}
+        
+        basic_proto_message(const basic_proto_message& other): msg_(other.msg_)
+        {}
+        
+        Proto& msg() {
+            return msg_;
+        }
 
 		template<class ConstBufferSequence>
-		generic_max_message(ConstBufferSequence const& seq) {
-			max_msg->ParseFromArray(static_cast<void*>(boost::asio::buffers_begin(seq)), boost::asio::buffer_size(seq));
-		}
-
-		generic_max_message(c74::min::atoms const& _atoms) {
-
+		basic_proto_message(ConstBufferSequence const& seq) {
+			msg().ParseFromArray(static_cast<void*>(boost::asio::buffers_begin(seq)), boost::asio::buffer_size(seq));
 		}
 
 		template<typename ConstBufferSequence>
-		static generic_max_message from_buffer_sequence(ConstBufferSequence const& buffers) {
-			return generic_max_message(buffers);
+		static basic_proto_message from_buffer_sequence(ConstBufferSequence const& buffers) {
+			return basic_proto_message(buffers);
 		}
-
+        
+        void* data(){
+            return nullptr;
+        }
+        
+        size_t size(){
+            return 0;
+        }
+        
+        virtual ~basic_proto_message(){
+        }
+        
+    protected:
+        Proto msg_;
 	};
+    
+    class generic_max_message : public basic_proto_message<generic_max> {
+        
+    public:
+        
+        generic_max_message(){}
+        
+        generic_max_message(const c74::min::atoms& _atoms){
+            
+        }
+        
+    };
 }

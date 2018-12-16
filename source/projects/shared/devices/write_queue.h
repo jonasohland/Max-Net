@@ -28,7 +28,7 @@ public:
 		stream_ = stream;
 	}
 
-	void submit(Message& msg) {
+	void submit(const Message& msg) {
 
 		std::unique_lock<std::mutex> lock{queue_mtx_};
 
@@ -51,7 +51,7 @@ public:
 
 private:
 
-	void perform_write(Message& msg) {
+	void perform_write(const Message& msg) {
         stream_->async_write(
             boost::asio::buffer(msg.data(), msg.size()),
             boost::asio::bind_executor(

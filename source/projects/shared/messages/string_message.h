@@ -18,11 +18,19 @@ namespace ohlano {
 		string_message(string_message&& other) : mess(std::move(other.mess)) {}
 
 		string_message(const string_message& other) : mess(other.mess) {}
-
+        
 		string_message* operator=(const string_message& other) {
 			mess = other.mess;
             return this;
 		}
+        
+        bool operator==(const string_message& other){
+            return mess == other.mess;
+        }
+        
+        bool operator!=(const string_message& other){
+            return !(mess == other.mess);
+        }
 
 		template<typename ConstBufferSequence>
 		static string_message from_const_buffer(ConstBufferSequence const& seq) {

@@ -13,7 +13,7 @@
 
 namespace ohlano {
 
-	template<typename StreamType, typename MessageType = string_message>
+    template<typename StreamType, typename MessageType = string_message>
 	class connection {
 	public:
 
