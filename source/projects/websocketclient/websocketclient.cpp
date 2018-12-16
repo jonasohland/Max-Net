@@ -34,7 +34,7 @@ public:
 	ohlano::state_relevant_value<long> port_val { std::bind(&websocketclient::changed_port, this, _1) };
     ohlano::state_relevant_value<std::string> host_val { std::bind(&websocketclient::changed_host, this, _1) };
 
-	attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+	attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
@@ -187,8 +187,8 @@ public:
 
 	atoms send_hello(const atoms& args, int inlet) {
 		if (connection_) {
-			auto mess = std::string("hellooooo!!!!!");
-			connection_->wq().submit(ohlano::string_message(mess));
+            auto mess = ohlano::string_message(std::string("hellooooo!!!!!"));
+			connection_->wq().submit(mess);
 		}
 		return args;
 	}

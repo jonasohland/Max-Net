@@ -18,7 +18,7 @@ namespace ohlano {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
-		typedef std::function<void(typename MessageType, size_t)> message_received_handler_type;
+		typedef std::function<void(MessageType, size_t)> message_received_handler_type;
 
 
 		typedef enum status_codes {
@@ -48,7 +48,7 @@ namespace ohlano {
 
 		status_t status() { return status_.load(); }
 
-		write_queue<MessageType, typename StreamType>& wq() { return out_queue_; }
+		write_queue<MessageType, StreamType>& wq() { return out_queue_; }
 
 		void connect(connection_handler_type handler) {
 
@@ -107,7 +107,7 @@ namespace ohlano {
 		StreamType stream_;
 		boost::beast::multi_buffer buffer_;
 
-		write_queue<typename MessageType, typename StreamType> out_queue_;
+		write_queue<MessageType, StreamType> out_queue_;
 
 		std::atomic<status_t> status_;
 
