@@ -21,6 +21,7 @@ namespace ohlano {
 
 		string_message* operator=(const string_message& other) {
 			mess = other.mess;
+            return this;
 		}
 
 		template<typename ConstBufferSequence>
