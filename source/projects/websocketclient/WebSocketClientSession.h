@@ -4,7 +4,7 @@
 #include "../shared/net_url.h"
 #include "../shared/ohlano.h"
 #include "../shared/ohlano_min.h"
-#include "../shared/multi_resolver.h"
+#include "../shared/devices/multi_resolver.h"
 
 #include <boost/asio/basic_waitable_timer.hpp>
 #include <chrono>

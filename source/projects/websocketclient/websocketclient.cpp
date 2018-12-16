@@ -1,7 +1,8 @@
 #include "WebSocketClientSession.h"
 #include "../shared/net_url.h"
-#include "../shared/write_queue.h"
-#include "../shared/multi_resolver.h"
+#include "../shared/devices/write_queue.h"
+#include "../shared/devices/multi_resolver.h"
+#include "../shared/messages/generic_max_message.h"
 #include "../shared/connection.h"
 #include "../shared/ohlano_min.h"
 #include "../shared/connection.h"
@@ -38,7 +39,7 @@ public:
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
 
-
+	ohlano::generic_max_message test_mess;
 
 	
 	explicit websocketclient(const atoms& args = {}) {
@@ -154,8 +155,8 @@ public:
 
 	void begin_read() {
 		if (connection_) {
-			connection_->begin_read([=](std::string mess, size_t bytes_transferred) {
-				cout << "received: " << mess << endl;
+			connection_->begin_read([=](ohlano::string_message mess, size_t bytes_transferred) {
+				cout << "received: " << mess.str() << endl;
 			});
 		}
 	}
@@ -187,7 +188,7 @@ public:
 	atoms send_hello(const atoms& args, int inlet) {
 		if (connection_) {
 			auto mess = std::string("hellooooo!!!!!");
-			connection_->wq().submit(mess);
+			connection_->wq().submit(ohlano::string_message(mess));
 		}
 		return args;
 	}

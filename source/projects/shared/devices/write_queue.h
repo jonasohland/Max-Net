@@ -32,7 +32,7 @@ public:
 
 		std::unique_lock<std::mutex> lock{queue_mtx_};
 
-		msg_queue.push_back(msg);
+		msg_queue.emplace_back(msg);
         DBG("Msg pushed to queue, queue size: ", msg_queue.size());
         
 		if (msg_queue.size() < 2) {

@@ -1,6 +1,8 @@
 #pragma once
 #include "net_url.h"
-#include "write_queue.h"
+#include "devices/write_queue.h"
+#include "messages/generic_max_message.h"
+#include "messages/string_message.h"
 #include "ohlano.h"
 #include <cassert>
 #include <atomic>
@@ -11,12 +13,12 @@
 
 namespace ohlano {
 
-	template<typename StreamType, typename MessageType = std::string>
+	template<typename StreamType, typename MessageType = string_message>
 	class connection {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
-		typedef std::function<void(std::string, size_t)> message_received_handler_type;
+		typedef std::function<void(typename MessageType, size_t)> message_received_handler_type;
 
 
 		typedef enum status_codes {
@@ -46,7 +48,7 @@ namespace ohlano {
 
 		status_t status() { return status_.load(); }
 
-		write_queue<std::string, typename StreamType>& wq() { return out_queue_; }
+		write_queue<MessageType, typename StreamType>& wq() { return out_queue_; }
 
 		void connect(connection_handler_type handler) {
 
@@ -105,7 +107,7 @@ namespace ohlano {
 		StreamType stream_;
 		boost::beast::multi_buffer buffer_;
 
-		write_queue<std::string, typename StreamType> out_queue_;
+		write_queue<typename MessageType, typename StreamType> out_queue_;
 
 		std::atomic<status_t> status_;
 
@@ -163,7 +165,7 @@ namespace ohlano {
 			if (!ec.failed()) {
 
 				if (read_handler_) {
-					read_handler_(MessageType(boost::beast::buffers_to_string(buffer_.data())), bytes_transferred);
+					read_handler_(MessageType::from_const_buffer(buffer_.data()), bytes_transferred);
 				}
 
 				buffer_.consume(bytes_transferred);

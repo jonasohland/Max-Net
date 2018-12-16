@@ -22,7 +22,7 @@
 #include <deque>
 
 #include "../shared/net_url.h"
-#include "../shared/write_queue.h"
+#include "../shared/devices/write_queue.h"
 #include "../shared/ohlano.h"
 #include "../shared/ohlano_min.h"
 

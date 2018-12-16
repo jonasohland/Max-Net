@@ -1,0 +1,41 @@
+syntax= "proto3";
+
+message d_float_array {
+    repeated float d_float_c = 1;
+}
+
+message d_int_array {
+    repeated int64 d_int_c = 1;
+}
+
+
+message generic_max {
+
+    message atom_t {
+
+        enum Type {
+
+            LONG = 0;
+            FLOAT = 1;
+            SYMBOL = 2;
+            LIST = 3;
+            ARR_LONG = 4;
+            ARR_FLOAT = 5;
+        }
+
+        Type type = 1;
+
+        oneof data {
+
+            int64 d_int_c = 2;
+            float d_float = 3;
+            string d_string = 4;
+
+            d_int_array int_array = 5;
+            d_float_array float_array = 6;
+        
+        }
+    }
+
+    repeated atom_t atom = 2;
+}

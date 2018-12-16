@@ -4,7 +4,9 @@ cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../min-api) 	# C74 support dirs
 
-file(GLOB PROTOS "proto/*.proto")
+file(GLOB PROTOS "${CMAKE_CURRENT_SOURCE_DIR}/../shared/proto/*.proto")
+
+message("dirs: " ${PROTOS})
 
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
@@ -28,11 +30,9 @@ include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
 #-------------------------------------SOURCE / TARGET----------------------------------------#
 
-foreach(FILE ${PROTOS})
-	message(STATUS "generating protoc rules for: ${FILE}")
-	protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${FILE})
-	message(STATUS "Generated: ${PROTO_SRC} | ${PROTO_HDR}")
-endforeach()
+message(STATUS "generating protoc rules for: ${FILE}")
+protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTOS})
+message(STATUS "Generated: ${PROTO_SRC} | ${PROTO_HDR}")
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
@@ -42,10 +42,12 @@ set( SOURCE_FILES												# Project source files
 	BeastSession.h
 	WebSocketClientSession.cpp
 	WebSocketClientSession.h
+	../shared/devices/write_queue.h
+	../shared/devices/multi_resolver.h
+	../shared/messages/string_message.h
+	../shared/messages/generic_max_message.h
 	../shared/net_url.h
 	../shared/connection.h
-	../shared/write_queue.h
-	../shared/multi_resolver.h
 	../shared/ohlano_min.h
 	../shared/ohlano.h
 )
