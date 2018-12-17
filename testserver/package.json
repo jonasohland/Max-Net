@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "nodejs-websocket": "^1.7.2",
+    "protobufjs": "^6.8.8",
     "ws": "^6.1.2"
   }
 }

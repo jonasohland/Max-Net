@@ -143,11 +143,13 @@ public:
     
     void set_host(const hostname_type& hostname) {
         hostname_ = hostname;
+		endpoint_seq = endpoint_seq_from_string(host(), port_int());
     }
     
     bool set_port(const port_type& port) {
         if(is_number(port)){
             port_ = port;
+			endpoint_seq = endpoint_seq_from_string(host(), port_int());
             return true;
         } else {
             return false;
@@ -161,11 +163,13 @@ public:
     
     void set_host(hostname_type&& hostname) {
         hostname_ = hostname;
+		endpoint_seq = endpoint_seq_from_string(host(), port_int());
     }
     
     bool set_port(port_type&& port) {
         if(is_number(std::forward<port_type>(port))){
             port_ = port;
+			endpoint_seq = endpoint_seq_from_string(host(), port_int());
             return true;
         } else {
             return false;

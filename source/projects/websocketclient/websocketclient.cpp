@@ -74,6 +74,7 @@ public:
 					cerr << "float not supported as argument" << endl;
 					break;
 				case c74::max::e_max_atomtypes::A_LONG:
+					cout << "long arg: " << std::string(arg) << endl;
 					if (!url.has_port()) { url.set_port(arg); }
 					else { cerr << "Found multiple port arguments!" << endl; }
 					break;
@@ -83,6 +84,8 @@ public:
 				}
 
 			}
+
+			
 
 			if (url) {
 
@@ -107,7 +110,7 @@ public:
 
 				make_connection(url);
 
-				dec_worker.run(8);
+				dec_worker_.run(8);
 
 			}
 			else {
@@ -118,6 +121,8 @@ public:
 		// nop
 		}
 	}
+
+	
 
 	void make_connection(net_url<> url) {
 
@@ -140,6 +145,9 @@ public:
 			});
 		}
 		else {
+
+			cout << "url:" << url.host() << url.port() << endl;
+
 			cout << "connecting..." << endl;
 			connection_ = std::make_shared<websocket_connection>(url, io_context_);
 			io_context_.post([=]() { perform_connect(); });
@@ -163,10 +171,17 @@ public:
 	void begin_read() {
 		if (connection_) {
 			connection_->begin_read([=](proto_message_wrapper mess, size_t bytes_transferred) {
-				cout << "received: " << mess.str() << endl;
 
-				dec_worker.async_decode(mess, [=](proto_message_wrapper& wrap) {
-					DBG("msg size: ", wrap.vect().size());
+				dec_worker_.async_decode(mess, [=](proto_message_wrapper& wrap) {
+					
+					auto proto = static_cast<generic_max*>(wrap.proto());
+
+					cout << proto->DebugString() << endl;
+
+					cout << "atoms: " << proto->atom().size() << endl;
+					
+					cout << "first atom: " << proto->atom().begin()->DebugString() << endl;
+
 				});
 			});
 		}
@@ -186,7 +201,7 @@ public:
 			work.reset();
 		}
 
-		dec_worker.stop();
+		dec_worker_.stop();
 
 		if (client_thread_ptr) {
 			if (client_thread_ptr->joinable()) {
@@ -245,7 +260,10 @@ private:
 
 	std::shared_ptr<std::thread> client_thread_ptr;
 
-	protobuf_decoder_worker dec_worker;
+	protobuf_decoder decoder_;
+	protobuf_decoder_worker dec_worker_{ decoder_ };
+
+	
 
 	std::mutex post_mtx;
 

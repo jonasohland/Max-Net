@@ -5,6 +5,7 @@
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/executor_work_guard.hpp>
+#include "protobuf_decoder.h"
 
 class protobuf_decoder_worker {
 	
@@ -15,9 +16,11 @@ class protobuf_decoder_worker {
 
 	typedef std::function<void(proto_message_wrapper&)> decoded_handler;
 
+	protobuf_decoder& dec_;
+
 public:
 
-	protobuf_decoder_worker(){}
+	protobuf_decoder_worker(protobuf_decoder& decoder): dec_(decoder){}
 
 	void run(size_t num_threads) {
 
@@ -44,9 +47,9 @@ public:
 
 		ioc_.post([=]() mutable {
 
-			msg.vect().clear();
+			dec_.decode(msg);
 
-			ioc_.post([msg, handler]() mutable { handler(msg); });
+			handler(msg);
 
 		});
 	}
