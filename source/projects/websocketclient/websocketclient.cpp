@@ -37,7 +37,7 @@ public:
 
     void changed_host(std::string val){}
 
-    attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+    attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
@@ -204,7 +204,7 @@ public:
 
 	atoms send_hello(const atoms& args, int inlet) {
 		if (connection_) {
-            connection_->wq().submit(std::string("hello!"));
+            connection_->wq().submit(proto_message_wrapper(std::string("hello!")));
 		}
 		return args;
 	}

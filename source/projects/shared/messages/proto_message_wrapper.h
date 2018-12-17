@@ -19,9 +19,10 @@ public:
 };
 
 class proto_message_wrapper {
-
+    
+    std::vector<char> data_;
 	google::protobuf::Message* mess_ = nullptr;
-	std::vector<char> data_;
+	
 
 public:
 
@@ -35,9 +36,9 @@ public:
 	{}
 
 	proto_message_wrapper* operator=(const proto_message_wrapper& other)
-	{ data_ = other.data_; mess_ = other.mess_; }
+    { data_ = other.data_; mess_ = other.mess_; return this; }
 
-	proto_message_wrapper(std::string& str): data_(str.begin(), str.end()) {}
+	proto_message_wrapper(const std::string& str): data_(str.begin(), str.end()) {}
 
 	proto_message_wrapper(){}
 

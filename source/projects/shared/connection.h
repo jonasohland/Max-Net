@@ -104,7 +104,7 @@ namespace ohlano {
 					boost::beast::websocket::close_code::going_away,
 					std::bind(
 						&connection::close_handler,
-						this->shared_from_this(),
+                        std::enable_shared_from_this<connection<StreamType, MessageType>>::shared_from_this(),
 						std::placeholders::_1,
 						handler
 					)
