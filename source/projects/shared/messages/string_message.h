@@ -33,7 +33,7 @@ namespace ohlano {
         }
 
 		template<typename ConstBufferSequence>
-		static string_message from_const_buffer(ConstBufferSequence const& seq) {
+		static string_message from_const_buffers(ConstBufferSequence const& seq) {
 
 			std::string buf;
 			buf.reserve(boost::asio::buffer_size(seq));

@@ -1,14 +1,18 @@
-#include "WebSocketClientSession.h"
-#include "../shared/net_url.h"
-#include "../shared/devices/write_queue.h"
-#include "../shared/devices/multi_resolver.h"
-#include "../shared/messages/generic_max_message.h"
-#include "../shared/connection.h"
-#include "../shared/ohlano_min.h"
-#include "../shared/connection.h"
-#include "c74_min.h"
 #include <mutex>
 #include <thread>
+
+#include "../shared/net_url.h"
+#include "../shared/connection.h"
+
+#include "../shared/messages/generic_max_message.h"
+#include "../shared/messages/proto_message_wrapper.h"
+
+
+#include "../shared/devices/devices.h"
+
+#include "../shared/ohlano_min.h"
+#include "c74_min.h"
+
 
 using namespace c74::min;
 using namespace std::placeholders;
@@ -16,6 +20,9 @@ using namespace std::placeholders;
 
 class websocketclient : public object<websocketclient> {
 public:
+
+	using websocket_stream = boost::beast::websocket::stream<boost::asio::ip::tcp::socket>;
+	using websocket_connection = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, proto_message_wrapper>;
 
 	MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
 	MIN_TAGS{ "net" };
@@ -30,18 +37,11 @@ public:
 
     void changed_host(std::string val){}
 
-
-	ohlano::state_relevant_value<long> port_val { std::bind(&websocketclient::changed_port, this, _1) };
-    ohlano::state_relevant_value<std::string> host_val { std::bind(&websocketclient::changed_host, this, _1) };
-
-    attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+    attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
 
-	ohlano::generic_max_message test_mess;
-
-	
 	explicit websocketclient(const atoms& args = {}) {
 
 		net_url<>::error_code ec;
@@ -93,14 +93,21 @@ public:
 				port.set(port_at, false);
 
 				//there is work to do
-				cout << "running io service thread" << endl;
+				cout << "running network io worker thread" << endl;
 
 				client_thread_ptr = std::make_shared<std::thread>([this]() {
-					io_context_.run();
-					cout << "finished running io service thread" << endl;
+					try {
+						io_context_.run();
+					}
+					catch (std::exception const&  ex) {
+						cerr << "exception in network io worker thread: " << ex.what() << endl;
+					}
+					cout << "finished running network io worker thread" << endl;
 				});
 
 				make_connection(url);
+
+				dec_worker.run(8);
 
 			}
 			else {
@@ -124,7 +131,7 @@ public:
 						cout << "result: " << endpoint.address().to_string() << ":" << endpoint.port() << endl;
 					}
 					cout << "connecting..." << endl;
-					connection_ = std::make_shared<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>>(_url, io_context_);
+					connection_ = std::make_shared<websocket_connection>(_url, io_context_);
 					perform_connect();
 				}
 				else {
@@ -134,7 +141,7 @@ public:
 		}
 		else {
 			cout << "connecting..." << endl;
-			connection_ = std::make_shared<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>>(url, io_context_);
+			connection_ = std::make_shared<websocket_connection>(url, io_context_);
 			io_context_.post([=]() { perform_connect(); });
 		}
 	}
@@ -143,7 +150,7 @@ public:
 		if (connection_) {
 			connection_->connect([=](boost::system::error_code ec) {
 				if (!ec.failed()) {
-					cout << "conection established" << endl;
+					cout << "connection established" << endl;
 					begin_read();
 				}
 				else {
@@ -155,8 +162,12 @@ public:
 
 	void begin_read() {
 		if (connection_) {
-			connection_->begin_read([=](ohlano::string_message mess, size_t bytes_transferred) {
+			connection_->begin_read([=](proto_message_wrapper mess, size_t bytes_transferred) {
 				cout << "received: " << mess.str() << endl;
+
+				dec_worker.async_decode(mess, [=](proto_message_wrapper& wrap) {
+					DBG("msg size: ", wrap.vect().size());
+				});
 			});
 		}
 	}
@@ -165,18 +176,24 @@ public:
 	~websocketclient(){
 
 		if (connection_) {
-			connection_->close();
+			connection_->close([=](boost::system::error_code ec) {
+				if (!ec.failed())
+					cout << "gracefully closed connection" << endl;
+			});
 		}
 
 		if (work.owns_work()) {
 			work.reset();
 		}
 
+		dec_worker.stop();
+
 		if (client_thread_ptr) {
 			if (client_thread_ptr->joinable()) {
 				client_thread_ptr->join();
 			}
 		}
+
 	}
 
 	atoms report_status(const atoms& args, int inlet) {
@@ -187,7 +204,7 @@ public:
 
 	atoms send_hello(const atoms& args, int inlet) {
 		if (connection_) {
-            connection_->wq().submit(ohlano::string_message("hello!"));
+            connection_->wq().submit(std::string("hello!"));
 		}
 		return args;
 	}
@@ -224,23 +241,20 @@ private:
 	/** This object is responsible for resolving hostnames to ip addresses */
 	multi_resolver<boost::asio::ip::tcp> resolver{ io_context_ };
 
-	std::shared_ptr<ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>> connection_;
+	std::shared_ptr<websocket_connection> connection_;
 
 	std::shared_ptr<std::thread> client_thread_ptr;
+
+	protobuf_decoder_worker dec_worker;
 
 	std::mutex post_mtx;
 
 	ohlano::console_stream_adapter console_adapter{ [this](std::string str) { cout << str << endl; }, true};
 	ohlano::console_stream_adapter console_error_adapter{ [this](std::string str) { cerr << str << endl; }, true };
- 
-	ohlano::WebSocketClientSession session { 
-		console_adapter, 
-		console_error_adapter 
-	};
 
 };
 
 void ext_main(void* r) {
-        c74::max::object_post(nullptr, "WebSockets for Max // (c) Jonas Ohland 2018");
-		c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
+    c74::max::object_post(nullptr, "WebSockets for Max // (c) Jonas Ohland 2018");
+	c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
 }

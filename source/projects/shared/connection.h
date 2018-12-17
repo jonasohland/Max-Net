@@ -13,12 +13,13 @@
 
 namespace ohlano {
 
-    template<typename StreamType, typename MessageType = string_message>
-	class connection {
+    template<typename StreamType, typename MessageType>
+	class connection: public std::enable_shared_from_this<connection<StreamType, MessageType>> {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
 		typedef std::function<void(MessageType, size_t)> message_received_handler_type;
+		typedef std::function<void(boost::system::error_code)> closed_handler_type;
 
 
 		typedef enum status_codes {
@@ -62,7 +63,7 @@ namespace ohlano {
 				url_.endpoints(),
 				std::bind(
 					&connection::connect_handler,
-					this,
+					this->shared_from_this(),
 					std::placeholders::_1,
 					handler
 				)
@@ -74,29 +75,43 @@ namespace ohlano {
 			perform_read();
 		}
 
-		void close() {
+		void close(closed_handler_type handler) {
 
-			close_tmt = std::make_unique<boost::asio::steady_timer>(stream_.get_executor().context(), std::chrono::seconds(1));
+			close_tmt = std::make_unique<boost::asio::steady_timer>(stream_.get_executor().context(), std::chrono::milliseconds(500));
 
 			close_tmt->async_wait([=](boost::system::error_code ec) {
+
 				if (!ec.failed()) {
-					DBG("canceling open socket tasks...")
+					DBG("cancelling socket tasks");
 					stream_.next_layer().cancel();
+
+					DBG("closing underlying sockets");
+
+					if (stream_.next_layer().is_open()) {
+						stream_.next_layer().close();
+					}
+					if (stream_.lowest_layer().is_open()) {
+						stream_.lowest_layer().close();
+					}
 				}
 			});
+
 			DBG("close tmt set");
 
 			if (status() == status_codes::ONLINE) {
+				DBG("closing stream");
 				stream_.async_close(
-					boost::beast::websocket::close_code::normal,
+					boost::beast::websocket::close_code::going_away,
 					std::bind(
 						&connection::close_handler,
-						this,
-						std::placeholders::_1
+						this->shared_from_this(),
+						std::placeholders::_1,
+						handler
 					)
 				);
 			}
 		}
+
 
 
 	private:
@@ -122,7 +137,7 @@ namespace ohlano {
 				stream_.async_handshake(url_.host(), url_.path(),
 					std::bind(
 						&connection::handshake_handler,
-						this,
+						this->shared_from_this(),
 						std::placeholders::_1,
 						handler
 					)
@@ -152,7 +167,7 @@ namespace ohlano {
 					buffer_,
 					std::bind(
 						&connection::read_handler,
-						this,
+						this->shared_from_this(),
 						std::placeholders::_1,
 						std::placeholders::_2
 					)
@@ -165,7 +180,7 @@ namespace ohlano {
 			if (!ec.failed()) {
 
 				if (read_handler_) {
-					read_handler_(MessageType::from_const_buffer(buffer_.data()), bytes_transferred);
+					read_handler_(MessageType::from_const_buffers(buffer_.data()), bytes_transferred);
 				}
 
 				buffer_.consume(bytes_transferred);
@@ -177,10 +192,15 @@ namespace ohlano {
 			}
 		}
 
-		void close_handler(boost::system::error_code ec) {
+		void close_handler(boost::system::error_code ec, closed_handler_type handler) {
+
+			DBG("connnection close: ", ec.message());
+
 			if (close_tmt) {
 				close_tmt->cancel();
 			}
+
+			handler(ec);
 		}
 	};
 }

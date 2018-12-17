@@ -49,17 +49,17 @@ private:
     void begin_resolve(resolve_queue_value_type qelem){
 		DBG("starting resolve: ", qelem.first.host(), " port: ", qelem.first.port());
         res_.async_resolve(qelem.first.host(), qelem.first.port(),
-                           boost::asio::bind_executor(
-                                                      strand_,
-                                                      std::bind(
-                                                                &multi_resolver::resolve_handler,
-                                                                this,
-                                                                std::placeholders::_1,
-                                                                std::placeholders::_2,
-                                                                qelem
-                                                                )
-                                                      )
-                           );
+			boost::asio::bind_executor(
+                strand_,
+                std::bind(
+                        &multi_resolver::resolve_handler,
+                        this,
+                        std::placeholders::_1,
+                        std::placeholders::_2,
+                        qelem
+                        )
+                )
+            );
     }
     
     

@@ -38,13 +38,14 @@ set( SOURCE_FILES												# Project source files
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
 	${PROTO_HDR}
-	BeastSession.cpp
-	BeastSession.h
-	WebSocketClientSession.cpp
-	WebSocketClientSession.h
+	../shared/devices/devices.h
 	../shared/devices/write_queue.h
 	../shared/devices/multi_resolver.h
+	../shared/devices/protobuf_decoder.h
+	../shared/devices/protobuf_decoder_worker.h
+	../shared/devices/protobuf_manager.h
 	../shared/messages/string_message.h
+	../shared/messages/proto_message_wrapper.h
 	../shared/messages/generic_max_message.h
 	../shared/net_url.h
 	../shared/connection.h
