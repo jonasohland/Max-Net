@@ -18,7 +18,7 @@ namespace ohlano {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
-		typedef std::function<void(MessageType, size_t)> message_received_handler_type;
+		typedef std::function<void(MessageType*, size_t)> message_received_handler_type;
 		typedef std::function<void(boost::system::error_code)> closed_handler_type;
 
 
@@ -28,8 +28,8 @@ namespace ohlano {
 
 		connection() = default;
 
-		explicit connection(net_url<>& url, boost::asio::io_context& ctx) : url_(url), ctx_(ctx), stream_(ctx_), out_queue_(&stream_)
-		{}
+        explicit connection(net_url<>& url, boost::asio::io_context& ctx) : url_(url), ctx_(ctx), stream_(ctx_)
+		{ out_queue_ = std::make_shared<write_queue<MessageType*, StreamType>>(&stream_); }
 
 		std::string status_string() {
 			switch (status_.load()) {
@@ -49,7 +49,7 @@ namespace ohlano {
 
 		status_t status() { return status_.load(); }
 
-		write_queue<MessageType, StreamType>& wq() { return out_queue_; }
+        std::shared_ptr<write_queue<MessageType*, StreamType>>& wq() { return out_queue_; }
 
 		void connect(connection_handler_type handler) {
 
@@ -122,14 +122,13 @@ namespace ohlano {
 		StreamType stream_;
 		boost::beast::multi_buffer buffer_;
 
-		write_queue<MessageType, StreamType> out_queue_;
+        std::shared_ptr<write_queue<MessageType*, StreamType>> out_queue_;
 
 		std::atomic<status_t> status_;
 
 		message_received_handler_type read_handler_ = nullptr;
 
 		std::unique_ptr<boost::asio::steady_timer> close_tmt;
-
 
 		void connect_handler(boost::system::error_code ec, connection_handler_type handler) {
 

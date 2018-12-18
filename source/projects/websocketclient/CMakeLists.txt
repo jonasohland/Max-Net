@@ -43,10 +43,11 @@ set( SOURCE_FILES												# Project source files
 	../shared/devices/multi_resolver.h
 	../shared/devices/protobuf_decoder.h
 	../shared/devices/protobuf_decoder_worker.h
-	../shared/devices/protobuf_manager.h
+	../shared/devices/proto_provider.h
 	../shared/messages/string_message.h
 	../shared/messages/proto_message_wrapper.h
 	../shared/messages/generic_max_message.h
+	../shared/proto_message_base.h
 	../shared/net_url.h
 	../shared/connection.h
 	../shared/ohlano_min.h

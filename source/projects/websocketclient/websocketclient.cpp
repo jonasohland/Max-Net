@@ -168,21 +168,11 @@ public:
 		}
 	}
 
+    
 	void begin_read() {
 		if (connection_) {
-			connection_->begin_read([=](proto_message_wrapper mess, size_t bytes_transferred) {
+			connection_->begin_read([=](proto_message_wrapper* mess, size_t bytes_transferred) {
 
-				dec_worker_.async_decode(mess, [=](proto_message_wrapper& wrap) {
-					
-					auto proto = static_cast<generic_max*>(wrap.proto());
-
-					cout << proto->DebugString() << endl;
-
-					cout << "atoms: " << proto->atom().size() << endl;
-					
-					cout << "first atom: " << proto->atom().begin()->DebugString() << endl;
-
-				});
 			});
 		}
 	}
@@ -219,7 +209,17 @@ public:
 
 	atoms send_hello(const atoms& args, int inlet) {
 		if (connection_) {
-            connection_->wq().submit(proto_message_wrapper(std::string("hello!")));
+            proto_message_wrapper msg;
+            
+            msg.proto() = new generic_max();
+            
+            auto new_atom = static_cast<generic_max*>(msg.proto())->add_atom();
+            
+            new_atom->set_string_("hello!");
+            new_atom->set_type(SYMBOL);
+            
+            dec_worker_.async_encode(msg, [=](proto_message_wrapper& mess){
+            });
 		}
 		return args;
 	}

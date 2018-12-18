@@ -15,9 +15,7 @@ public:
 		if (wrap.proto()) {
 			delete wrap.proto();
 		}
-
 		wrap.proto() = new generic_max();
-
 		static_cast<generic_max*>(wrap.proto())->ParseFromArray(wrap.data(), wrap.size());
 	}
 
@@ -27,9 +25,4 @@ public:
 	}
 
 private:
-
-	std::array<std::string, 2> known_messages {
-		"iiwa_state",
-		"generic_max"
-	}; 
 };

@@ -29,6 +29,7 @@ public:
 	proto_message_wrapper(proto_message_wrapper&& other) :
 		data_(std::forward<std::vector<char>>(other.data_)),
 		mess_(std::forward<google::protobuf::Message*>(other.mess_))
+    
 	{}
 
 	proto_message_wrapper(const proto_message_wrapper& other):
@@ -42,7 +43,7 @@ public:
 
 	proto_message_wrapper(){}
 
-	~proto_message_wrapper() { if (mess_) { delete mess_; } }
+	~proto_message_wrapper() {}
 
 	google::protobuf::Message*& proto() {
 		return mess_;
@@ -69,7 +70,7 @@ public:
 	static proto_message_helper helper_;
 
 	template<typename ConstBufferSequence>
-	static proto_message_wrapper from_const_buffers(ConstBufferSequence const& buffers) {
+	static proto_message_wrapper* from_const_buffers(ConstBufferSequence const& buffers) {
 
 		proto_message_wrapper wrapper;
 
@@ -82,7 +83,7 @@ public:
 
 		wrapper.vect().shrink_to_fit();
 
-		return wrapper;
+		return nullptr;
 	}
 
 };

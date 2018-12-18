@@ -8,24 +8,7 @@ message atom_int_array {
     repeated int64 values = 1;
 }
 
-message atom_int {
-    required int64 value = 1;
-}
-
-message atom_float {
-    required float value = 1;
-}
-
-message atom_string {
-    required string value = 1;
-}
-
-message MaxData {
-    
-}
-
 enum Type {
-
     LONG = 0;
     FLOAT = 1;
     SYMBOL = 2;
@@ -37,8 +20,16 @@ enum Type {
 message generic_max {
 
     message atom_t {
-        sint32 int_val = 1;
-        required Type type = 2;
+
+        Type type = 1;
+
+        oneof data { 
+            sint32 int_ = 2;
+            float float_ = 3;
+            string string_ = 4;
+            atom_int_array int_array_ = 5;
+            atom_float_array float_array_ = 6;
+        }
     }
 
     repeated atom_t atom = 1;

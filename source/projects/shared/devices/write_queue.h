@@ -18,10 +18,10 @@ template<typename Message, typename StreamType, typename Enable = void>
 class write_queue;
 
 template<typename Message, typename StreamType>
-class write_queue<Message, StreamType, typename std::enable_if<boost::beast::has_get_executor<StreamType>::value>::type> {
+    class write_queue<Message, StreamType, typename std::enable_if<boost::beast::has_get_executor<StreamType>::value>::type> : public std::enable_shared_from_this<write_queue<Message, StreamType>> {
 
 public:
-
+    typedef std::function<void(Message*)> sent_handler_type;
 
 	write_queue() = delete;
     
@@ -29,11 +29,11 @@ public:
 		stream_ = stream;
 	}
 
-	void submit(const Message& msg) {
+	void submit(const Message* msg) {
 
 		std::unique_lock<std::mutex> lock{queue_mtx_};
 
-		msg_queue.emplace_back(msg);
+		msg_queue.push_back(msg);
         DBG("Msg pushed to queue, queue size: ", msg_queue.size());
         
 		if (msg_queue.size() < 2) {
@@ -48,26 +48,32 @@ public:
 		std::unique_lock<std::mutex> lock{queue_mtx_};
 		msg_queue.clear();
 	}
+    
+    void attach_sent_handler(sent_handler_type handler){
+        sent_handler_ = handler;
+        has_handler_.store(true);
+    }
 
 
 private:
 
-	void perform_write(const Message& msg) {
+	void perform_write(const Message* msg) {
         stream_->async_write(
-            boost::asio::buffer(msg.data(), msg.size()),
+            boost::asio::buffer(msg->data(), msg->size()),
             boost::asio::bind_executor(
                    strand_,
                    std::bind(&write_queue::write_complete_handler,
-                             this,
+                             this->shared_from_this(),
                              std::placeholders::_1,
-                             std::placeholders::_2
+                             std::placeholders::_2,
+                             msg
                  )
             )
         );
 	}
 
 
-	void write_complete_handler(boost::system::error_code ec, std::size_t bytes) {
+	void write_complete_handler(boost::system::error_code ec, std::size_t bytes, Message* msg) {
         
         std::unique_lock<std::mutex> lock{queue_mtx_};
 
@@ -81,6 +87,10 @@ private:
         } else {
             DBG("no more elements in queue");
         }
+        
+        if(has_handler_.load()){
+            sent_handler_(msg);
+        }
 	}
 
 	std::mutex queue_mtx_;
@@ -89,8 +99,11 @@ private:
 	boost::asio::io_context::executor_type exec_;
     boost::asio::io_context::strand strand_;
     boost::asio::steady_timer wait_timer{exec_.context()};
+        
+    sent_handler_type sent_handler_;
 
-	std::deque<Message> msg_queue;
+    std::deque<Message*> msg_queue;
+    std::atomic<bool> has_handler_;
 
 };
 }
