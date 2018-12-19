@@ -218,18 +218,17 @@ public:
 		return args;
 	}
 
-	atoms send_hello(const atoms& args, int inlet) {
-
+	atoms handle_data(const atoms& args, int inlet) {
 		if (connection_) {
+			if (connection_->status() == websocket_connection::status_t::ONLINE) {
+				auto msg = allocator_.allocate();
 
-			auto msg = allocator_.allocate();
+				msg->push_atoms(args);
 
-			msg->push_atoms(args);
+				msg->serialize();
 
-			msg->serialize();
-
-			connection_->wq()->submit(msg);
-
+				connection_->wq()->submit(msg);
+			}
 		}
 
 		return args;
@@ -252,8 +251,8 @@ public:
 	message<> set_port_cmd{ this, "port", "set port", min_wrap_member(&websocketclient::set_port) };
 	message<> set_host_cmd{ this, "host", "set host", min_wrap_member(&websocketclient::set_host) };
 	message<> connect_cmd{ this, "connect", "connect websocket", min_wrap_member(&websocketclient::connect) };
-
-	message<threadsafe::yes> hello { this, "hello", "send hello message", min_wrap_member(&websocketclient::send_hello) };
+	
+	message<threadsafe::yes> data_input{ this, "anything", "send data", min_wrap_member(&websocketclient::handle_data) };
 
 
 private:

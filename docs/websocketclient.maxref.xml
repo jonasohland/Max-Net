@@ -29,6 +29,11 @@
 
 	<methodlist>
 
+		<method name='anything'>
+			<digest>send data </digest>
+			<description>send data </description>
+		</method>
+
 		<method name='host'>
 			<digest>set host </digest>
 			<description>set host </description>
@@ -47,11 +52,6 @@
 		<method name='connect'>
 			<digest>connect websocket </digest>
 			<description>connect websocket </description>
-		</method>
-
-		<method name='hello'>
-			<digest>send hello message </digest>
-			<description>send hello message </description>
 		</method>
 
 	</methodlist>
