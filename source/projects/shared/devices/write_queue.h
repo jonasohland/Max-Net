@@ -14,18 +14,18 @@
 
 namespace ohlano {
 
-template<typename Message, typename StreamType, typename Enable = void>
+template<typename Message, typename Stream, typename Enable = void>
 class write_queue;
 
-template<typename Message, typename StreamType>
-    class write_queue<Message, StreamType, typename std::enable_if<boost::beast::has_get_executor<StreamType>::value>::type> : public std::enable_shared_from_this<write_queue<Message, StreamType>> {
+template<typename Message, typename Stream>
+    class write_queue<Message, Stream, typename std::enable_if<boost::beast::has_get_executor<Stream>::value>::type> : public std::enable_shared_from_this<write_queue<Message, Stream>> {
 
 public:
-    typedef std::function<void(Message*)> sent_handler_type;
+    typedef std::function<void(const Message*)> sent_handler_type;
 
 	write_queue() = delete;
     
-    write_queue(StreamType* stream): exec_(stream->get_executor()), strand_(exec_.context()) {
+    write_queue(Stream* stream): exec_(stream->get_executor()), strand_(exec_.context()) {
 		stream_ = stream;
 	}
 
@@ -34,13 +34,10 @@ public:
 		std::unique_lock<std::mutex> lock{queue_mtx_};
 
 		msg_queue.push_back(msg);
-        DBG("Msg pushed to queue, queue size: ", msg_queue.size());
         
 		if (msg_queue.size() < 2) {
-            DBG("Performing write operation...");
 			perform_write(msg);
         } else {
-            DBG("Write already in progress");
         }
 	}
 
@@ -58,6 +55,7 @@ public:
 private:
 
 	void perform_write(const Message* msg) {
+
         stream_->async_write(
             boost::asio::buffer(msg->data(), msg->size()),
             boost::asio::bind_executor(
@@ -73,21 +71,18 @@ private:
 	}
 
 
-	void write_complete_handler(boost::system::error_code ec, std::size_t bytes, Message* msg) {
+	void write_complete_handler(boost::system::error_code ec, std::size_t bytes, const Message* msg) {
         
         std::unique_lock<std::mutex> lock{queue_mtx_};
 
+		DBG("sent: ", msg->size(), " bytes");
+
         msg_queue.pop_front();
-        
-        DBG("popped one element from queue front");
         
         if (msg_queue.size() > 0) {
             perform_write(msg_queue.front());
-            DBG("Performing write to clear queue, queue size: ", msg_queue.size());
-        } else {
-            DBG("no more elements in queue");
-        }
-        
+        } 
+
         if(has_handler_.load()){
             sent_handler_(msg);
         }
@@ -95,14 +90,14 @@ private:
 
 	std::mutex queue_mtx_;
 
-	StreamType* stream_;
+	Stream* stream_;
 	boost::asio::io_context::executor_type exec_;
     boost::asio::io_context::strand strand_;
     boost::asio::steady_timer wait_timer{exec_.context()};
         
     sent_handler_type sent_handler_;
 
-    std::deque<Message*> msg_queue;
+    std::deque<const Message*> msg_queue;
     std::atomic<bool> has_handler_;
 
 };

@@ -9,12 +9,11 @@ message atom_int_array {
 }
 
 enum Type {
-    LONG = 0;
-    FLOAT = 1;
-    SYMBOL = 2;
-    LIST = 3;
-    ARR_LONG = 4;
-    ARR_FLOAT = 5;
+    A_LONG = 0;
+    A_FLOAT = 1;
+    A_SYMBOL = 2;
+    A_ARR_LONG = 3;
+    A_ARR_FLOAT = 4;
 }
 
 message generic_max {

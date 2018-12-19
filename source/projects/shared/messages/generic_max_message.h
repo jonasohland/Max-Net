@@ -1,64 +1,103 @@
 #pragma once
 
 #include "c74_min.h"
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/buffers_iterator.hpp>
+#include "../ohlano.h"
+#include "../proto_message_base.h"
 #include "../../../build/source/projects/websocketclient/generic_max.pb.h"
 
 namespace ohlano {
     
-    template<typename Proto>
-	class basic_proto_message {
-        
+	class max_message : public proto_message_base<generic_max> {
+
 	public:
-        
-        basic_proto_message()
-        {}
+		class max_message_allocator {
+		public:
 
-        basic_proto_message(basic_proto_message&& other): msg_(std::forward<Proto>(other.msg_))
-        {}
-        
-        basic_proto_message(const basic_proto_message& other): msg_(other.msg_)
-        {}
-        
-        Proto& msg() {
-            return msg_;
-        }
+			max_message* allocate() {
+				auto msg = new max_message();
+				alloc_msg_count++;
+				return msg;
+			}
 
-		template<class ConstBufferSequence>
-		basic_proto_message(ConstBufferSequence const& seq) {
-			msg().ParseFromArray(static_cast<void*>(boost::asio::buffers_begin(seq)), boost::asio::buffer_size(seq));
+			void deallocate(const max_message* msg) {
+				alloc_msg_count--;
+				delete msg;
+			}
+
+			void deallocate(max_message* msg) {
+				alloc_msg_count--;
+				delete msg;
+			}
+
+			~max_message_allocator() {
+				assert(alloc_msg_count.load() == 0);
+			}
+
+			max_message_allocator() {
+				alloc_msg_count.store(0);
+			}
+
+		private:
+			std::set<max_message*> messages;
+			std::atomic<size_t> alloc_msg_count;
+
+		};
+
+	public:
+
+		typedef max_message_allocator factory;
+
+		void push_atom(c74::min::atom atom_in) {
+
+			auto new_atom = proto()->add_atom();
+
+			switch (atom_in.a_type) {
+			case c74::max::e_max_atomtypes::A_LONG :
+				new_atom->set_type(A_LONG);
+				new_atom->set_int_(atom_in);
+				break;
+			case c74::max::e_max_atomtypes::A_FLOAT:
+				new_atom->set_type(A_FLOAT);
+				new_atom->set_float_(atom_in);
+				break;
+			case c74::max::e_max_atomtypes::A_SYM:
+				new_atom->set_type(A_SYMBOL);
+				new_atom->set_string_(atom_in);
+				break;
+			default:
+				DBG("unknown atom!");
+			}
+			
+			
 		}
 
-		template<typename ConstBufferSequence>
-		static basic_proto_message from_buffer_sequence(ConstBufferSequence const& buffers) {
-			return basic_proto_message(buffers);
+		void push_atoms(const c74::min::atoms& atms) {
+			for (const auto& atm : atms) {
+				push_atom(atm);
+			}
 		}
-        
-        void* data(){
-            return nullptr;
-        }
-        
-        size_t size(){
-            return 0;
-        }
-        
-        virtual ~basic_proto_message(){
-        }
-        
-    protected:
-        Proto msg_;
+
+		c74::min::atoms get_atoms() const {
+
+			c74::min::atoms out_atoms;
+			
+			for (const auto& atom: proto()->atom()) {
+				switch (atom.type()) {
+				case A_LONG:
+					out_atoms.emplace_back(atom.int_());
+					break;
+				case A_FLOAT:
+					out_atoms.emplace_back(atom.float_());
+					break;
+				case A_SYMBOL:
+					out_atoms.emplace_back(atom.string_());
+					break;
+				}
+			}
+
+			return out_atoms;
+
+		}
+		
 	};
-    
-    class generic_max_message : public basic_proto_message<generic_max> {
-        
-    public:
-        
-        generic_max_message(){}
-        
-        generic_max_message(const c74::min::atoms& _atoms){
-            
-        }
-        
-    };
 }

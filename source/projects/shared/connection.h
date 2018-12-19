@@ -13,12 +13,12 @@
 
 namespace ohlano {
 
-    template<typename StreamType, typename MessageType>
-	class connection: public std::enable_shared_from_this<connection<StreamType, MessageType>> {
+    template<typename Stream, typename Message>
+	class connection: public std::enable_shared_from_this<connection<Stream, Message>> {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
-		typedef std::function<void(MessageType*, size_t)> message_received_handler_type;
+		typedef std::function<void(Message*, size_t)> message_received_handler_type;
 		typedef std::function<void(boost::system::error_code)> closed_handler_type;
 
 
@@ -28,8 +28,8 @@ namespace ohlano {
 
 		connection() = default;
 
-        explicit connection(net_url<>& url, boost::asio::io_context& ctx) : url_(url), ctx_(ctx), stream_(ctx_)
-		{ out_queue_ = std::make_shared<write_queue<MessageType*, StreamType>>(&stream_); }
+        explicit connection(net_url<>& url, boost::asio::io_context& ctx, typename Message::factory& allocator) : url_(url), ctx_(ctx), stream_(ctx_), allocator_(allocator)
+		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
 
 		std::string status_string() {
 			switch (status_.load()) {
@@ -49,7 +49,7 @@ namespace ohlano {
 
 		status_t status() { return status_.load(); }
 
-        std::shared_ptr<write_queue<MessageType*, StreamType>>& wq() { return out_queue_; }
+        std::shared_ptr<write_queue<Message, Stream>>& wq() { return out_queue_; }
 
 		void connect(connection_handler_type handler) {
 
@@ -57,6 +57,8 @@ namespace ohlano {
 
 			assert(url_.valid());
 			assert(url_.is_resolved());
+
+			stream_.binary(true);
 
 			boost::asio::async_connect(
 				stream_.next_layer(),
@@ -104,7 +106,7 @@ namespace ohlano {
 					boost::beast::websocket::close_code::going_away,
 					std::bind(
 						&connection::close_handler,
-                        std::enable_shared_from_this<connection<StreamType, MessageType>>::shared_from_this(),
+                        std::enable_shared_from_this<connection<Stream, Message>>::shared_from_this(),
 						std::placeholders::_1,
 						handler
 					)
@@ -119,10 +121,12 @@ namespace ohlano {
 		net_url<> url_;
 
 		boost::asio::io_context& ctx_;
-		StreamType stream_;
+		Stream stream_;
 		boost::beast::multi_buffer buffer_;
 
-        std::shared_ptr<write_queue<MessageType*, StreamType>> out_queue_;
+        std::shared_ptr<write_queue<Message, Stream>> out_queue_;
+
+		typename Message::factory& allocator_;
 
 		std::atomic<status_t> status_;
 
@@ -179,7 +183,14 @@ namespace ohlano {
 			if (!ec.failed()) {
 
 				if (read_handler_) {
-					read_handler_(MessageType::from_const_buffers(buffer_.data()), bytes_transferred);
+
+					Message* new_msg = static_cast<Message*>(allocator_.allocate());
+
+					Message::from_const_buffers(buffer_.data(), new_msg);
+
+					DBG("received ", bytes_transferred, " bytes");
+
+					read_handler_(new_msg, bytes_transferred);
 				}
 
 				buffer_.consume(bytes_transferred);
