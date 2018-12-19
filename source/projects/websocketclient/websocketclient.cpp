@@ -113,15 +113,12 @@ public:
 
 				make_connection(url);
 
-				dec_worker_.run(8);
+				dec_worker_.run(4);
 
 			}
 			else {
 				cout << "no valid websocket address provided" << endl;
 			}
-		}
-		else {
-		// nop
 		}
 	}
 
@@ -234,6 +231,31 @@ public:
 		return args;
 	}
 
+	atoms handle_float(const atoms& args) {
+		if (connection_) {
+			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
+				
+				auto arg_it = args.cbegin();
+
+				while (arg_it->a_type == c74::max::e_max_atomtypes::A_FLOAT) {
+
+					arg_it++;
+				}
+
+				auto msg = allocator_.allocate();
+
+				msg->push_atomarray(args, arg_it, c74::max::e_max_atomtypes::A_FLOAT);
+
+				msg->push_atoms(args);
+
+				msg->serialize();
+
+				connection_->wq()->submit(msg);
+
+			}
+		}
+	}
+
 	atoms set_port(const atoms& args, int inlet) {
 		return args;
 	}
@@ -247,7 +269,7 @@ public:
 	}
 
 
-	message<> status { this, "status", "report status", min_wrap_member(&websocketclient::report_status) };
+	message<> status{ this, "status", "report status", min_wrap_member(&websocketclient::report_status) };
 	message<> set_port_cmd{ this, "port", "set port", min_wrap_member(&websocketclient::set_port) };
 	message<> set_host_cmd{ this, "host", "set host", min_wrap_member(&websocketclient::set_host) };
 	message<> connect_cmd{ this, "connect", "connect websocket", min_wrap_member(&websocketclient::connect) };

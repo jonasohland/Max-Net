@@ -77,6 +77,35 @@ namespace ohlano {
 			}
 		}
 
+		void push_atomarray(const c74::min::atoms& atms, c74::min::atoms::const_iterator it_end, c74::max::e_max_atomtypes type) {
+
+			auto new_atm = proto()->add_atom();
+
+			if (type == c74::max::e_max_atomtypes::A_LONG) {
+
+				auto arr = new atom_int_array();
+
+				arr->mutable_values()->Reserve((int) atms.size());
+
+				std::copy(atms.begin(), it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<google::protobuf::int64>(arr->mutable_values()));
+
+				new_atm->set_allocated_int_array_(arr);
+			}
+			else if (type == c74::max::e_max_atomtypes::A_FLOAT) {
+
+				auto arr = new atom_float_array();
+
+				arr->mutable_values()->Reserve((int) atms.size());
+
+				std::copy(atms.begin(), it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<float>(arr->mutable_values()));
+
+				new_atm->set_allocated_float_array_(arr);
+			}
+			else {
+				assert(false);
+			}
+		}
+
 		c74::min::atoms get_atoms() const {
 
 			c74::min::atoms out_atoms;
@@ -92,11 +121,23 @@ namespace ohlano {
 				case A_SYMBOL:
 					out_atoms.emplace_back(atom.string_());
 					break;
+				case A_ARR_LONG:
+					for (auto const& val : atom.int_array_().values()) {
+						out_atoms.emplace_back(val);
+					}
+					break;
+				case A_ARR_FLOAT:
+					for (auto const& val : atom.float_array_().values()) {
+						out_atoms.emplace_back(val);
+					}
+					break;
+				default:
+					DBG("unknown atom!");
 				}
+
 			}
 
 			return out_atoms;
-
 		}
 		
 	};
