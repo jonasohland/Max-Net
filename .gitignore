@@ -19,6 +19,7 @@ tmp
 .DS_Store
 
 tests/
+docs/
 testserver/node_modules
 package-info.json
 
