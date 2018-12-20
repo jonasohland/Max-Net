@@ -44,14 +44,29 @@
 			<description>report status </description>
 		</method>
 
+		<method name='int'>
+			<digest>send data </digest>
+			<description>send data </description>
+		</method>
+
 		<method name='port'>
 			<digest>set port </digest>
 			<description>set port </description>
 		</method>
 
+		<method name='list'>
+			<digest>send list data </digest>
+			<description>send list data </description>
+		</method>
+
 		<method name='connect'>
 			<digest>connect websocket </digest>
 			<description>connect websocket </description>
+		</method>
+
+		<method name='float'>
+			<digest>send data </digest>
+			<description>send data </description>
 		</method>
 
 	</methodlist>

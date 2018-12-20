@@ -77,7 +77,7 @@ namespace ohlano {
 			}
 		}
 
-		void push_atomarray(const c74::min::atoms& atms, c74::min::atoms::const_iterator it_end, c74::max::e_max_atomtypes type) {
+		void push_atomarray(c74::min::atoms::const_iterator it_begin, c74::min::atoms::const_iterator it_end, c74::max::e_max_atomtypes type) {
 
 			auto new_atm = proto()->add_atom();
 
@@ -85,21 +85,23 @@ namespace ohlano {
 
 				auto arr = new atom_int_array();
 
-				arr->mutable_values()->Reserve((int) atms.size());
+				arr->mutable_values()->Reserve(it_end - it_begin);
 
-				std::copy(atms.begin(), it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<google::protobuf::int64>(arr->mutable_values()));
+				std::copy(it_begin, it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<google::protobuf::int64>(arr->mutable_values()));
 
 				new_atm->set_allocated_int_array_(arr);
+				new_atm->set_type(A_ARR_LONG);
 			}
 			else if (type == c74::max::e_max_atomtypes::A_FLOAT) {
 
 				auto arr = new atom_float_array();
 
-				arr->mutable_values()->Reserve((int) atms.size());
+				arr->mutable_values()->Reserve(it_end - it_begin);
 
-				std::copy(atms.begin(), it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<float>(arr->mutable_values()));
+				std::copy(it_begin, it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<float>(arr->mutable_values()));
 
 				new_atm->set_allocated_float_array_(arr);
+				new_atm->set_type(A_ARR_FLOAT);
 			}
 			else {
 				assert(false);
@@ -109,14 +111,16 @@ namespace ohlano {
 		c74::min::atoms get_atoms() const {
 
 			c74::min::atoms out_atoms;
+
+			DBG("unpacking: ", proto()->DebugString());
 			
 			for (const auto& atom: proto()->atom()) {
 				switch (atom.type()) {
 				case A_LONG:
-					out_atoms.emplace_back(atom.int_());
+					out_atoms.emplace_back(static_cast<c74::max::t_atom_long>(atom.int_()));
 					break;
 				case A_FLOAT:
-					out_atoms.emplace_back(atom.float_());
+					out_atoms.emplace_back(static_cast<c74::max::t_atom_float>(atom.float_()));
 					break;
 				case A_SYMBOL:
 					out_atoms.emplace_back(atom.string_());

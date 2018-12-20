@@ -231,29 +231,78 @@ public:
 		return args;
 	}
 
-	atoms handle_float(const atoms& args) {
+	atoms handle_float(const atoms& args, int inlet) {
 		if (connection_) {
 			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
-				
-				auto arg_it = args.cbegin();
-
-				while (arg_it->a_type == c74::max::e_max_atomtypes::A_FLOAT) {
-
-					arg_it++;
-				}
 
 				auto msg = allocator_.allocate();
-
-				msg->push_atomarray(args, arg_it, c74::max::e_max_atomtypes::A_FLOAT);
 
 				msg->push_atoms(args);
 
 				msg->serialize();
 
 				connection_->wq()->submit(msg);
-
 			}
 		}
+		return args;
+	}
+
+	atoms handle_long(const atoms& args, int inlet) {
+		if (connection_) {
+			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
+
+				auto msg = allocator_.allocate();
+
+				msg->push_atoms(args);
+
+				msg->serialize();
+
+				connection_->wq()->submit(msg);
+			}
+		}
+		return args;
+	}
+
+	atoms handle_list(const atoms& args, int inlet) {
+		if (connection_) {
+			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
+
+				auto msg = allocator_.allocate();
+
+				auto tp = static_cast<c74::max::e_max_atomtypes>(args[0].a_type);
+
+				if (args.size() > 2) {
+
+					auto arg_it = args.cbegin();
+
+					while (arg_it->a_type == tp) {
+
+						arg_it++;
+						if (arg_it == args.end()) {
+							break;
+						}
+					}
+
+					if (arg_it - args.begin() > 3) {
+						msg->push_atomarray(args.begin(), arg_it, tp);
+						for (; arg_it != args.end(); arg_it++) {
+							msg->push_atom(*arg_it);
+						}
+					}
+					else {
+						msg->push_atoms(args);
+					}
+				}
+				else {
+					msg->push_atoms(args);
+				}
+
+				msg->serialize();
+
+				connection_->wq()->submit(msg);
+			}
+		}
+		return args;
 	}
 
 	atoms set_port(const atoms& args, int inlet) {
@@ -273,8 +322,13 @@ public:
 	message<> set_port_cmd{ this, "port", "set port", min_wrap_member(&websocketclient::set_port) };
 	message<> set_host_cmd{ this, "host", "set host", min_wrap_member(&websocketclient::set_host) };
 	message<> connect_cmd{ this, "connect", "connect websocket", min_wrap_member(&websocketclient::connect) };
-	
+
+
 	message<threadsafe::yes> data_input{ this, "anything", "send data", min_wrap_member(&websocketclient::handle_data) };
+	message<threadsafe::yes> list_input{ this, "list", "send list data", min_wrap_member(&websocketclient::handle_list) };
+	message<threadsafe::yes> long_input{ this, "int", "send data", min_wrap_member(&websocketclient::handle_long) };
+	message<threadsafe::yes> float_input{ this, "float", "send data", min_wrap_member(&websocketclient::handle_float) };
+
 
 
 private:
