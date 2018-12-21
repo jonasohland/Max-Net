@@ -56,7 +56,7 @@ public:
 	}
 
 	bool deserialize() {
-		return mess_->ParsePartialFromArray(data_.data(), data_.size());
+		return mess_->ParsePartialFromArray(data_.data(), (int) data_.size());
 	}
     
     

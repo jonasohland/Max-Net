@@ -18,6 +18,7 @@ cmake-buil-debug
 tmp
 .DS_Store
 
+.vscode/
 tests/
 docs/
 testserver/node_modules

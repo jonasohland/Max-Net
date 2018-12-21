@@ -85,7 +85,7 @@ namespace ohlano {
 
 				auto arr = new atom_int_array();
 
-				arr->mutable_values()->Reserve(it_end - it_begin);
+				arr->mutable_values()->Reserve((int) (it_end - it_begin));
 
 				std::copy(it_begin, it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<google::protobuf::int64>(arr->mutable_values()));
 
@@ -96,7 +96,7 @@ namespace ohlano {
 
 				auto arr = new atom_float_array();
 
-				arr->mutable_values()->Reserve(it_end - it_begin);
+				arr->mutable_values()->Reserve((int) (it_end - it_begin));
 
 				std::copy(it_begin, it_end, google::protobuf::internal::RepeatedFieldBackInsertIterator<float>(arr->mutable_values()));
 
