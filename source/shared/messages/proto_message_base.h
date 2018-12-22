@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../build/source/projects/websocketclient/generic_max.pb.h"
+#include "../../build/source/websocketclient/generic_max.pb.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <google/protobuf/message.h>

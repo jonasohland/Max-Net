@@ -21,26 +21,26 @@ endif ()
 
 
 # Misc setup and subroutines
-include(${CMAKE_CURRENT_SOURCE_DIR}/source/min-api/script/min-package.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api/script/min-package.cmake)
 
 
 # Add unit tests for the API
 # enable_testing()
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/min-api)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api)
 
 
 # Add the Lib, if it exists
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/source/min-lib/CMakeLists.txt")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/min-lib)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/min-lib/CMakeLists.txt")
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-lib)
 endif ()
 
 
 # Generate a project for every folder in the "source/projects" folder
-SUBDIRLIST(PROJECT_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/source/projects)
+SUBDIRLIST(PROJECT_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/source)
 foreach (project_dir ${PROJECT_DIRS})
-	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/source/projects/${project_dir}/CMakeLists.txt")
+	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/source/${project_dir}/CMakeLists.txt")
 		message("Generating: ${project_dir}")
-		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/projects/${project_dir})
+		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/${project_dir})
 	endif ()
 endforeach ()
 
