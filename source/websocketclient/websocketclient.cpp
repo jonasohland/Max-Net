@@ -6,7 +6,7 @@
 
 #include "../shared/messages/generic_max_message.h"
 #include "../shared/messages/proto_message_wrapper.h"
-#include "../shared/proto_message_base.h"
+#include "../shared/messages/proto_message_base.h"
 
 
 #include "../shared/devices/devices.h"
