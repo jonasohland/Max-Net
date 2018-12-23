@@ -40,7 +40,7 @@ public:
 
     void changed_host(std::string val){}
 
-    attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+    attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
