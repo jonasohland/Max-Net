@@ -25,4 +25,4 @@ script:
 - mkdir build
 - cd build
 - cmake -G "Xcode" ..
-- cmake --build . --config ${CONFIG} | sed 's/-Wl,-.*//g'
+- cmake --build . --config ${CONFIG} #| sed 's/-Wl,-.*//g'
