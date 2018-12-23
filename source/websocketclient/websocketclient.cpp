@@ -15,8 +15,6 @@
 
 #include "c74_min.h"
 
-
-
 using namespace c74::min;
 using namespace std::placeholders;
 
@@ -33,7 +31,7 @@ public:
 	MIN_RELATED{ "udpsend, udpreceive" };
 
 	inlet<> main_inlet{ this, "(anything) data in" };
-	outlet<thread_check::any, thread_action::fifo> data_out{ this, "data out" };
+	outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
 	outlet<> status_out{ this, "status out" };
 
     void changed_port(long val){}
@@ -162,7 +160,6 @@ public:
 					cout << "connection established" << endl;
 
 					connection_->wq()->attach_sent_handler([=](const ohlano::max_message* msg) {
-
 						allocator_.deallocate(msg);
 					});
 					begin_read();
@@ -179,7 +176,7 @@ public:
 		if (connection_) {
 			connection_->begin_read([=](ohlano::max_message* mess, size_t bytes_transferred) {
 				mess->deserialize();
-				data_out.send(mess->get_atoms());
+				output_.write(mess);
 				allocator_.deallocate(mess);
 			});
 		}
@@ -217,14 +214,15 @@ public:
 
 	atoms handle_data(const atoms& args, int inlet) {
 		if (connection_) {
-			if (connection_->status() == websocket_connection::status_t::ONLINE) {
+			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
+
 				auto msg = allocator_.allocate();
 
 				msg->push_atoms(args);
 
-				msg->serialize();
-
-				connection_->wq()->submit(msg);
+				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
+					connection_->wq()->submit(msg_);
+				});
 			}
 		}
 
@@ -239,9 +237,9 @@ public:
 
 				msg->push_atoms(args);
 
-				msg->serialize();
-
-				connection_->wq()->submit(msg);
+				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
+					connection_->wq()->submit(msg_);
+				});
 			}
 		}
 		return args;
@@ -255,9 +253,9 @@ public:
 
 				msg->push_atoms(args);
 
-				msg->serialize();
-
-				connection_->wq()->submit(msg);
+				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
+					connection_->wq()->submit(msg_);
+				});
 			}
 		}
 		return args;
@@ -297,9 +295,9 @@ public:
 					msg->push_atoms(args);
 				}
 
-				msg->serialize();
-
-				connection_->wq()->submit(msg);
+				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
+					connection_->wq()->submit(msg_);
+				});
 			}
 		}
 		return args;
@@ -340,7 +338,7 @@ private:
 	boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work{ io_context_.get_executor() };
 
 	/** This object is responsible for resolving hostnames to ip addresses */
-	multi_resolver<boost::asio::ip::tcp> resolver{ io_context_ };
+	ohlano::multi_resolver<boost::asio::ip::tcp> resolver{ io_context_ };
 
 	ohlano::max_message::factory allocator_;
 
@@ -348,8 +346,9 @@ private:
 
 	std::shared_ptr<std::thread> client_thread_ptr;
 
-	protobuf_decoder decoder_;
-	protobuf_decoder_worker dec_worker_{ decoder_ };
+	ohlano::protobuf_decoder_worker<ohlano::max_message> dec_worker_{};
+
+	ohlano::outlet_output_adapter<ohlano::max_message> output_{ &data_out };
 
 	
 

@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-#define min_wrap_member(x) ohlano::make_func<atoms(const atoms&, int)>(std::bind(x, this, _1, _2))
+#define min_wrap_member(x) ohlano::make_func<c74::min::atoms(const c74::min::atoms&, int)>(std::bind(x, this, std::placeholders::_1, std::placeholders::_2))
 
 
 namespace ohlano {
