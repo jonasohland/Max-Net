@@ -131,7 +131,7 @@ public:
 			cout << "resolving " << url.host() << endl;
 
 			resolver.resolve(url, [this](boost::system::error_code ec, net_url<> _url) {
-				if (!ec.failed()) {
+				if (!ec) {
 					for (auto& endpoint : _url.endpoints()) {
 						cout << "result: " << endpoint.address().to_string() << ":" << endpoint.port() << endl;
 					}
@@ -157,7 +157,7 @@ public:
 	void perform_connect() {
 		if (connection_) {
 			connection_->connect([=](boost::system::error_code ec) {
-				if (!ec.failed()) {
+				if (!ec) {
 
 					cout << "connection established" << endl;
 
@@ -190,7 +190,7 @@ public:
 
 		if (connection_) {
 			connection_->close([=](boost::system::error_code ec) {
-				if (!ec.failed())
+				if (!ec)
 					cout << "gracefully closed connection" << endl;
 			});
 		}

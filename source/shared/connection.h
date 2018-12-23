@@ -83,7 +83,7 @@ namespace ohlano {
 
 			close_tmt->async_wait([=](boost::system::error_code ec) {
 
-				if (!ec.failed()) {
+				if (!ec) {
 					DBG("cancelling socket tasks");
 					stream_.next_layer().cancel();
 
@@ -136,7 +136,7 @@ namespace ohlano {
 
 		void connect_handler(boost::system::error_code ec, connection_handler_type handler) {
 
-			if (!ec.failed()) {
+			if (!ec) {
 				stream_.async_handshake(url_.host(), url_.path(),
 					std::bind(
 						&connection::handshake_handler,
@@ -153,7 +153,7 @@ namespace ohlano {
 		}
 
 		void handshake_handler(boost::system::error_code ec, connection_handler_type handler) {
-			if (!ec.failed()) {
+			if (!ec) {
 				status_.store(status_t::ONLINE);
 				handler(ec);
 			}
@@ -180,7 +180,7 @@ namespace ohlano {
 
 		void read_handler(boost::system::error_code ec, size_t bytes_transferred) {
 
-			if (!ec.failed()) {
+			if (!ec) {
 
 				if (read_handler_) {
 
