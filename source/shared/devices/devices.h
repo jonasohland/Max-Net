@@ -4,3 +4,4 @@
 #include "protobuf_decoder_worker.h"
 #include "write_queue.h"
 #include "multi_resolver.h"
+#include "outlet_output_adapter.h"

@@ -111,8 +111,6 @@ namespace ohlano {
 		c74::min::atoms get_atoms() const {
 
 			c74::min::atoms out_atoms;
-
-			DBG("unpacking: ", proto()->DebugString());
 			
 			for (const auto& atom: proto()->atom()) {
 				switch (atom.type()) {
