@@ -40,7 +40,7 @@ public:
 
     void changed_host(std::string val){}
 
-    attribute<long long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+    attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
@@ -364,6 +364,6 @@ void ext_main(void* r) {
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    c74::max::object_post(nullptr, "WebSockets for Max // (c) Jonas Ohland 2018");
+    c74::max::object_post(nullptr, "WebSockets for Max // (c) Jonas Ohland 2018 -- built __DATE__");
 	c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
 }
