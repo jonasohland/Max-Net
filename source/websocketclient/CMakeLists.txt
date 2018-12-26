@@ -16,7 +16,13 @@ include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)									# BOOST Module settings
 
-find_package(Boost COMPONENTS "date_time" "regex" REQUIRED)		# find Boost
+find_package(Boost COMPONENTS 
+					"system" 
+					"date_time" 
+					"regex" 
+					REQUIRED)									# find Boost
+
+message(STATUS "Please make sure the header-only libs Asio and Boost are also installed")
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
