@@ -134,8 +134,8 @@ public:
 						cout << "result: " << endpoint.address().to_string() << ":" << endpoint.port() << endl;
 					}
 					cout << "connecting..." << endl;
-					connection_ = std::make_shared<websocket_connection>(_url, io_context_, allocator_);
-					perform_connect();
+					connection_ = std::make_shared<websocket_connection>(io_context_, allocator_);
+					perform_connect(_url);
 				}
 				else {
 					cerr << "resolving failed: " << ec.message() << endl;
@@ -147,14 +147,14 @@ public:
 			cout << "url:" << url.host() << url.port() << endl;
 
 			cout << "connecting..." << endl;
-			connection_ = std::make_shared<websocket_connection>(url, io_context_, allocator_);
-			io_context_.post([=]() { perform_connect(); });
+			connection_ = std::make_shared<websocket_connection>(io_context_, allocator_);
+			io_context_.post([=]() { perform_connect(url); });
 		}
 	}
 
-	void perform_connect() {
+	void perform_connect(net_url<> _url) {
 		if (connection_) {
-			connection_->connect([=](boost::system::error_code ec) {
+			connection_->connect(_url, [=](boost::system::error_code ec) {
 				if (!ec) {
 
 					cout << "connection established" << endl;
@@ -174,7 +174,11 @@ public:
     
 	void begin_read() {
 		if (connection_) {
-			connection_->begin_read([=](ohlano::max_message* mess, size_t bytes_transferred) {
+			connection_->begin_read([=](boost::system::error_code ec, ohlano::max_message* mess, size_t bytes_transferred) {
+				if (ec) {
+					cout << "connection server closed: " << ec.message() << c74::min::endl;
+					return;
+				}
 				mess->deserialize();
 				output_.write(mess);
 				allocator_.deallocate(mess);
@@ -327,6 +331,17 @@ public:
 	message<threadsafe::yes> long_input{ this, "int", "send data", min_wrap_member(&websocketclient::handle_long) };
 	message<threadsafe::yes> float_input{ this, "float", "send data", min_wrap_member(&websocketclient::handle_float) };
 
+	message<> version{ this, "anything", "print version number", [=](const atoms& args, int inlet) -> atoms { 
+
+#ifdef VERSION_TAG
+			cout << "WebSocket Client for Max " << STR(VERSION_TAG) << "-" << STR(CONFIG_TAG) << "-" << STR(OS_TAG) << c74::min::endl; 
+#else
+			cout << "test build" << c74::min::endl;
+#endif
+			return args; 
+		} 
+	};
+
 
 
 private:
@@ -363,6 +378,11 @@ void ext_main(void* r) {
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    c74::max::object_post(nullptr, "WebSockets for Max // (c) Jonas Ohland 2018 -- built __DATE__");
+#ifdef VERSION_TAG
+	c74::max::object_post(nullptr, "WebSocket Client for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s", STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);
+#else
+	c74::max::object_post(nullptr, "WebSocket Client for Max // (c) Jonas Ohland 2018 -- built %s - test build", __DATE__);
+#endif
+
 	c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
 }

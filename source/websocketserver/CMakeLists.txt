@@ -2,11 +2,13 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+execute_process(COMMAND "git" "describe" "--tags" OUTPUT_VARIABLE VERSION_TAG ERROR_VARIABLE VERSION_TAG)
+
+message(STATUS "GENERATING VERSION: ${VERSION_TAG}")
+
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api) 	# C74 support dirs
 
 file(GLOB PROTOS "${CMAKE_CURRENT_SOURCE_DIR}/../shared/proto/*.proto")
-
-message("dirs: " ${PROTOS})
 
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
@@ -14,7 +16,7 @@ include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)									# BOOST Module settings
 
-find_package(Boost COMPONENTS "date_time" REQUIRED)				# find Boost
+find_package(Boost COMPONENTS "date_time" "regex" REQUIRED)				# find Boost
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
@@ -30,19 +32,19 @@ include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
 #-------------------------------------SOURCE / TARGET----------------------------------------#
 
-message(STATUS "generating protoc rules for: ${FILE}")
+
 protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTOS})
-message(STATUS "Generated: ${PROTO_SRC} | ${PROTO_HDR}")
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
-	${PROTO_HDR}
 	../shared/devices/devices.h
 	../shared/devices/write_queue.h
 	../shared/devices/protobuf_decoder.h
 	../shared/devices/protobuf_decoder_worker.h
 	../shared/devices/outlet_output_adapter.h
+	../shared/devices/listener.h
+	../shared/devices/multi_acceptor.h
 	../shared/messages/string_message.h
 	../shared/messages/proto_message_wrapper.h
 	../shared/messages/generic_max_message.h
@@ -63,7 +65,9 @@ if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				# definition for Windows.h 
 endif()															# (Makes Boost.Asio happy)
 
-																
+add_compile_definitions(VERSION_TAG=${VERSION_TAG})
+
+include_directories(${PROTO_HDR})																
 
 #------------------------------------------LINKER--------------------------------------------#
 

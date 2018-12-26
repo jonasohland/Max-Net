@@ -18,8 +18,9 @@ namespace ohlano {
 	public:
 
 		typedef std::function<void(boost::system::error_code)> connection_handler_type;
-		typedef std::function<void(Message*, size_t)> message_received_handler_type;
+		typedef std::function<void(boost::system::error_code, Message*, size_t)> message_received_handler_type;
 		typedef std::function<void(boost::system::error_code)> closed_handler_type;
+		typedef std::function<void(boost::system::error_code)> accepted_handler_type;
 
 
 		typedef enum status_codes {
@@ -28,7 +29,7 @@ namespace ohlano {
 
 		connection() = default;
 
-        explicit connection(net_url<>& url, boost::asio::io_context& ctx, typename Message::factory& allocator) : url_(url), ctx_(ctx), stream_(ctx_), allocator_(allocator)
+        explicit connection(boost::asio::io_context& ctx, typename Message::factory& allocator) : ctx_(ctx), stream_(ctx_), allocator_(allocator)
 		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
 
 		std::string status_string() {
@@ -47,25 +48,40 @@ namespace ohlano {
 
 		}
 
+		explicit connection(typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx, typename Message::factory& allocator): ctx_(ctx), stream_(std::forward<typename Stream::next_layer_type>(next_layer)), allocator_(allocator)
+		{}
+
 		status_t status() { return status_.load(); }
 
         std::shared_ptr<write_queue<Message, Stream>>& wq() { return out_queue_; }
 
-		void connect(connection_handler_type handler) {
+		void connect(net_url<> url, connection_handler_type handler) {
 
 			status_.store(status_t::BLOCKED);
 
-			assert(url_.valid());
-			assert(url_.is_resolved());
+			assert(url.valid());
+			assert(url.is_resolved());
 
 			stream_.binary(true);
 
 			boost::asio::async_connect(
 				stream_.next_layer(),
-				url_.endpoints(),
+				url.endpoints(),
 				std::bind(
 					&connection::connect_handler,
 					this->shared_from_this(),
+					std::placeholders::_1,
+					handler, 
+					url
+				)
+			);
+		}
+
+		void accept(accepted_handler_type handler) {
+			stream_.async_accept(
+				std::bind(
+					&connection::accepted_handler,
+					shared_from_this(),
 					std::placeholders::_1,
 					handler
 				)
@@ -118,8 +134,6 @@ namespace ohlano {
 
 	private:
 
-		net_url<> url_;
-
 		boost::asio::io_context& ctx_;
 		Stream stream_;
 		boost::beast::multi_buffer buffer_;
@@ -134,10 +148,10 @@ namespace ohlano {
 
 		std::unique_ptr<boost::asio::steady_timer> close_tmt;
 
-		void connect_handler(boost::system::error_code ec, connection_handler_type handler) {
+		void connect_handler(boost::system::error_code ec, connection_handler_type handler, net_url<> url) {
 
 			if (!ec) {
-				stream_.async_handshake(url_.host(), url_.path(),
+				stream_.async_handshake(url.host(), url.path(),
 					std::bind(
 						&connection::handshake_handler,
 						this->shared_from_this(),
@@ -153,14 +167,24 @@ namespace ohlano {
 		}
 
 		void handshake_handler(boost::system::error_code ec, connection_handler_type handler) {
-			if (!ec) {
-				status_.store(status_t::ONLINE);
-				handler(ec);
-			}
-			else {
+			if (ec) {
 				status_.store(status_t::ABORTED);
 				handler(ec);
 			}
+			else {
+				status_.store(status_t::ONLINE);
+				handler(ec);
+			}
+		}
+
+		void accepted_handler(boost::system::error_code ec, accepted_handler_type handler) {
+			if (ec) {
+				status_.store(status_t::ABORTED);
+			}
+			else {
+				status_.store(status_t::ONLINE);
+			}
+			handler(ec);
 		}
 
 		void perform_read() {
@@ -190,7 +214,7 @@ namespace ohlano {
 
 					DBG("received ", bytes_transferred, " bytes");
 
-					read_handler_(new_msg, bytes_transferred);
+					read_handler_(ec, new_msg, bytes_transferred);
 				}
 
 				buffer_.consume(bytes_transferred);
@@ -198,7 +222,7 @@ namespace ohlano {
 				perform_read();
 			}
 			else {
-
+				read_handler_(ec, nullptr, bytes_transferred);
 			}
 		}
 

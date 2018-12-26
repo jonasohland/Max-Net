@@ -28,6 +28,9 @@ class(const class& other)
 class* operator=(const class& other)
 
 
+#define STR_IMPL_(x) #x
+#define STR(x) STR_IMPL_(x)
+
 
 #define OHLANO_NODEFAULT(class) class() = delete;
 
@@ -79,9 +82,13 @@ namespace ohlano{
 #ifdef _MSC_VER
 #ifdef _DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
+#define CONFIG_TAG d
 #else
 #define DBG(...) ;
+#define CONFIG_TAG r
 #endif
+
+#define OS_TAG win
 
 #ifdef _DEBUG
 #define LOG(...) std::cout << __FILE__ << " " << __LINE__ << ": "; ohlano::log(__VA_ARGS__);
@@ -91,9 +98,13 @@ namespace ohlano{
 #else
 #ifdef DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
+#define CONFIG_TAG d
 #else
 #define DBG(...) ;
+#define CONFIG_TAG r
 #endif
+
+#define osx
 
 #ifdef DEBUG
 #define LOG(...) std::cout << __FILE__ << " " << __LINE__ << ": "; ohlano::log(__VA_ARGS__);
