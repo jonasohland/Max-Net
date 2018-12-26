@@ -87,7 +87,6 @@ public:
             
             //it is
             if(port_pos != std::string::npos){
-                DBG("found host:port combination");
                 
 				hostname_ = (*token_it).substr(0, port_pos);
 
@@ -97,12 +96,9 @@ public:
 					ec = error_code::FAIL;
 					return;
 				}
-
-                DBG("found: Host: ", hostname_, " Port: ", port_);
             
             //it is not
             } else {
-                DBG("assuming ", *token_it, " is hostname/ip");
                 hostname_ = *token_it;
             }
         } else {

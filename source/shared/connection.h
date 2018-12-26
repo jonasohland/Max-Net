@@ -27,8 +27,6 @@ namespace ohlano {
 			OFFLINE, ONLINE, BLOCKED, ABORTED
 		} status_t;
 
-		connection() = default;
-
         explicit connection(boost::asio::io_context& ctx, typename Message::factory& allocator) : ctx_(ctx), stream_(ctx_), allocator_(allocator)
 		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
 
@@ -48,8 +46,9 @@ namespace ohlano {
 
 		}
 
-		explicit connection(typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx, typename Message::factory& allocator): ctx_(ctx), stream_(std::forward<typename Stream::next_layer_type>(next_layer)), allocator_(allocator)
-		{}
+		explicit connection(typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx, typename Message::factory& allocator): 
+			ctx_(ctx), stream_(std::forward<typename Stream::next_layer_type>(next_layer)), allocator_(allocator)
+		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
 
 		status_t status() { return status_.load(); }
 
@@ -62,7 +61,7 @@ namespace ohlano {
 			assert(url.valid());
 			assert(url.is_resolved());
 
-			stream_.binary(true);
+			
 
 			boost::asio::async_connect(
 				stream_.next_layer(),
@@ -90,6 +89,7 @@ namespace ohlano {
 
 		void begin_read(message_received_handler_type handler) {
 			read_handler_ = handler;
+			stream_.binary(true);
 			perform_read();
 		}
 
@@ -100,10 +100,8 @@ namespace ohlano {
 			close_tmt->async_wait([=](boost::system::error_code ec) {
 
 				if (!ec) {
-					DBG("cancelling socket tasks");
 					stream_.next_layer().cancel();
 
-					DBG("closing underlying sockets");
 
 					if (stream_.next_layer().is_open()) {
 						stream_.next_layer().close();
@@ -114,10 +112,7 @@ namespace ohlano {
 				}
 			});
 
-			DBG("close tmt set");
-
 			if (status() == status_codes::ONLINE) {
-				DBG("closing stream");
 				stream_.async_close(
 					boost::beast::websocket::close_code::going_away,
 					std::bind(
@@ -222,17 +217,19 @@ namespace ohlano {
 				perform_read();
 			}
 			else {
+				status_.store(status_t::ABORTED);
 				read_handler_(ec, nullptr, bytes_transferred);
 			}
 		}
 
 		void close_handler(boost::system::error_code ec, closed_handler_type handler) {
 
-			DBG("connnection close: ", ec.message());
 
 			if (close_tmt) {
 				close_tmt->cancel();
 			}
+
+			status_.store(status_t::OFFLINE);
 
 			handler(ec);
 		}

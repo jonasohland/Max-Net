@@ -49,7 +49,6 @@ namespace ohlano {
 	private:
 
 		void begin_resolve(resolve_queue_value_type qelem) {
-			DBG("starting resolve: ", qelem.first.host(), " port: ", qelem.first.port());
 			res_.async_resolve(qelem.first.host(), qelem.first.port(),
 				boost::asio::bind_executor(
 					strand_,
@@ -77,12 +76,7 @@ namespace ohlano {
 			if (!ws_queue_.empty()) {
 				begin_resolve(ws_queue_.front());
 			}
-
-			DBG("queue size: ", ws_queue_.size());
-
 			qelem.second(ec, qelem.first);
-
-
 		}
 
 	};

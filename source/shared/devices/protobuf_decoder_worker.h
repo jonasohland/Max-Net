@@ -27,7 +27,6 @@ namespace ohlano {
 		void run(size_t num_threads) {
 
 			for (size_t i = 0; i < num_threads; i++) {
-				DBG("running thread: ", i);
 				threads_.emplace_back([this]() {ioc_.run(); });
 			}
 		}
