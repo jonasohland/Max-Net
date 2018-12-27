@@ -80,6 +80,7 @@ namespace ohlano{
 }
 
 #ifdef _MSC_VER
+
 #ifdef _DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
 #define CONFIG_TAG d
@@ -95,7 +96,9 @@ namespace ohlano{
 #else
 #define LOG(...) ;
 #endif
+
 #else
+
 #ifdef DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
 #define CONFIG_TAG d
@@ -104,13 +107,14 @@ namespace ohlano{
 #define CONFIG_TAG r
 #endif
 
-#define osx
+#define OS_TAG osx
 
 #ifdef DEBUG
 #define LOG(...) std::cout << __FILE__ << " " << __LINE__ << ": "; ohlano::log(__VA_ARGS__);
 #else
 #define LOG(...) ;
 #endif
+
 #endif
 
 

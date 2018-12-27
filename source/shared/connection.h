@@ -80,7 +80,7 @@ namespace ohlano {
 			stream_.async_accept(
 				std::bind(
 					&connection::accepted_handler,
-					shared_from_this(),
+					this->shared_from_this(),
 					std::placeholders::_1,
 					handler
 				)

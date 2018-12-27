@@ -3,7 +3,7 @@
 #include "c74_min.h"
 #include "../ohlano.h"
 #include "../messages/proto_message_base.h"
-#include "../generic_max.pb.h"
+#include "../../../build/source/websocketclient/generic_max.pb.h"
 
 namespace ohlano {
     

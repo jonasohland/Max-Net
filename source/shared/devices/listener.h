@@ -10,7 +10,7 @@ namespace ohlano {
 
 		using new_connection_handler = std::function<void(boost::system::error_code, boost::asio::ip::tcp::socket&&)>;
 
-		explicit listener(boost::asio::io_context& ctx) : ctx_(ctx), socket_(ctx) {
+		explicit listener(boost::asio::io_context& ctx) : socket_(ctx), ctx_(ctx) {
 
 		}
 
