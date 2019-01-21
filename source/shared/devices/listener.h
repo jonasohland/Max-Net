@@ -16,7 +16,40 @@ namespace ohlano {
 
 		void start_listen(boost::asio::ip::tcp::endpoint endpoint, new_connection_handler handler) {
 
-			acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(ctx_, endpoint);
+			acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(ctx_);
+
+			boost::asio::socket_base::reuse_address option(true);
+
+
+			boost::system::error_code ec;
+
+			acceptor_->open(endpoint.protocol(), ec);
+			if (ec)
+			{
+				DBG("open error ", ec.message());
+				return;
+			}
+
+			acceptor_->set_option(option, ec);
+			if (ec)
+			{
+				DBG("addr reuse error ", ec.message());
+				return;
+			}
+
+			acceptor_->bind(endpoint, ec);
+			if (ec)
+			{
+				DBG("bind error: ", ec.message());
+				return;
+			}
+
+			acceptor_->listen(boost::asio::socket_base::max_listen_connections, ec);
+			if (ec)
+			{
+				DBG("listen error: ", ec.message());
+				return;
+			}
 
 			acceptor_->async_accept(socket_, std::bind(
 				&listener::accept_handler,

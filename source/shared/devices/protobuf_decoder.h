@@ -1,6 +1,6 @@
 #pragma once
 
-#include <../../generic_max.pb.h>
+#include <../generic_max.pb.h>
 
 class protobuf_decoder {
 public:
