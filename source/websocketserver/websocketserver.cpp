@@ -134,7 +134,7 @@ public:
 					if (!(*connections_it)) {
 
 						(*connections_it) = std::make_shared<websocket_connection>(std::forward<boost::asio::ip::tcp::socket>(sock), ctx_, alloc_);
-						
+						(*connections_it)->wq()->binary(true);
 						(*connections_it)->accept([=](boost::system::error_code ec) {
 
 							if (ec) {

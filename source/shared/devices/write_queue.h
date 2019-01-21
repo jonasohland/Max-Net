@@ -28,6 +28,7 @@ public:
     
     write_queue(Stream* stream, typename Message::factory* allocator): exec_(stream->get_executor()), strand_(exec_.context()) {
 		stream_ = stream;
+		alloc_ = allocator;
 	}
 
 	void submit(const Message* msg) {
@@ -87,11 +88,17 @@ private:
             perform_write(msg_queue.front());
         } 
 
-		boost::asio::post(exec_, [=]() {
-			snt_handler_.value_or(sent_handler_type())(msg); 
-			boost::asio::post(exec_, [=]() {alloc_->deallocate(msg); 
-			}); 
-		});		
+		auto self = this->shared_from_this();
+
+		if (snt_handler_ != boost::none) {
+			boost::asio::post(self->exec_, [msg, self]() {
+				self->snt_handler_.value()(msg);
+				self->alloc_->deallocate(msg);
+			});
+		}
+		else {
+			boost::asio::post(self->exec_, [msg, self]() { self->alloc_->deallocate(msg); });
+		}
 	}
 
 	std::mutex queue_mtx_;

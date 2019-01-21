@@ -101,12 +101,12 @@ public:
 				cout << "running network io worker thread" << endl;
 
 				client_thread_ptr = std::make_shared<std::thread>([this]() {
-					try {
+					//try {
 						io_context_.run();
-					}
-					catch (std::exception const&  ex) {
-						cerr << "exception in network io worker thread: " << ex.what() << endl;
-					}
+					//}
+					//catch (std::exception const&  ex) {
+					//	cerr << "exception in network io worker thread: " << ex.what() << endl;
+					//}
 					cout << "finished running network io worker thread" << endl;
 				});
 
@@ -136,6 +136,7 @@ public:
 					}
 					cout << "connecting..." << endl;
 					connection_ = std::make_shared<websocket_connection>(io_context_, allocator_);
+					connection_->wq()->binary(true);
 					perform_connect(_url);
 				}
 				else {
@@ -159,6 +160,8 @@ public:
 				if (!ec) {
 
 					cout << "connection established" << endl;
+
+					
 
 					begin_read();
 				}
