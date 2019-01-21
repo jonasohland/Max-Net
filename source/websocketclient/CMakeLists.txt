@@ -67,7 +67,7 @@ if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				# definition for Windows.h 
 endif()															# (Makes Boost.Asio happy)
 
-add_compile_definitions(VERSION_TAG=${VERSION_TAG})	
+target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})	
 
 #----------------------------------------INCLUDES--------------------------------------------#
 
