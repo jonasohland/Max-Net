@@ -34,11 +34,11 @@ public:
 	outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
 	outlet<> status_out{ this, "status out" };
 
-    void changed_port(long val){}
+    void changed_port(int val){}
 
     void changed_host(std::string val){}
 
-    attribute<long> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
+    attribute<int> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
 		description{ "remote port to connect to" }, range{ 0, 65535 }};
 
 	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};

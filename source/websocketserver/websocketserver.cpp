@@ -20,12 +20,12 @@ class websocketserver : public c74::min::object<websocketserver> {
 
 	using websocket_connection = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, ohlano::max_message>;
 
-	c74::min::attribute<long long> port{ this, "port", -1, min_wrap_member(&websocketserver::handle_port_change) };
+	c74::min::attribute<int> port{ this, "port", -1, min_wrap_member(&websocketserver::handle_port_change) };
 	bool is_set_port() { return port != -1; }
 
 	c74::min::attribute<c74::min::symbol> address{ this, "address", "0.0.0.0", min_wrap_member(&websocketserver::handle_address_change) };
 
-	boost::asio::ip::tcp::endpoint make_endpoint(c74::min::attribute<c74::min::symbol>& addr, c74::min::attribute<long long>& prt) { 
+	boost::asio::ip::tcp::endpoint make_endpoint(c74::min::attribute<c74::min::symbol>& addr, c74::min::attribute<int>& prt) { 
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(std::string(addr.get().c_str())), static_cast<unsigned short>(prt.get())); 
 	}
 
