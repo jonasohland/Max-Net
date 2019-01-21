@@ -3,6 +3,7 @@
 
 #include "../shared/net_url.h"
 #include "../shared/connection.h"
+#include "../shared/devices/protobuf_decoder_worker.h"
 
 #include "../shared/messages/generic_max_message.h"
 #include "../shared/messages/proto_message_wrapper.h"
@@ -159,9 +160,6 @@ public:
 
 					cout << "connection established" << endl;
 
-					connection_->wq()->attach_sent_handler([=](const ohlano::max_message* msg) {
-						allocator_.deallocate(msg);
-					});
 					begin_read();
 				}
 				else {

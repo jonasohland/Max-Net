@@ -19,14 +19,15 @@ public:
     }
     
     template<typename ConstBufferSequence>
-    static void from_const_buffers(ConstBufferSequence buffers, proto_message_base* msg){
+    static void from_const_buffers(ConstBufferSequence buffers, proto_message_base* msg, bool text){
 
-		msg->data_.reserve(boost::asio::buffer_size(buffers));
+		if (!text) {
+			msg->data_.reserve(boost::asio::buffer_size(buffers));
 
-		for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
-			std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
+			for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
+				std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
+			}
 		}
-
     }
 
 	std::string& vect() {
@@ -81,14 +82,15 @@ public:
 	}
 
 	template<typename ConstBufferSequence>
-	static void from_const_buffers(ConstBufferSequence buffers, basic_proto_message* msg) {
+	static void from_const_buffers(ConstBufferSequence buffers, basic_proto_message* msg, bool text) {
 
-		msg->data_.reserve(boost::asio::buffer_size(buffers));
+		if (!text) {
+			msg->data_.reserve(boost::asio::buffer_size(buffers));
 
-		for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
-			std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
+			for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
+				std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
+			}
 		}
-
 	}
 
 	std::string& vect() {

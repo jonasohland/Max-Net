@@ -170,10 +170,6 @@ public:
 								});
 							}
 
-							(*connections_it)->wq()->attach_sent_handler([=](const ohlano::max_message* msg) {
-								alloc_.deallocate(msg);
-							});
-
 						});
 
 						return;

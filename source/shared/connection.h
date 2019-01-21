@@ -1,8 +1,6 @@
 #pragma once
 #include "net_url.h"
 #include "devices/write_queue.h"
-#include "messages/generic_max_message.h"
-#include "messages/string_message.h"
 #include "ohlano.h"
 #include <cassert>
 #include <atomic>
@@ -28,7 +26,7 @@ namespace ohlano {
 		} status_t;
 
         explicit connection(boost::asio::io_context& ctx, typename Message::factory& allocator) : ctx_(ctx), stream_(ctx_), allocator_(allocator)
-		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
+		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_, &allocator_); }
 
 		std::string status_string() {
 			switch (status_.load()) {
@@ -48,7 +46,7 @@ namespace ohlano {
 
 		explicit connection(typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx, typename Message::factory& allocator): 
 			ctx_(ctx), stream_(std::forward<typename Stream::next_layer_type>(next_layer)), allocator_(allocator)
-		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_); }
+		{ out_queue_ = std::make_shared<write_queue<Message, Stream>>(&stream_, &allocator_); }
 
 		status_t status() { return status_.load(); }
 
@@ -80,7 +78,7 @@ namespace ohlano {
 			stream_.async_accept(
 				std::bind(
 					&connection::accepted_handler,
-					this->shared_from_this(),
+					shared_from_this(),
 					std::placeholders::_1,
 					handler
 				)
@@ -89,7 +87,6 @@ namespace ohlano {
 
 		void begin_read(message_received_handler_type handler) {
 			read_handler_ = handler;
-			stream_.binary(true);
 			perform_read();
 		}
 
@@ -205,7 +202,7 @@ namespace ohlano {
 
 					Message* new_msg = static_cast<Message*>(allocator_.allocate());
 
-					Message::from_const_buffers(buffer_.data(), new_msg);
+					Message::from_const_buffers(buffer_.data(), new_msg, stream_.got_text());
 
 					DBG("received ", bytes_transferred, " bytes");
 

@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include "../../../build/source/websocketclient/generic_max.pb.h"
@@ -25,3 +26,5 @@ public:
 
 private:
 };
+
+*/

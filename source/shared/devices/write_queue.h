@@ -5,6 +5,7 @@
 #include <chrono>
 #include <type_traits>
 #include "../ohlano.h"
+#include <boost/optional.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/io_context_strand.hpp>
 #include <boost/asio/bind_executor.hpp>
@@ -25,7 +26,7 @@ public:
 
 	write_queue() = delete;
     
-    write_queue(Stream* stream): exec_(stream->get_executor()), strand_(exec_.context()) {
+    write_queue(Stream* stream, typename Message::factory* allocator): exec_(stream->get_executor()), strand_(exec_.context()) {
 		stream_ = stream;
 	}
 
@@ -47,9 +48,12 @@ public:
 	}
     
     void attach_sent_handler(sent_handler_type handler){
-        sent_handler_ = handler;
-        has_handler_.store(true);
+		snt_handler_ = boost::make_optional(handler);
     }
+
+	void binary(bool txt) {
+		stream_->binary(txt);
+	}
 
 
 private:
@@ -83,19 +87,22 @@ private:
             perform_write(msg_queue.front());
         } 
 
-        if(has_handler_.load()){
-            sent_handler_(msg);
-        }
+		boost::asio::post(exec_, [=]() {
+			snt_handler_.value_or(sent_handler_type())(msg); 
+			boost::asio::post(exec_, [=]() {alloc_->deallocate(msg); 
+			}); 
+		});		
 	}
 
 	std::mutex queue_mtx_;
 
 	Stream* stream_;
+	typename Message::factory* alloc_;
 	boost::asio::io_context::executor_type exec_;
     boost::asio::io_context::strand strand_;
     boost::asio::steady_timer wait_timer{exec_.context()};
         
-    sent_handler_type sent_handler_;
+	boost::optional<sent_handler_type> snt_handler_;
 
     std::deque<const Message*> msg_queue;
     std::atomic<bool> has_handler_;
