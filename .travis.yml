@@ -21,8 +21,6 @@ matrix:
 
 script:
 - brew install protobuf
-- brew install boost
-- brew upgrade cmake
 - mkdir build
 - cd build
 - cmake -G "Xcode" ..
