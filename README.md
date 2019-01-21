@@ -1,6 +1,6 @@
-# Websockets for Max
+# Websockets for Max - [![Build Status](https://travis-ci.com/jonasohland/max-websockets.svg?branch=master)](https://travis-ci.com/jonasohland/max-websockets)
 
-## Building
+## Building 
 To successfully build  these externals you will need:
 - Boost.Asio
 - Boost.Beast
