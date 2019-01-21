@@ -2,7 +2,11 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-execute_process(COMMAND "git" "describe" "--tags" OUTPUT_VARIABLE VERSION_TAG ERROR_VARIABLE VERSION_TAG)
+execute_process(COMMAND "git" "describe" "--tags" 
+				OUTPUT_VARIABLE VERSION_TAG 
+				ERROR_VARIABLE VERSION_TAG
+				ERROR_STRIP_TRAILING_WHITESPACE
+				OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 message(STATUS "GENERATING VERSION: ${VERSION_TAG}")
 
@@ -22,18 +26,10 @@ find_package(Boost COMPONENTS
 					"regex" 
 					REQUIRED)				# find Boost
 
-message(STATUS "Please make sure the header-only libs Asio and Boost are also installed")
+message(STATUS "Please make sure the header-only libs Asio and Beast are also installed")
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
-
-#----------------------------------------INCLUDES--------------------------------------------#
-
-
-include_directories("${C74_INCLUDES}")							# C74 Headers
-
-include_directories(${Protobuf_INCLUDE_DIRS})					# Protobuf Headers
-include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
 
 #-------------------------------------SOURCE / TARGET----------------------------------------#
@@ -73,7 +69,17 @@ endif()															# (Makes Boost.Asio happy)
 
 add_compile_definitions(VERSION_TAG=${VERSION_TAG})
 
-include_directories(${PROTO_HDR})																
+#----------------------------------------INCLUDES--------------------------------------------#
+
+
+
+
+target_include_directories(${PROJECT_NAME} BEFORE PUBLIC ${PROTO_HDR})	
+
+include_directories("${C74_INCLUDES}")							# C74 Headers
+
+include_directories(${Protobuf_INCLUDE_DIRS})					# Protobuf Headers
+include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
 #------------------------------------------LINKER--------------------------------------------#
 
@@ -83,7 +89,7 @@ include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)			# C74 post build tasks
 target_link_libraries(${PROJECT_NAME} PUBLIC 					# link boost libs
 						${Boost_LIBRARIES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 					# link google Protobuf libs
+target_link_libraries(${PROJECT_NAME} PUBLIC 					# link google Protobuf libs
 						${Protobuf_LIBRARIES})
 
 

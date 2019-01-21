@@ -376,8 +376,6 @@ private:
 
 void ext_main(void* r) {
 
-	GOOGLE_PROTOBUF_VERIFY_VERSION;
-
 #ifdef VERSION_TAG
 	c74::max::object_post(nullptr, "WebSocket Client for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s", STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);
 #else

@@ -21,6 +21,7 @@ class websocketserver : public c74::min::object<websocketserver> {
 	using websocket_connection = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, ohlano::max_message>;
 
 	c74::min::attribute<int> port{ this, "port", -1, min_wrap_member(&websocketserver::handle_port_change) };
+
 	bool is_set_port() { return port != -1; }
 
 	c74::min::attribute<c74::min::symbol> address{ this, "address", "0.0.0.0", min_wrap_member(&websocketserver::handle_address_change) };
@@ -363,8 +364,6 @@ private:
 
 
 void ext_main(void* r) {
-
-	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 #ifdef VERSION_TAG
 	c74::max::object_post(nullptr, "WebSocket Server for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s", STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);

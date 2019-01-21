@@ -3,7 +3,7 @@
 #include <google/protobuf/message.h>
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
-#include <../generic_max.pb.h>
+#include "../../../build/source/websocketclient/generic_max.pb.h"
 
 
 class proto_message_helper {
