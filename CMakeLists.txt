@@ -13,10 +13,31 @@ endif ()
 
 
 message(STATUS "Updating Git Submodules")
+
+
 execute_process(
 	COMMAND				git submodule update --init --recursive
 	WORKING_DIRECTORY	"${CMAKE_CURRENT_SOURCE_DIR}"
 )
+
+set(PROTO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/")
+
+message(STATUS "Generating proto classes")
+
+file(GLOB PROTOS "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/*.proto")
+
+
+foreach(PROTO_FILE ${PROTOS})
+
+	message(STATUS "Found: ${PROTO_FILE}")
+
+	execute_process(
+		COMMAND "protoc" "--proto_path=${PROTO_PATH}" "--cpp_out=${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/generated"  "${PROTO_FILE}"
+		WORKING_DIRECTORY	"${CMAKE_CURRENT_SOURCE_DIR}"
+	)
+
+endforeach()
+
 
 
 # Misc setup and subroutines

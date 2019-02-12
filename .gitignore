@@ -24,3 +24,5 @@ docs/
 testserver/node_modules
 package-info.json
 
+source/shared/proto/generated/*.cc
+source/shared/proto/generated/*.h
