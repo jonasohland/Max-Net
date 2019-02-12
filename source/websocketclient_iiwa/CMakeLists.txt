@@ -30,15 +30,12 @@ message(STATUS "Please make sure the header-only libs Asio and Beast are also in
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
-
-
 #-------------------------------------SOURCE / TARGET----------------------------------------#
-
-protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTOS})
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
+	${PROTO_HDR}
 	../shared/devices/devices.h
 	../shared/devices/write_queue.h
 	../shared/devices/multi_resolver.h
@@ -49,6 +46,7 @@ set( SOURCE_FILES												# Project source files
 	../shared/messages/proto_message_wrapper.h
 	../shared/messages/generic_max_message.h
 	../shared/messages/proto_message_base.h
+	../shared/messages/iiwa_message.h
 	../shared/net_url.h
 	../shared/connection.h
 	../shared/ohlano_min.h
@@ -70,8 +68,6 @@ endif()															# (Makes Boost.Asio happy)
 target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})	
 
 #----------------------------------------INCLUDES--------------------------------------------#
-
-target_include_directories(${PROJECT_NAME} BEFORE PUBLIC ${PROTO_HDR})
 
 include_directories("${C74_INCLUDES}")							# C74 Headers
 

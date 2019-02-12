@@ -5,9 +5,9 @@
 #include "../shared/connection.h"
 #include "../shared/devices/protobuf_decoder_worker.h"
 
-#include "../shared/messages/generic_max_message.h"
-#include "../shared/messages/proto_message_wrapper.h"
 #include "../shared/messages/proto_message_base.h"
+#include "../shared/messages/iiwa_message.h"
+#include "../shared/messages/generic_max_message.h"
 
 
 #include "../shared/devices/devices.h"
@@ -20,7 +20,7 @@ using namespace c74::min;
 using namespace std::placeholders;
 
 
-class websocketclient : public object<websocketclient> {
+class websocketclient_iiwa : public object<websocketclient_iiwa> {
 public:
 
 	using websocket_stream = boost::beast::websocket::stream<boost::asio::ip::tcp::socket>;
@@ -35,7 +35,7 @@ public:
 	outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
 	outlet<> status_out{ this, "status out" };
 
-	explicit websocketclient(const atoms& args = {}) {
+	explicit websocketclient_iiwa(const atoms& args = {}) {
 
 		net_url<>::error_code ec;
 		net_url<> url;
@@ -166,7 +166,7 @@ public:
 	}
 
 
-	~websocketclient(){
+	~websocketclient_iiwa(){
 
 		if (connection_) {
 			connection_->close();
@@ -193,7 +193,7 @@ public:
 	}
 
 
-	message<> status{ this, "status", "report status", min_wrap_member(&websocketclient::report_status) };
+	message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
 	message<> version{ this, "anything", "print version number", [=](const atoms& args, int inlet) -> atoms { 
 
 #ifdef VERSION_TAG
@@ -245,5 +245,5 @@ void ext_main(void* r) {
 	c74::max::object_post(nullptr, "WebSocket Client for Max // (c) Jonas Ohland 2018 -- built %s - test build", __DATE__);
 #endif
 
-	c74::min::wrap_as_max_external<websocketclient>("websocketclient", __FILE__, r);
+	c74::min::wrap_as_max_external<websocketclient_iiwa>("websocketclient.iiwa", __FILE__, r);
 }

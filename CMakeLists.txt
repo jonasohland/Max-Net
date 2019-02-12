@@ -29,7 +29,9 @@ file(GLOB PROTOS "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/*.proto")
 
 foreach(PROTO_FILE ${PROTOS})
 
-	message(STATUS "Found: ${PROTO_FILE}")
+	get_filename_component(CURRENT_PROTO_FILE_NAME ${PROTO_FILE} NAME)
+
+	message(STATUS "Found: ${CURRENT_PROTO_FILE_NAME}")
 
 	execute_process(
 		COMMAND "protoc" "--proto_path=${PROTO_PATH}" "--cpp_out=${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/generated"  "${PROTO_FILE}"
@@ -38,11 +40,22 @@ foreach(PROTO_FILE ${PROTOS})
 
 endforeach()
 
+file(GLOB PROTO_SRC "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/generated/*.cc")
+file(GLOB PROTO_HDR "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/generated/*.h")
+
+foreach(_PROTO_SRC_FILE_PATH ${PROTO_SRC})
+	get_filename_component(_PROTO_SRC_FILE ${_PROTO_SRC_FILE_PATH} NAME)
+	message(STATUS "generated source: ${_PROTO_SRC_FILE}")
+endforeach()
+
+foreach(_PROTO_HDR_FILE_PATH ${PROTO_HDR})
+	get_filename_component(_PROTO_HDR_FILE ${_PROTO_HDR_FILE_PATH} NAME)
+	message(STATUS "generated header: ${_PROTO_HDR_FILE}")
+endforeach()
 
 
 # Misc setup and subroutines
 include(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api/script/min-package.cmake)
-
 
 # Add unit tests for the API
 # enable_testing()

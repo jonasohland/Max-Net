@@ -12,8 +12,6 @@ execute_process(COMMAND "git" "describe" "--tags"
 
 message(STATUS "GENERATING VERSION: ${VERSION_TAG}")
 
-file(GLOB PROTOS "${CMAKE_CURRENT_SOURCE_DIR}/../shared/proto/*.proto")
-
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)			# C74 api build scripts
 
 # set(BOOST_ROOT "C:/boost")
@@ -30,15 +28,12 @@ message(STATUS "Please make sure the header-only libs Asio and Beast are also in
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
-
-
 #-------------------------------------SOURCE / TARGET----------------------------------------#
-
-protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTOS})
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
+	${PROTO_HDR}
 	../shared/devices/devices.h
 	../shared/devices/write_queue.h
 	../shared/devices/multi_resolver.h
@@ -55,8 +50,6 @@ set( SOURCE_FILES												# Project source files
 	../shared/ohlano.h
 )
 
-
-
 add_library( 													# target config
 	${PROJECT_NAME} 
 	MODULE
@@ -67,7 +60,7 @@ if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				# definition for Windows.h 
 endif()															# (Makes Boost.Asio happy)
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})	
+target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})
 
 #----------------------------------------INCLUDES--------------------------------------------#
 
@@ -78,9 +71,7 @@ include_directories("${C74_INCLUDES}")							# C74 Headers
 include_directories(${Protobuf_INCLUDE_DIRS})					# Protobuf Headers
 include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
-
 #------------------------------------------LINKER--------------------------------------------#
-
 
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)			# C74 post build tasks
 
@@ -91,4 +82,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC 					# link google Protobuf libs
 						${Protobuf_LIBRARIES})
 
 #-------------------------------------------POST---------------------------------------------#
-

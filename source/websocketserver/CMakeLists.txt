@@ -30,16 +30,12 @@ message(STATUS "Please make sure the header-only libs Asio and Beast are also in
 
 find_package(Protobuf REQUIRED)									# find Protobuf
 
-
-
 #-------------------------------------SOURCE / TARGET----------------------------------------#
-
-
-protobuf_generate_cpp(PROTO_SRC PROTO_HDR ${PROTOS})
 
 set( SOURCE_FILES												# Project source files 
 	${PROJECT_NAME}.cpp
 	${PROTO_SRC}
+	${PROTO_HDR}
 	../shared/devices/devices.h
 	../shared/devices/write_queue.h
 	../shared/devices/protobuf_decoder.h
@@ -71,18 +67,12 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})
 
 #----------------------------------------INCLUDES--------------------------------------------#
 
-
-
-
-target_include_directories(${PROJECT_NAME} BEFORE PUBLIC ${PROTO_HDR})	
-
 include_directories("${C74_INCLUDES}")							# C74 Headers
 
 include_directories(${Protobuf_INCLUDE_DIRS})					# Protobuf Headers
 include_directories(${Boost_INCLUDE_DIRS})						# Boost Headers
 
 #------------------------------------------LINKER--------------------------------------------#
-
 
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)			# C74 post build tasks
 
@@ -91,7 +81,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC 					# link boost libs
 
 target_link_libraries(${PROJECT_NAME} PUBLIC 					# link google Protobuf libs
 						${Protobuf_LIBRARIES})
-
 
 #-------------------------------------------POST---------------------------------------------#
 
