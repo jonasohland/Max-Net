@@ -153,23 +153,13 @@ public:
         
     }
     
-    void set_path(path_type&& path) {
+    void set_path(path_type path) {
         path_ = path;
     }
     
-    void set_host(hostname_type&& hostname) {
+    void set_host(hostname_type hostname) {
         hostname_ = hostname;
 		endpoint_seq = endpoint_seq_from_string(host(), port_int());
-    }
-    
-    bool set_port(port_type&& port) {
-        if(is_number(std::forward<port_type>(port))){
-            port_ = port;
-			endpoint_seq = endpoint_seq_from_string(host(), port_int());
-            return true;
-        } else {
-            return false;
-        }
     }
     
     void set_path(const path_type& path) {
@@ -236,7 +226,7 @@ public:
     
     
 
-	bool has_port() {
+	bool has_port() const {
 		if (is_number(port_)) {
 			return port_.size() > 0 && std::stoi(port_) <= 65535;
 		}

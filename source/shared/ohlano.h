@@ -27,6 +27,18 @@ class(const class& other)
 #define OHLANO_COPY_ASSIGN(class)\
 class* operator=(const class& other)
 
+#define OHLANO_RANGE(x) x.begin(), x.end()
+#define OHLANO_CRANGE(x) x.cbegin(), x.cend()
+
+#define OHLANO_IT_RANGE(I, C) auto I = C.begin(); I != C.end(); ++I
+
+#define OHLANO_FOREACH_DO(SEQ, PRED, ACTION) auto _p = PRED; auto _a = ACTION; \
+for(auto it = SEQ.begin(); it != SEQ.end(); it++){ \
+if(_p(*it)){ \
+_a(it);\
+}}
+
+#define OHLANO_FOREACH(SEQ, ACTION) auto _a = ACTION; for(auto& elem : SEQ){ _a(elem);  }
 
 #define STR_IMPL_(x) #x
 #define STR(x) STR_IMPL_(x)
@@ -49,38 +61,37 @@ namespace ohlano{
     template<typename T>
     void log(T thing){
 
-		std::stringstream sstream;
+        std::stringstream sstream;
 
-		sstream << std::forward<T>(thing) << std::endl;
+        sstream << std::forward<T>(thing) << std::endl;
 
-		OutputDebugStringA(sstream.str().c_str());
+        OutputDebugStringA(sstream.str().c_str());
     }
     
     template<typename C, typename ...T>
     void log(C && current, T && ...rest) {
 
-		std::stringstream sstream;
-		sstream << std::forward<C>(current);
-		OutputDebugStringA(sstream.str().c_str());
+        std::stringstream sstream;
+        sstream << std::forward<C>(current);
+        OutputDebugStringA(sstream.str().c_str());
 
         log(std::forward<T>(rest)...);
     }
-#else 
-	template<typename T>
-	void log(T thing) {
-		std::cout << std::forward<T>(thing) << std::endl;
-	}
+#else
+    template<typename T>
+    void log(T thing) {
+        std::cout << std::forward<T>(thing) << std::endl;
+    }
 
-	template<typename C, typename ...T>
-	void log(C && current, T && ...rest) {
-		std::cout << std::forward<C>(current);
-		log(std::forward<T>(rest)...);
-	}
+    template<typename C, typename ...T>
+    void log(C && current, T && ...rest) {
+        std::cout << std::forward<C>(current);
+        log(std::forward<T>(rest)...);
+    }
 #endif
 }
 
 #ifdef _MSC_VER
-
 #ifdef _DEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
 #define CONFIG_TAG d
@@ -96,10 +107,8 @@ namespace ohlano{
 #else
 #define LOG(...) ;
 #endif
-
 #else
-
-#ifdef DEBUG
+#ifndef NDEBUG
 #define DBG(...) ohlano::log(__VA_ARGS__);
 #define CONFIG_TAG d
 #else
@@ -109,12 +118,11 @@ namespace ohlano{
 
 #define OS_TAG osx
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #define LOG(...) std::cout << __FILE__ << " " << __LINE__ << ": "; ohlano::log(__VA_ARGS__);
 #else
 #define LOG(...) ;
 #endif
-
 #endif
 
 

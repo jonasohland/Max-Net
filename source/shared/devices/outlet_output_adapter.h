@@ -17,8 +17,14 @@ namespace ohlano {
 
 		void write(Message* message) {
 			std::lock_guard<std::mutex> lock {outlet_mutex_};
-			c74::min::outlet_do_send(outlet_->get_instance(), message->get_atoms());
+			outlet_->send(message->get_atoms());
 		}
+        
+        template<typename ...T>
+        void write_raw(T ...args){
+            std::lock_guard<std::mutex> lock {outlet_mutex_};
+            outlet_->send(args...);
+        }
 
 	private:
 

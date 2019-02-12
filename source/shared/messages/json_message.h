@@ -2,10 +2,25 @@
 
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
+#include <valijson/validator.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/adapters/nlohmann_json_adapter.hpp>
 #include <json.hpp>
 
 
 namespace ohlano {
+    
+    static nlohmann::json input_json = "{\"StationID\":0,\"InstanceID\":0,\"World\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}"_json;
+    static valijson::adapters::NlohmannJsonAdapter input_json_adapter{ input_json };
+    
+    class validator_set {
+    public:
+        validator_set() : validator(valijson::Validator::TypeCheckingMode::kStrongTypes)
+        { parser.populateSchema(input_json_adapter, schema); }
+        valijson::Validator validator;
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+    };
 
 	class json_message {
 
@@ -70,13 +85,14 @@ namespace ohlano {
 			data_ = std::string(json_.dump());
 
 			DBG(json_.dump(4));
+            
+            return true;
 		}
 
 		bool deserialize() {
 
 			try {
 				json_ = nlohmann::json::parse(data_);
-				DBG("received: ", json_.dump(4));
 				return true;
 			}
 			catch (std::exception ex) {
@@ -85,30 +101,72 @@ namespace ohlano {
 			}
 			
 		}
+        
+        bool validate(valijson::Validator& validator, valijson::Schema& schema,
+                      valijson::ValidationResults* result_ptr){
+            valijson::adapters::NlohmannJsonAdapter adapter{json_};
+            return validator.validate(schema, adapter, result_ptr);
+            
+        }
 
 		c74::min::atoms get_atoms() {
-
-			auto world = json_.at("World");
-
-			return {
-				c74::min::atom(static_cast<int>(json_.at("StationID"))),
-				c74::min::atom(static_cast<int>(json_.at("InstanceID"))),
-				c74::min::atom(static_cast<double>(world.at("x"))),
-				c74::min::atom(static_cast<double>(world.at("y"))),
-				c74::min::atom(static_cast<double>(world.at("z")))
-			};
+            
+            c74::min::atoms output;
+            
+            if(json_["StationID"].is_number_integer()){
+                output.push_back(json_["StationID"].get<int>());
+            }
+            
+            if(json_["InstanceID"].is_number_integer()){
+                output.push_back(json_["InstanceID"].get<int>());
+            }
+            
+            if(json_["World"].is_object()){
+                
+                auto world = json_["World"];
+                
+                if(world["x"].is_number_float())
+                    output.push_back(world["x"].get<float>());
+                if(world["y"].is_number_float())
+                    output.push_back(world["y"].get<float>());
+                if(world["z"].is_number_float())
+                    output.push_back(world["z"].get<float>());
+                
+            }
+            
+            return output;
+			
 		}
 
 		void put_atoms(c74::min::atoms atms) {
 
 		}
+        
+        void refcount_set(int value) const noexcept {
+            int is = send_prog_refc.exchange(value);
+            assert(is == 0);
+        }
+
+		int refcount_get() const noexcept {
+			return send_prog_refc.load();
+		}
+        
+        void notify_send() const noexcept{
+            send_prog_refc++;
+        }
+        
+        bool notify_send_done() const noexcept{
+            return (--send_prog_refc == 0);
+        }
 
 
 
 
 	private:
-		std::string data_;
-		nlohmann::json json_;
+        
+		mutable std::atomic_int send_prog_refc{0};
+        std::string data_;
+        nlohmann::json json_;
 
 	};
 

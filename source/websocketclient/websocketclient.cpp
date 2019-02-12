@@ -35,15 +35,6 @@ public:
 	outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
 	outlet<> status_out{ this, "status out" };
 
-    void changed_port(int val){}
-
-    void changed_host(std::string val){}
-
-    attribute<int> port { this, "port", 80, min_wrap_member(&websocketclient::set_port),
-		description{ "remote port to connect to" }, range{ 0, 65535 }};
-
-	attribute<symbol> host { this, "host", "localhost", min_wrap_member(&websocketclient::set_host)};
-
 	explicit websocketclient(const atoms& args = {}) {
 
 		net_url<>::error_code ec;
@@ -57,8 +48,9 @@ public:
 				switch (arg.a_type) {
 				case c74::max::e_max_atomtypes::A_SYM:
 
-					if (!url) {
-						t_url = net_url<>(arg, ec);
+                        if (!url) {
+						
+                        t_url = net_url<>(arg, ec);
 
 						if (ec != net_url<>::error_code::SUCCESS)
 							cerr << "symbol argument could not be decoded to an url" << endl;
@@ -77,7 +69,11 @@ public:
 					break;
 				case c74::max::e_max_atomtypes::A_LONG:
 					cout << "long arg: " << std::string(arg) << endl;
-					if (!url.has_port()) { url.set_port(arg); }
+                        if (!url.has_port()) {
+                            bool success = url.set_port(std::to_string(static_cast<int>(arg)));
+                            if(!success)
+                                cerr << "could not set port arg" << c74::min::endl;
+                        }
 					else { cerr << "Found multiple port arguments!" << endl; }
 					break;
 				default:
@@ -87,32 +83,23 @@ public:
 
 			}
 
+            cout << "address: " << url.host() << c74::min::endl;
+            cout << "port: " << url.port() << c74::min::endl;
 			
 
 			if (url) {
 
-				atoms host_at = { url.host() };
-				atoms port_at = { url.port_int() };
-
-				host.set(host_at, false);
-				port.set(port_at, false);
-
 				//there is work to do
 				cout << "running network io worker thread" << endl;
 
-				client_thread_ptr = std::make_shared<std::thread>([this]() {
-					//try {
+				client_thread_ptr = std::make_unique<std::thread>([this]() {
 						io_context_.run();
-					//}
-					//catch (std::exception const&  ex) {
-					//	cerr << "exception in network io worker thread: " << ex.what() << endl;
-					//}
 					cout << "finished running network io worker thread" << endl;
 				});
 
 				make_connection(url);
 
-				dec_worker_.run(4);
+				dec_worker_.run(2);
 
 			}
 			else {
@@ -126,75 +113,63 @@ public:
 	void make_connection(net_url<> url) {
 
 		if (!url.is_resolved()) {
-
-			cout << "resolving " << url.host() << endl;
-
-			resolver.resolve(url, [this](boost::system::error_code ec, net_url<> _url) {
-				if (!ec) {
-					for (auto& endpoint : _url.endpoints()) {
-						cout << "result: " << endpoint.address().to_string() << ":" << endpoint.port() << endl;
-					}
-					cout << "connecting..." << endl;
-					connection_ = std::make_shared<websocket_connection>(io_context_, allocator_);
-					connection_->wq()->binary(true);
-					perform_connect(_url);
-				}
-				else {
-					cerr << "resolving failed: " << ec.message() << endl;
-				}
-			});
+            resolver.resolve(url, [=](boost::system::error_code ec, net_url<> _url){
+                cout << "resolver results: " << c74::min::endl;
+                
+                for(auto& endp : _url.endpoints()){
+                    cout << endp.address().to_string() << c74::min::endl;
+                }
+                
+                perform_connect(_url);
+                
+            });
 		}
 		else {
-
-			cout << "url:" << url.host() << url.port() << endl;
-
-			cout << "connecting..." << endl;
-			connection_ = std::make_shared<websocket_connection>(io_context_, allocator_);
-			io_context_.post([=]() { perform_connect(url); });
+            perform_connect(url);
 		}
 	}
 
-	void perform_connect(net_url<> _url) {
-		if (connection_) {
-			connection_->connect(_url, [=](boost::system::error_code ec) {
-				if (!ec) {
-
-					cout << "connection established" << endl;
-
-					
-
-					begin_read();
-				}
-				else {
-					cerr << "connection error: " << ec.message() << endl;
-				}
-			});
-		}
-	}
-
-    
-	void begin_read() {
-		if (connection_) {
-			connection_->begin_read([=](boost::system::error_code ec, ohlano::max_message* mess, size_t bytes_transferred) {
-				if (ec) {
-					cout << "connection server closed: " << ec.message() << c74::min::endl;
-					return;
-				}
-				mess->deserialize();
-				output_.write(mess);
-				allocator_.deallocate(mess);
-			});
-		}
+	void perform_connect(net_url<> url) {
+        
+        connection_ = std::make_shared<websocket_connection>(io_context_, allocator_, &refc);
+        
+        connection_->on_ready([=, con = connection_.get()](boost::system::error_code ec){
+            cout << "connection is ready status: " << con->status_string() << c74::min::endl;
+        });
+        
+        connection_->on_close([=](boost::system::error_code ec){
+            cout << "connection closed: " << ec.value() << c74::min::endl;
+        });
+        
+        connection_->on_read([=](boost::system::error_code ec, ohlano::max_message* msg, size_t bytes){
+            
+            if(ec){
+                cerr << "read operation failed: " << ec.message() << c74::min::endl;
+                return;
+            }
+            
+            try {
+                if(!msg->deserialize()){
+                    cerr << "could not deserialize message" << c74::min::endl;
+                }
+            } catch (...){
+                cerr << "could not deserialize message" << c74::min::endl;
+            }
+            
+            output_.write(msg);
+            allocator_.deallocate(msg);
+            
+        });
+        
+        connection_->connect(url);
+        
 	}
 
 
 	~websocketclient(){
 
 		if (connection_) {
-			connection_->close([=](boost::system::error_code ec) {
-				if (!ec)
-					cout << "gracefully closed connection" << endl;
-			});
+			connection_->close();
 		}
 
 		if (work.owns_work()) {
@@ -217,121 +192,8 @@ public:
 		return args;
 	}
 
-	atoms handle_data(const atoms& args, int inlet) {
-		if (connection_) {
-			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
-
-				auto msg = allocator_.allocate();
-
-				msg->push_atoms(args);
-
-				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
-					connection_->wq()->submit(msg_);
-				});
-			}
-		}
-
-		return args;
-	}
-
-	atoms handle_float(const atoms& args, int inlet) {
-		if (connection_) {
-			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
-
-				auto msg = allocator_.allocate();
-
-				msg->push_atoms(args);
-
-				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
-					connection_->wq()->submit(msg_);
-				});
-			}
-		}
-		return args;
-	}
-
-	atoms handle_long(const atoms& args, int inlet) {
-		if (connection_) {
-			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
-
-				auto msg = allocator_.allocate();
-
-				msg->push_atoms(args);
-
-				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
-					connection_->wq()->submit(msg_);
-				});
-			}
-		}
-		return args;
-	}
-
-	atoms handle_list(const atoms& args, int inlet) {
-		if (connection_) {
-			if (connection_->status() == websocket_connection::status_codes::ONLINE) {
-
-				auto msg = allocator_.allocate();
-
-				auto tp = static_cast<c74::max::e_max_atomtypes>(args[0].a_type);
-
-				if (args.size() > 2) {
-
-					auto arg_it = args.cbegin();
-
-					while (arg_it->a_type == tp) {
-
-						arg_it++;
-						if (arg_it == args.end()) {
-							break;
-						}
-					}
-
-					if (arg_it - args.begin() > 3) {
-						msg->push_atomarray(args.begin(), arg_it, tp);
-						for (; arg_it != args.end(); arg_it++) {
-							msg->push_atom(*arg_it);
-						}
-					}
-					else {
-						msg->push_atoms(args);
-					}
-				}
-				else {
-					msg->push_atoms(args);
-				}
-
-				dec_worker_.async_encode(msg, [=](ohlano::max_message* msg_) {
-					connection_->wq()->submit(msg_);
-				});
-			}
-		}
-		return args;
-	}
-
-	atoms set_port(const atoms& args, int inlet) {
-		return args;
-	}
-
-	atoms set_host(const atoms& args, int inlet) {
-		return args;
-	}
-
-	atoms connect(const atoms& args, int inlet) {
-		return args;
-	}
-
 
 	message<> status{ this, "status", "report status", min_wrap_member(&websocketclient::report_status) };
-	message<> set_port_cmd{ this, "port", "set port", min_wrap_member(&websocketclient::set_port) };
-	message<> set_host_cmd{ this, "host", "set host", min_wrap_member(&websocketclient::set_host) };
-	message<> connect_cmd{ this, "connect", "connect websocket", min_wrap_member(&websocketclient::connect) };
-
-
-	message<threadsafe::yes> data_input{ this, "anything", "send data", min_wrap_member(&websocketclient::handle_data) };
-	message<threadsafe::yes> list_input{ this, "list", "send list data", min_wrap_member(&websocketclient::handle_list) };
-	message<threadsafe::yes> long_input{ this, "int", "send data", min_wrap_member(&websocketclient::handle_long) };
-	message<threadsafe::yes> float_input{ this, "float", "send data", min_wrap_member(&websocketclient::handle_float) };
-
 	message<> version{ this, "anything", "print version number", [=](const atoms& args, int inlet) -> atoms { 
 
 #ifdef VERSION_TAG
@@ -360,15 +222,15 @@ private:
 
 	std::shared_ptr<websocket_connection> connection_;
 
-	std::shared_ptr<std::thread> client_thread_ptr;
+	std::unique_ptr<std::thread> client_thread_ptr;
 
 	ohlano::protobuf_decoder_worker<ohlano::max_message> dec_worker_{};
-
-	ohlano::outlet_output_adapter<ohlano::max_message> output_{ &data_out };
-
-	
-
-	std::mutex post_mtx;
+    
+    ohlano::outlet_output_adapter<ohlano::max_message> output_{ &data_out };
+    
+    std::atomic<int> refc{0};
+    
+    std::mutex post_mtx;
 
 	ohlano::console_stream_adapter console_adapter{ [this](std::string str) { cout << str << endl; }, true};
 	ohlano::console_stream_adapter console_error_adapter{ [this](std::string str) { cerr << str << endl; }, true };

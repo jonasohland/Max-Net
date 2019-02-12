@@ -9,6 +9,8 @@
 template<typename ProtoMessage>
 class proto_message_base {
 public:
+    
+    using proto_msg_type = ProtoMessage;
 
     proto_message_base(){
         mess_ = new ProtoMessage();
@@ -88,7 +90,7 @@ public:
 			msg->data_.reserve(boost::asio::buffer_size(buffers));
 
 			for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
-				std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
+                std::move(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
 			}
 		}
 	}

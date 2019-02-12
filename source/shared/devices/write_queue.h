@@ -1,10 +1,12 @@
 #pragma once
-
+/*
 #include <deque>
 #include <mutex>
 #include <chrono>
 #include <type_traits>
 #include "../ohlano.h"
+#include <boost/asio/post.hpp>
+#include <boost/asio/dispatch.hpp>
 #include <boost/optional.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/io_context_strand.hpp>
@@ -22,6 +24,7 @@ template<typename Message, typename Stream>
     class write_queue<Message, Stream, typename std::enable_if<boost::beast::has_get_executor<Stream>::value>::type> : public std::enable_shared_from_this<write_queue<Message, Stream>> {
 
 public:
+        
     typedef std::function<void(const Message*)> sent_handler_type;
 
 	write_queue() = delete;
@@ -33,7 +36,7 @@ public:
 
 	void submit(const Message* msg) {
 
-		std::unique_lock<std::mutex> lock{queue_mtx_};
+		std::unique_lock<std::mutex> lock{ queue_mtx_ };
 
 		msg_queue.push_back(msg);
         
@@ -55,53 +58,89 @@ public:
 	void binary(bool txt) {
 		stream_->binary(txt);
 	}
+        
+    std::mutex& mtx(){
+        return write_mtx_;
+    }
 
 
 private:
 
 	void perform_write(const Message* msg) {
+        
+        
+        auto self = this->shared_from_this();
+        
 
-        stream_->async_write(
-            boost::asio::buffer(msg->data(), msg->size()),
-            boost::asio::bind_executor(
-                   strand_,
-                   std::bind(&write_queue::write_complete_handler,
-                             this->shared_from_this(),
-                             std::placeholders::_1,
-                             std::placeholders::_2,
-                             msg
-                 )
-            )
-        );
+        boost::asio::post(strand_, [self, msg](){
+            
+            std::lock_guard<std::mutex> write_lock{ self->write_mtx_ };
+            
+            self->stream_->async_write(
+                 boost::asio::buffer(msg->data(), msg->size()),
+                 boost::asio::bind_executor(
+                        self->strand_,
+                        std::bind(&write_queue::write_complete_handler,
+                              self,
+                              std::placeholders::_1,
+                              std::placeholders::_2,
+                              msg
+                              )
+                        )
+                 );
+        });
+        
 	}
 
 
 	void write_complete_handler(boost::system::error_code ec, std::size_t bytes, const Message* msg) {
         
-        std::unique_lock<std::mutex> lock{queue_mtx_};
-
-		DBG("sent: ", msg->size(), " bytes");
+        std::unique_lock<std::mutex> lock{ queue_mtx_ };
 
         msg_queue.pop_front();
-        
-        if (msg_queue.size() > 0) {
-            perform_write(msg_queue.front());
-        } 
 
 		auto self = this->shared_from_this();
 
 		if (snt_handler_ != boost::none) {
 			boost::asio::post(self->exec_, [msg, self]() {
 				self->snt_handler_.value()(msg);
-				self->alloc_->deallocate(msg);
 			});
 		}
 		else {
 			boost::asio::post(self->exec_, [msg, self]() { self->alloc_->deallocate(msg); });
 		}
+        
+        if (msg_queue.size() > 0) {
+            
+            boost::asio::post(self->exec_, [self](){
+                
+                if(self->stream_->is_open()){
+                    
+                    self->perform_write(self->msg_queue.front());
+                    
+                } else {
+                    
+                    while(self->msg_queue.size() > 0){
+                        
+                        if (self->snt_handler_ != boost::none) {
+                            
+                            self->snt_handler_.value()(self->msg_queue.front());
+                            self->msg_queue.pop_front();
+                            
+                        }
+                        else {
+                            self->alloc_->deallocate(self->msg_queue.front());
+                            self->msg_queue.pop_front();
+                        }
+                    }
+                }
+            });
+        }
+
 	}
 
 	std::mutex queue_mtx_;
+    std::mutex write_mtx_;
 
 	Stream* stream_;
 	typename Message::factory* alloc_;
@@ -116,3 +155,5 @@ private:
 
 };
 }
+
+*/
