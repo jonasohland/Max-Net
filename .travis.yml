@@ -23,5 +23,5 @@ script:
 - brew install protobuf
 - mkdir build
 - cd build
-- cmake -G "Xcode" ..
-- cmake --build . --config ${CONFIG} #| sed 's/-Wl,-.*//g'
+- cmake -G "Xcode" .. -Dbuild_iiwa_targets=ON
+- cmake --build . --config ${CONFIG} | sed 's/-Wl,-.*//g'
