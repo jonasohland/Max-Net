@@ -190,7 +190,7 @@ namespace ohlano {
 			}
 
 			void await_work_end() {
-				await_threads_end();
+				this->await_threads_end();
 			}
 
 			boost::asio::io_context& context() { return ctx_; }

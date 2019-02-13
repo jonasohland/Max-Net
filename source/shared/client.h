@@ -31,7 +31,7 @@ namespace ohlano {
 
         void session_create(net_url<> url) {
 
-			session = std::make_shared<client_base::session_impl_type>(
+			session = std::make_shared<typename client_base::session_impl_type>(
 				this->context(), factory_, &connections_refc_);
 
 			if (!url.is_resolved()) {
