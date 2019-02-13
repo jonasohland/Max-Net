@@ -7,23 +7,17 @@
 #include <boost/asio/dispatch.hpp>
 
 #include "connection.h"
+#include "types.h"
 
 namespace ohlano {
     
     namespace io_object {
-
-		
-        
-        namespace threads {
-            struct single{};
-            struct multi{};
-        }
         
         template <typename ThreadOption>
         class thread_base {};
         
         template<>
-		class thread_base<threads::single> {
+        class thread_base<threads::single> {
 		public:
 
 			virtual ~thread_base() {
@@ -83,32 +77,6 @@ namespace ohlano {
             std::vector<std::unique_ptr<std::thread>> worker_threads_;
         };
 
-		template<typename T>
-		struct is_multi : public std::false_type 
-		{};
-
-		template<>
-		struct is_multi<threads::multi> : public std::true_type 
-		{};
-
-		template<class Op, class Ty = void>
-		struct enable_for_multithread {
-		};
-
-		template<class Ty>
-		struct enable_for_multithread<threads::multi, Ty> {
-			using type = Ty;
-		};
-
-		template<class Op, class Ty = void>
-		struct enable_for_singlethread {
-		};
-
-		template<class Ty>
-		struct enable_for_singlethread<threads::single, Ty> {
-			using type = Ty;
-		};
-
         template <typename MessageType, typename ThreadOption>
         class base : thread_base<ThreadOption>{
             
@@ -130,26 +98,26 @@ namespace ohlano {
 
 
 			template<typename Opt = ThreadOption>
-			typename enable_for_multithread<Opt>::type call_work_end_notification() {
+            typename threads::opt_enable_if_multi_thread<Opt>::type call_work_end_notification() {
 				std::lock_guard<std::mutex> call_lock{ this->base_mtx() };
 				DBG("Multithread :)");
 				on_work_finished();
 			}
 
 			template<typename Opt = ThreadOption>
-			typename enable_for_multithread<Opt>::type call_work_start_notification() {
+            typename threads::opt_enable_if_multi_thread<Opt>::type call_work_start_notification() {
 				std::lock_guard<std::mutex> call_lock{ this->base_mtx() };
 				on_work_started();
 			}
 
 			template<typename Opt = ThreadOption>
-			typename enable_for_singlethread<Opt>::type call_work_end_notification() {
+            typename threads::opt_enable_if_single_thread<Opt>::type call_work_end_notification() {
 				DBG("Singlethread :(");
 				on_work_finished();
 			}
 
 			template<typename Opt = ThreadOption>
-			typename enable_for_singlethread<Opt>::type call_work_start_notification() {
+            typename threads::opt_enable_if_single_thread<Opt>::type call_work_start_notification() {
 				on_work_started();
 			}
             
@@ -157,12 +125,12 @@ namespace ohlano {
             virtual void on_work_finished(){};
             
             template<typename Opt = ThreadOption>
-            typename enable_for_singlethread<Opt>::type begin_work(){
+            typename threads::opt_enable_if_single_thread<Opt>::type begin_work(){
                 this->create_threads();
             }
             
             template<typename Opt = ThreadOption>
-            typename enable_for_multithread<Opt>::type begin_work(int threads = 1){
+            typename threads::opt_enable_if_multi_thread<Opt>::type begin_work(int threads = 1){
                 this->create_threads(threads);
             }
             

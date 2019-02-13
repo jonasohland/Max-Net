@@ -53,7 +53,9 @@ _a(it);\
 
 
 
-namespace ohlano{
+namespace ohlano {
+    
+    using void_t = void;
 
 #ifdef _MSC_VER
 

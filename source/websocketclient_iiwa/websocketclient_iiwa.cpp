@@ -15,6 +15,8 @@
 
 #include "../shared/min_utils.h"
 
+#include "../shared/types.h"
+
 #include "c74_min.h"
 
 
@@ -23,7 +25,7 @@ using namespace std::placeholders;
 
 
 class websocketclient_iiwa : public object<websocketclient_iiwa>, 
-	public ohlano::client<iiwa_movement_message, ohlano::io_object::threads::single> {
+public ohlano::client<iiwa_movement_message, ohlano::threads::single> {
 
 public:
 
@@ -48,6 +50,8 @@ public:
 			begin_work();
 			session_create(url);
 		}
+        
+        do_stuff();
 	}
 
 	virtual ~websocketclient_iiwa() {
@@ -59,6 +63,18 @@ public:
 	}
 
 protected:
+    
+    using client_t = ohlano::client<iiwa_movement_message, ohlano::threads::single>;
+
+    template<typename O = client_t>
+    typename ohlano::threads::enable_if_multi_thread_enabled<O>::type do_stuff(){
+        cout << "multi thread version" << c74::min::endl;
+    }
+    
+    template<typename O = client_t>
+    typename std::enable_if<!ohlano::threads::is_multi_thread_enabled<O>::value>::type do_stuff(){
+        cout << "single thread version" << c74::min::endl;
+    }
 
 	std::mutex print_mtx;
 

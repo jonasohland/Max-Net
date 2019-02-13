@@ -1,4 +1,5 @@
 #pragma once
+
 #include "net_url.h"
 #include "devices/stats.h"
 #include "ohlano.h"
@@ -19,10 +20,12 @@
 #include <boost/function_types/property_tags.hpp>
 #include <boost/mpl/vector.hpp>
 
+#include "types.h"
+
 
 namespace ohlano {
 
-    template<typename Stream, typename Message>
+    template<typename Stream, typename Message, typename Role = sessions::roles::client>
     class connection: public std::enable_shared_from_this<connection<Stream, Message>> {
     public:
         
@@ -55,12 +58,17 @@ namespace ohlano {
         bool send_detected() { return set_send_detected; }
 
         typedef enum status_codes {
-          OFFLINE,
-          ONLINE,
-          BLOCKED,
-          ABORTED
+            OFFLINE,
+            ONLINE,
+            BLOCKED,
+            ABORTED,
+            SUSPENDED
         } status_t;
         
+        /**
+         * return a string representation of the current status
+         * @return the string
+         */
         std::string status_string() const {
             switch (status_.load()) {
                 case 0:
@@ -118,25 +126,57 @@ namespace ohlano {
             (*msg_pool_refc)--;
         }
 
+        /**
+         * get the current status of the session
+         */
         status_t status() const { return status_.load(); }
         
+        /**
+         * Assign a handler that will be called as soon as the connection is ready to send and receive messages.
+         * The method will return immediatly. It is guaranteed that the handler
+         * will be called from the service thread.
+         * @param a basic_completion_handler that will be called when the session is ready
+         */
         void on_ready(basic_completion_handler_t handler){
             on_ready_ = boost::make_optional(handler);
         }
         
+        /**
+         * Assign a handler that will be called as soon as the connection is receives a message or an error occurs
+         * while performing the read operation. If the read operation failed the message given to the handler
+         * will be a nullptr.
+         * The method will return immediatly. It is guaranteed that the handler
+         * will be called from the service thread.
+         * @param a read_completion_handler_t to be called
+         */
         void on_read(read_completion_handler_t handler){
             on_read_ = boost::make_optional(handler);
         }
         
+        /**
+         * Assign a handler that will be called if a close operation performed from this side succeeds.
+         * @param a basic_completion_handler that will be called on close.
+         */
         void on_close(basic_completion_handler_t handler){
             on_close_ = boost::make_optional(handler);
         }
         
+        /**
+         * Assign a handler that will be called when a write operation completes.
+         * The method will return immediatly. It is guaranteed that the handler
+         * will be called from the service thread.
+         * @param a write_completion_handler that will be called.
+         */
         void on_write_done(write_completion_handler_t handler){
             on_write_done_ = boost::make_optional(handler);
         }
 
-        // client role, connect to remote host
+        /**
+         * Begin a connect operation on this session. The on_ready handler will be called when the operation
+         * completes. This Method will manage connecting and handshaking. After a successful connect operation, the
+         * session will be ready to write and already in a reading state.
+         * @param a net_url that is in a resolved state and contains a valid endpoint.
+         */
         void connect(net_url<> url) {
             status_.store(status_t::BLOCKED);
 
@@ -155,7 +195,11 @@ namespace ohlano {
             );
         }
 
-        // server role, accept remote handshake
+        
+        /**
+         * Accept the remote connection. The on_ready handler will be called when the operation completes.
+         * After this operation completes, the session will be ready to write and in a reading state.
+         */
         void accept() {
             stream_.async_accept(
                 boost::asio::bind_executor(read_strand_,
@@ -435,9 +479,6 @@ namespace ohlano {
                 }
             }
         }
-        
-        
-        
         
         // ----------------- control operations
 

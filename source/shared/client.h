@@ -1,3 +1,4 @@
+#include "types.h"
 #include "io_object_base.h"
 #include "net_url.h"
 #include "c74_min.h"
@@ -18,6 +19,8 @@ namespace ohlano {
     public:
         
         using client_base = io_object::base<MessageType, ThreadOptions>;
+                                
+        using thread_option = ThreadOptions;
       
 		virtual ~client() {
 
