@@ -11,6 +11,8 @@
 namespace ohlano {
     
     namespace io_object {
+
+		
         
         namespace threads {
             struct single{};
@@ -21,7 +23,17 @@ namespace ohlano {
         class thread_base {};
         
         template<>
-        class thread_base<threads::single> {
+		class thread_base<threads::single> {
+		public:
+
+			virtual ~thread_base() {
+			}
+
+			void await_threads_end() {
+				if (worker_thread_)
+					if (worker_thread_->joinable())
+						worker_thread_->join();
+			}
             
         protected:
             
@@ -39,8 +51,20 @@ namespace ohlano {
         
         template<>
         class thread_base<threads::multi> {
+		public:
+
+			virtual ~thread_base() {
+			}
             
         protected:
+
+			void await_threads_end() {
+				for (auto& thread : worker_threads_) {
+					if (thread)
+						if (thread->joinable())
+							thread->join();
+				}
+			}
             
             void create_threads(int num_threads = 1){
                 for(int i = 0; i < num_threads; ++i){
@@ -49,12 +73,41 @@ namespace ohlano {
             }
             
             virtual void perform_work() = 0;
+
+			std::mutex& base_mtx() { return thread_base_mutex; }
             
         private:
             
+			std::mutex thread_base_mutex;
+
             std::vector<std::unique_ptr<std::thread>> worker_threads_;
-            
         };
+
+		template<typename T>
+		struct is_multi : public std::false_type 
+		{};
+
+		template<>
+		struct is_multi<threads::multi> : public std::true_type 
+		{};
+
+		template<class Op, class Ty = void>
+		struct enable_for_multithread {
+		};
+
+		template<class Ty>
+		struct enable_for_multithread<threads::multi, Ty> {
+			using type = Ty;
+		};
+
+		template<class Op, class Ty = void>
+		struct enable_for_singlethread {
+		};
+
+		template<class Ty>
+		struct enable_for_singlethread<threads::single, Ty> {
+			using type = Ty;
+		};
 
         template <typename MessageType, typename ThreadOption>
         class base : thread_base<ThreadOption>{
@@ -62,26 +115,47 @@ namespace ohlano {
         public:
             
             virtual ~base(){
-                
-                if(object_work_guard_.owns_work()){
-                    object_work_guard_.reset();
-                }
-                
             }
             
             using message_type = MessageType;
-            using session_impl_type = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp>, MessageType>;
+            using session_impl_type = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, MessageType>;
             using session_type = std::shared_ptr<session_impl_type>;
             
-            
+			using thread_option = ThreadOption;
             
         protected:
+
+			template<typename Opt = ThreadOption>
+			static constexpr const bool multithreaded = std::is_same<Opt, threads::multi>::value;
+
+
+			template<typename Opt = ThreadOption>
+			typename enable_for_multithread<Opt>::type call_work_end_notification() {
+				std::lock_guard<std::mutex> call_lock{ this->base_mtx() };
+				on_work_finished();
+			}
+
+			template<typename Opt = ThreadOption>
+			typename enable_for_multithread<Opt>::type call_work_start_notification() {
+				std::lock_guard<std::mutex> call_lock{ this->base_mtx() };
+				on_work_started();
+			}
+
+			template<typename Opt = ThreadOption>
+			typename enable_for_singlethread<Opt>::type call_work_end_notification() {
+				on_work_finished();
+			}
+
+			template<typename Opt = ThreadOption>
+			typename enable_for_singlethread<Opt>::type call_work_start_notification() {
+				on_work_started();
+			}
             
             virtual void on_work_started(){};
             virtual void on_work_finished(){};
             
             template<typename Opt = ThreadOption>
-            typename std::enable_if<std::is_same<Opt, threads::single>::value>::type begin_work(){
+            typename std::enable_if<!is_multi<Opt>::value>::type begin_work(){
                 this->create_threads();
             }
             
@@ -101,16 +175,29 @@ namespace ohlano {
             }
             
             virtual void perform_work() override {
-                on_work_started();
+				call_work_start_notification();
                 ctx_.run();
-                on_work_finished();
+				call_work_end_notification();
             }
-            
-            boost::asio::io_context ctx_;
-            boost::asio::executor_work_guard<boost::asio::io_context::executor_type> object_work_guard_{ ctx_.get_executor() };
+
+			bool end_work() {
+				if (object_work_guard_.owns_work()) {
+					object_work_guard_.reset();
+					return true;
+				}
+
+				return false;
+			}
+
+			void await_work_end() {
+				await_threads_end();
+			}
+
+			boost::asio::io_context& context() { return ctx_; }
             
         private:
-            
+			boost::asio::io_context ctx_;
+			boost::asio::executor_work_guard<boost::asio::io_context::executor_type> object_work_guard_{ ctx_.get_executor() };
         };
         
     }
