@@ -8,8 +8,6 @@
 
 #include "../shared/messages/proto_message_base.h"
 #include "../shared/messages/iiwa_message.h"
-#include "../shared/messages/generic_max_message.h"
-
 
 #include "../shared/devices/devices.h"
 
@@ -19,12 +17,13 @@
 
 #include "c74_min.h"
 
+
 using namespace c74::min;
 using namespace std::placeholders;
 
 
 class websocketclient_iiwa : public object<websocketclient_iiwa>, 
-	public ohlano::client<ohlano::max_message, ohlano::io_object::threads::single> {
+	public ohlano::client<iiwa_movement_message, ohlano::io_object::threads::single> {
 
 public:
 
@@ -63,7 +62,7 @@ protected:
 
 	std::mutex print_mtx;
 
-	const ohlano::max_message* handle_message(const ohlano::max_message* msg, 
+	const iiwa_movement_message* handle_message(const iiwa_movement_message* msg, 
 														size_t bytes) override {
 		return msg;
 	}
