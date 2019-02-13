@@ -7,8 +7,8 @@ option java_outer_classname = "iiwaMovement";
 
 import "globals.proto";
 
-message Movement{M
-    
+message Movement{
+
     MovementType moveType = 1;
     JointPosition jointPositions = 2;
     CartesianPosition cartesianPosition = 3;
