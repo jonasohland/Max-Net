@@ -1,0 +1,16 @@
+syntax = "proto3";
+package de.hsmainz.iiwa.messages.protocolbuffers;
+
+option java_package = "de.hsmainz.iiwa.messages.protocolbuffers";
+option csharp_namespace = "hsmainz.iiwa";
+
+message Vector {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+message JointPosition {
+    repeated double joints = 1;
+}
+

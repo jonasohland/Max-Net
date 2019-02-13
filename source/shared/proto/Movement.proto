@@ -1,0 +1,54 @@
+syntax = "proto3";
+package de.hsmainz.iiwa.messages.protocolbuffers;
+
+option java_package = "de.hsmainz.iiwa.messages.protocolbuffers";
+option csharp_namespace = "hsmainz.iiwa";
+option java_outer_classname = "iiwaMovement";
+
+import "globals.proto";
+
+message Movement{
+    MovementType moveType = 1;
+    JointPosition jointPositions = 2;
+    CartesianPosition cartesianPosition = 3;
+    CartesianParameter cartesianParameter = 4;
+    JointParameter jointParameter = 5;
+    FilterParameter filterParameter = 6;
+
+    enum MovementType {
+        JOINT = 0;
+        PIP = 1;
+        LIN = 2;
+        CIRCLE = 3;
+        BEZIER = 4;
+        BATCH = 5;
+    }
+
+    message CartesianPosition {
+        Vector Position = 1;
+        Vector Rotation = 2;
+    }
+
+    message JointParameter {
+        double JointVelocity = 1;
+        double JointAccelerationRel = 2;
+        double JointJerkRel = 3;
+        double BlendingRel = 4;
+    }
+
+    message CartesianParameter {
+        double CartVelocity = 3;
+        double CartAcceleration = 4;
+        double CartJerk = 5;
+        double BlendingCart = 6;
+    }
+
+    message FilterParameter{
+        double StepSize = 1;
+        double Friction = 2;
+        double Epsilon = 3;
+    }
+
+
+}
+

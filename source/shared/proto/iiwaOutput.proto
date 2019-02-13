@@ -1,0 +1,73 @@
+syntax = "proto3";
+package de.hsmainz.iiwa.messages.protocolbuffers;
+
+option java_package = "de.hsmainz.iiwa.messages.protocolbuffers";
+option csharp_namespace = "hsmainz.iiwa";
+option java_outer_classname = "iiwaStates";
+
+import "globals.proto";
+
+message States{
+    Frame currentCartesianPosition = 1;
+    JointPosition jointPosition = 2;
+    TorqueSensorData measuredTorqueSensorData = 3;
+    TorqueSensorData externalTorqueSenorData = 4;
+    ForceSensorData forceSensorData = 5;
+    Temperature temperature = 6;
+    repeated Frame frames = 7;
+    LoadData loadData = 8;
+    JointLimits jointLimits = 9;
+
+	message Frame {
+        string path = 1;
+        string id = 2;
+        string name =3;
+        string parent = 4;
+        string child = 5;
+		Vector position = 6;
+		Vector rotation = 7;
+	}
+
+	message TorqueSensorData {
+		repeated double sensors = 1;
+	}
+
+	message ForceSensorData {
+        Vector _force = 1;
+        Vector _torque = 2;
+        Vector _forceInaccuracy = 3;
+        Vector _torqueInaccuracy = 4;
+	}
+
+    message Temperature {
+        JointTemperature jointTemperature = 1;
+        PdsTemperature pdsTemperature = 2;
+
+        message JointTemperature {
+            repeated int32 temperaturesMotor1 = 1;
+            repeated int32 temperaturesMotor2 = 2;
+            repeated int32 temperaturesGms1 = 3;
+            repeated int32 temperaturesGms2 = 4;
+        }
+
+        message PdsTemperature {
+            repeated int32 temperaturesRcu1 = 1;
+            repeated int32 temperaturesRcu2 = 2;
+            repeated int32 temperaturesFcuMotor = 3;
+            repeated int32 temperaturesFcuBrake = 4;
+        }
+    }
+
+    message LoadData {
+        Vector centerOfMassPos = 1;
+        Vector centerOfMassRot = 2;
+        Vector inertia = 3;
+        double mass = 4;
+    }
+
+    message JointLimits{
+        JointPosition maxJointPosition = 1;
+        JointPosition minJointPosition = 2;
+    }
+}
+
