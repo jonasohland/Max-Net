@@ -3,6 +3,7 @@
 
 #include "../shared/net_url.h"
 #include "../shared/connection.h"
+#include "../shared/client.h"
 #include "../shared/devices/protobuf_decoder_worker.h"
 
 #include "../shared/messages/proto_message_base.h"

@@ -47,8 +47,11 @@ set( SOURCE_FILES												# Project source files
 	../shared/messages/generic_max_message.h
 	../shared/messages/proto_message_base.h
 	../shared/messages/iiwa_message.h
+	../shared/min_utils.h
 	../shared/net_url.h
 	../shared/connection.h
+	../shared/client.h
+	../shared/io_object_base.h
 	../shared/ohlano_min.h
 	../shared/ohlano.h
 )
