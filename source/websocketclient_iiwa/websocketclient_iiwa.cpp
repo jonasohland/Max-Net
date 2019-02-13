@@ -24,7 +24,7 @@ using namespace std::placeholders;
 
 
 class websocketclient_iiwa : public object<websocketclient_iiwa>, 
-	public ohlano::client<ohlano::max_message, ohlano::io_object::threads::multi> {
+	public ohlano::client<ohlano::max_message, ohlano::io_object::threads::single> {
 
 public:
 
@@ -46,7 +46,7 @@ public:
 
 
 		if (url) {
-			begin_work(10);
+			begin_work();
 			session_create(url);
 		}
 	}
