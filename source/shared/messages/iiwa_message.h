@@ -36,6 +36,10 @@ public:
 		this->proto()->jointpositions().add_joints(current);
 		set_joints(rest...);
 	}
+    
+    void set_send(bool is_send) const{
+        DBG("yay");
+    }
 
 private:
 
