@@ -8,6 +8,8 @@ class iiwa_movement_message : public proto_message_base<iiwa::Movement> {
 
 public:
 
+	using joints_state = std::array<double, 6>;
+
 	class allocator {
 	public:
 
@@ -27,14 +29,18 @@ public:
 	}
 
 	template<typename T>
-	void set_joints(T last) {
-		this->proto()->jointpositions().add_joints(last);
+	void add_joints(T last) {
+		proto()->mutable_jointpositions()->add_joints(last);
 	}
 
 	template<typename T, typename ...Ts>
-	void set_joints(T current, Ts ...rest) {
-		this->proto()->jointpositions().add_joints(current);
+	void add_joints(T current, Ts ...rest) {
+		proto()->mutable_jointpositions()->add_joints(current);
 		set_joints(rest...);
+	}
+
+	void set_joints_state(joints_state& st) {
+		
 	}
     
     void set_direction(bool direction) const {}

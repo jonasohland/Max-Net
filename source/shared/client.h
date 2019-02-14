@@ -65,6 +65,8 @@ namespace ohlano {
         typename client_base::session_type& session() { return session_; }
         const typename client_base::session_type& session() const { return session_; }
 
+		typename MessageType::factory& factory() { return factory_; }
+
       private:
 
         void do_session_connect(net_url<> url) {
@@ -72,8 +74,10 @@ namespace ohlano {
           // why does this work?
           session_->on_ready(
               std::bind(&client::on_ready, this, std::placeholders::_1));
+
           session_->on_close(
               std::bind(&client::on_close, this, std::placeholders::_1));
+
           session_->on_read(std::bind(
               &client::handle_message_wrapper, this, std::placeholders::_1,
               std::placeholders::_2, std::placeholders::_3));
@@ -86,6 +90,7 @@ namespace ohlano {
             if (msg != nullptr) {
                 factory_.deallocate(handle_message(msg, bytes));
             }
+
             else DBG(ec.message());
         }
 

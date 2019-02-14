@@ -40,7 +40,7 @@ public:
 		return mess_;
 	}
 
-	ProtoMessage* const& proto() const {
+	ProtoMessage* const& const_proto() const {
 		return mess_;
 	}
     

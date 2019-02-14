@@ -112,7 +112,7 @@ namespace ohlano {
 
 			c74::min::atoms out_atoms;
 			
-			for (const auto& atom: proto()->atom()) {
+			for (const auto& atom: const_proto()->atom()) {
 				switch (atom.type()) {
 				case A_LONG:
 					out_atoms.emplace_back(static_cast<c74::max::t_atom_long>(atom.int_()));

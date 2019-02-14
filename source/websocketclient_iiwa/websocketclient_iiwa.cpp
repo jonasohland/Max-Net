@@ -29,6 +29,8 @@ public ohlano::client<iiwa_movement_message, ohlano::threads::single> {
 
 public:
 
+	
+
     using client_t = ohlano::client<iiwa_movement_message, ohlano::threads::single>;
     
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
@@ -51,8 +53,7 @@ public:
         if (url) {
             begin_work();
             session_create(url);
-        }
-        
+        }        
     }
 
     virtual ~websocketclient_iiwa() {
@@ -64,12 +65,11 @@ public:
     }
 
 protected:
-
-    std::mutex print_mtx;
     
     const iiwa_movement_message *handle_message(const iiwa_movement_message *msg,
                                               size_t bytes) override {
-        return msg;
+		cout << "received " << bytes << " bytes" << c74::min::endl;
+		return msg;
     }
 
     void on_ready(boost::system::error_code ec) override {
@@ -88,10 +88,46 @@ protected:
         cout << "finished running network worker" << c74::min::endl;
     }
 
+	c74::min::atoms handle_joints_message(const c74::min::atoms args, int inlet) {
+
+		if (session() && session()->status() == client_base::session_impl_type::status_codes::ONLINE) {
+
+			if (args.size() < 6) {
+				cerr << "not many arguments" << c74::min::endl;
+				return args;
+			}
+
+			try {
+
+				iiwa_movement_message* message = this->factory().allocate();
+
+				for (int i = 0; i < 6; i++) {
+					message->add_joints(c74::min::atom::get<double>(args[i]));
+				}
+
+				message->serialize();
+
+				send(message);
+
+			}
+			catch (c74::min::bad_atom_access& ex) {
+				cerr << "args type error" << c74::min::endl;
+				boost::ignore_unused(ex);
+			}
+		}
+		else {
+			cerr << "not online" << c74::min::endl;
+		}
+
+		return args;
+	}
+
+	message<> set_joints { this, "joints", "set joints", min_wrap_member(&websocketclient_iiwa::handle_joints_message) };
+
     // message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
     message<> version{ this, "anything", "print version number",
-        [=](const atoms& args, int inlet) -> atoms {
 
+        [=](const atoms& args, int inlet) -> atoms {
 #ifdef VERSION_TAG
             cout << "WebSocket Client for Max "
                 << STR(VERSION_TAG) << "-" << STR(CONFIG_TAG)
@@ -101,6 +137,7 @@ protected:
 #endif
             return args;
         }
+
     };
 
 };

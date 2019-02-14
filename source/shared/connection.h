@@ -355,6 +355,8 @@ namespace ohlano {
             
             std::unique_lock<std::mutex> lock{ write_queue_mutex_ };
             std::unique_lock<std::mutex> stats_lock{ stats().mtx() };
+
+			DBG(ec.message());
             
             stats().outbound().data().add(bytes);
             stats().outbound().msgs()++;
