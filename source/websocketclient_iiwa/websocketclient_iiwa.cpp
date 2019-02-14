@@ -23,6 +23,8 @@
 using namespace c74::min;
 using namespace std::placeholders;
 
+namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
+
 
 class websocketclient_iiwa : public object<websocketclient_iiwa>,
 public ohlano::client<iiwa_movement_message, ohlano::threads::single> {
@@ -74,6 +76,7 @@ protected:
 
     void on_ready(boost::system::error_code ec) override {
         cout << "session is ready" << c74::min::endl;
+		session()->stream().binary(true);
     }
 
     void on_close(boost::system::error_code ec) override {
@@ -88,12 +91,13 @@ protected:
         cout << "finished running network worker" << c74::min::endl;
     }
 
-	c74::min::atoms handle_joints_message(const c74::min::atoms args, int inlet) {
+	c74::min::atoms handle_joints_message(const c74::min::atoms& args, int inlet) {
 
 		if (session() && session()->status() == client_base::session_impl_type::status_codes::ONLINE) {
 
-			if (args.size() < 6) {
-				cerr << "not many arguments" << c74::min::endl;
+			if (args.size() < 7) {
+				cerr << "not enough arguments, size:" << args.size() << c74::min::endl;
+				
 				return args;
 			}
 
@@ -101,11 +105,17 @@ protected:
 
 				iiwa_movement_message* message = this->factory().allocate();
 
-				for (int i = 0; i < 6; i++) {
+				for (int i = 0; i < 7; i++) {
 					message->add_joints(c74::min::atom::get<double>(args[i]));
 				}
 
+				message->set_joint_params(0.1, 0.6, 0.5, 0.05);
+
+				message->set_filter_params(0.05, 1.2, 0.1);
+
 				message->serialize();
+
+				message->set_move_type(iiwa::Movement::MovementType::Movement_MovementType_JOINT);
 
 				send(message);
 
@@ -114,6 +124,10 @@ protected:
 				cerr << "args type error" << c74::min::endl;
 				boost::ignore_unused(ex);
 			}
+
+			//0.1 0.6 0.5 0.05
+
+			//0.05 1.2 0.1
 		}
 		else {
 			cerr << "not online" << c74::min::endl;
@@ -122,7 +136,7 @@ protected:
 		return args;
 	}
 
-	message<> set_joints { this, "joints", "set joints", min_wrap_member(&websocketclient_iiwa::handle_joints_message) };
+	message<threadsafe::yes> set_joints { this, "joints", "set joints", min_wrap_member(&websocketclient_iiwa::handle_joints_message) };
 
     // message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
     message<> version{ this, "anything", "print version number",
