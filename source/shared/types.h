@@ -7,6 +7,40 @@
 
 namespace ohlano {
     
+    namespace messages {
+        
+        BOOST_TTI_HAS_MEMBER_FUNCTION(set_direction);
+
+        template <typename Message>
+        using is_direction_supported = has_member_function_set_direction<
+            Message, void, boost::mpl::vector<bool>,
+            boost::function_types::const_qualified>;
+
+        template <typename Message, typename Ty = void>
+        using enable_if_direction_supported = std::enable_if<is_direction_supported<Message>::value>;
+        
+        BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send);
+        BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send_done);
+
+        template <typename Message>
+        using is_notify_send_supported = has_member_function_notify_send<
+            Message, void, boost::mpl::vector<>,
+            boost::function_types::const_qualified>;
+
+        template <typename Message>
+        using is_notify_send_done_supported =
+            has_member_function_notify_send_done<
+                Message, void, boost::mpl::vector<>,
+                boost::function_types::const_qualified>;
+
+        template <typename Message> struct is_send_notification_supported {
+          static constexpr const bool value =
+              is_notify_send_supported<Message>::value &&
+              is_notify_send_done_supported<Message>::value;
+        };
+
+    }
+    
     namespace sessions {
         
         namespace roles {

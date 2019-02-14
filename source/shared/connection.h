@@ -33,29 +33,6 @@ namespace ohlano {
         typedef std::function<void(const Message*)> write_completion_handler_t;
         typedef std::function<void(boost::system::error_code, Message*, size_t)> read_completion_handler_t;
         
-        BOOST_TTI_HAS_MEMBER_FUNCTION(set_received);
-        BOOST_TTI_HAS_MEMBER_FUNCTION(set_send);
-
-        static constexpr const bool set_send_detected =
-            has_member_function_set_send<
-                Message, void, boost::mpl::vector<bool>,
-                boost::function_types::const_qualified>::value;
-
-        template <typename C = Message>
-        typename std::enable_if<has_member_function_set_send<
-            C, void, boost::mpl::vector<bool>,
-            boost::function_types::const_qualified>::value>::type
-        opt_notify_will_send(const Message *msg) {
-          msg->set_send(true);
-        }
-
-        template <typename C = Message>
-        typename std::enable_if<!has_member_function_set_send<
-            C, void, boost::mpl::vector<bool>,
-            boost::function_types::const_qualified>::value>::type
-        opt_notify_will_send(const Message *msg) {}
-
-        bool send_detected() { return set_send_detected; }
 
         typedef enum status_codes {
             OFFLINE,
@@ -83,6 +60,17 @@ namespace ohlano {
                     return "undefined";
             }
         }
+
+        template <typename M = Message>
+        typename ohlano::messages::enable_if_direction_supported<M>::type
+        optional_set_direction(bool direction, Message *msg) {
+            msg->set_direction(false);
+        };
+
+        template <typename M = Message>
+        typename std::enable_if<
+            !ohlano::messages::is_direction_supported<M>::value>::type
+        optional_set_direction(bool direction, Message *msg){};
 
         explicit connection(boost::asio::io_context &ctx,
                             typename Message::factory &allocator,
@@ -217,8 +205,6 @@ namespace ohlano {
         void write(const Message* message){
             
             std::lock_guard<std::mutex> write_q_lock{ write_queue_mutex_ };
-            
-            opt_notify_will_send(message);
             
             msg_queue.push_back(message);
             
@@ -444,6 +430,8 @@ namespace ohlano {
                 if (on_read_ != boost::none) {
 
                     Message* new_msg = static_cast<Message*>(allocator_.allocate());
+                    
+                    optional_set_direction(false, new_msg);
 
                     Message::from_const_buffers(buffer_.data(), new_msg, stream_.got_text());
 

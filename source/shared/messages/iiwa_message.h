@@ -37,9 +37,11 @@ public:
 		set_joints(rest...);
 	}
     
-    void set_send(bool is_send) const{
-        DBG("yay");
-    }
+    void set_direction(bool direction) const {}
+    
+    void notify_send() const {}
+    
+    void notify_send_done() const {}
 
 private:
 

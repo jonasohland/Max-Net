@@ -24,110 +24,99 @@ using namespace c74::min;
 using namespace std::placeholders;
 
 
-class websocketclient_iiwa : public object<websocketclient_iiwa>, 
+class websocketclient_iiwa : public object<websocketclient_iiwa>,
 public ohlano::client<iiwa_movement_message, ohlano::threads::single> {
 
 public:
 
-	MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
-	MIN_TAGS{ "net" };
-	MIN_AUTHOR{ "Jonas Ohland" };
-	MIN_RELATED{ "udpsend, udpreceive" };
+    using client_t = ohlano::client<iiwa_movement_message, ohlano::threads::single>;
+    
+    MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
+    MIN_TAGS{ "net" };
+    MIN_AUTHOR{ "Jonas Ohland" };
+    MIN_RELATED{ "udpsend, udpreceive" };
 
-	inlet<> main_inlet{ this, "(anything) data in" };
-	outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
-	outlet<> status_out{ this, "status out" };
+    inlet<> main_inlet{ this, "(anything) data in" };
+    outlet<thread_check::none, thread_action::assert> data_out{ this, "data out" };
+    outlet<> status_out{ this, "status out" };
 
-	explicit websocketclient_iiwa(const atoms& args = {}) {
+    explicit websocketclient_iiwa(const atoms& args = {}) {
 
-		net_url<> url = net_url_from_atoms(args);
+        net_url<> url = net_url_from_atoms(args);
 
-		cout << "address: " << url.host() << c74::min::endl;
-		cout << "port: " << url.port() << c74::min::endl;
+        cout << "address: " << url.host() << c74::min::endl;
+        cout << "port: " << url.port() << c74::min::endl;
 
 
-		if (url) {
-			begin_work();
-			session_create(url);
-		}
+        if (url) {
+            begin_work();
+            session_create(url);
+        }
         
-        do_stuff();
-	}
+    }
 
-	virtual ~websocketclient_iiwa() {
+    virtual ~websocketclient_iiwa() {
 
-		session_close();
+        session_close();
 
-		this->end_work();
-		this->await_work_end();
-	}
+        this->end_work();
+        this->await_work_end();
+    }
 
 protected:
-    
-    using client_t = ohlano::client<iiwa_movement_message, ohlano::threads::single>;
 
-    template<typename O = client_t>
-    typename ohlano::threads::enable_if_multi_thread_enabled<O>::type do_stuff(){
-        cout << "multi thread version" << c74::min::endl;
-    }
+    std::mutex print_mtx;
     
-    template<typename O = client_t>
-    typename std::enable_if<!ohlano::threads::is_multi_thread_enabled<O>::value>::type do_stuff(){
-        cout << "single thread version" << c74::min::endl;
+    const iiwa_movement_message *handle_message(const iiwa_movement_message *msg,
+                                              size_t bytes) override {
+        return msg;
     }
 
-	std::mutex print_mtx;
+    void on_ready(boost::system::error_code ec) override {
+        cout << "session is ready" << c74::min::endl;
+    }
 
-	const iiwa_movement_message* handle_message(const iiwa_movement_message* msg, 
-														size_t bytes) override {
-		return msg;
-	}
+    void on_close(boost::system::error_code ec) override {
+        cout << "session closed" << c74::min::endl;
+    }
 
-	void on_ready(boost::system::error_code ec) override {
-		cout << "session is ready" << c74::min::endl;
-	}
+    void on_work_started() override {
+        cout << "running network worker" << c74::min::endl;
+    }
 
-	void on_close(boost::system::error_code ec) override {
-		cout << "session closed" << c74::min::endl;
-	}
+    void on_work_finished() override {
+        cout << "finished running network worker" << c74::min::endl;
+    }
 
-	void on_work_started() override {
-		cout << "running network worker" << c74::min::endl;
-	}
-
-	void on_work_finished() override {
-		cout << "finished running network worker" << c74::min::endl;
-	}
-
-	// message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
-	message<> version{ this, "anything", "print version number",
-		[=](const atoms& args, int inlet) -> atoms { 
+    // message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
+    message<> version{ this, "anything", "print version number",
+        [=](const atoms& args, int inlet) -> atoms {
 
 #ifdef VERSION_TAG
-			cout << "WebSocket Client for Max " 
-				<< STR(VERSION_TAG) << "-" << STR(CONFIG_TAG) 
-				<< "-" << STR(OS_TAG) << c74::min::endl; 
+            cout << "WebSocket Client for Max "
+                << STR(VERSION_TAG) << "-" << STR(CONFIG_TAG)
+                << "-" << STR(OS_TAG) << c74::min::endl;
 #else
-			cout << "test build" << c74::min::endl;
+            cout << "test build" << c74::min::endl;
 #endif
-			return args; 
-		} 
-	};
+            return args;
+        }
+    };
 
 };
 
 void ext_main(void* r) {
 
 #ifdef VERSION_TAG
-	c74::max::object_post(
-		nullptr,
-		"WebSocket Client for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s",
-		STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);
+    c74::max::object_post(
+        nullptr,
+        "WebSocket Client for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s",
+        STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);
 #else
-		c74::max::object_post(nullptr,
-							"WebSocket Client for Max // (c) Jonas Ohland 2018 -- "
-							"built %s - test build",
-							__DATE__);
+        c74::max::object_post(nullptr,
+                            "WebSocket Client for Max // (c) Jonas Ohland 2018 -- "
+                            "built %s - test build",
+                            __DATE__);
 #endif
 
   c74::min::wrap_as_max_external<websocketclient_iiwa>("websocketclient.iiwa",
