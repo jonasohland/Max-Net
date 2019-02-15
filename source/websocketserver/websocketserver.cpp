@@ -25,7 +25,7 @@ public:
     using message_type = ohlano::max_message;
     
     // the websocket session type
-    using websocket_session_type = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp>, message_type>;
+    using websocket_session_type = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp>, message_type, ohlano::sessions::roles::server>;
     
     // the websocket session type representation as shared_ptr
     using session_type = std::shared_ptr<websocket_session_type>;
@@ -121,6 +121,8 @@ private:
     
     // stop the context and join its thread
     void end_ctx() {
+        
+        boost::ignore_unused(output_bundled);
         
         if(work_.owns_work())
             work_.reset();

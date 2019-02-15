@@ -34,13 +34,15 @@ namespace ohlano {
         typedef std::function<void(boost::system::error_code, Message*, size_t)> read_completion_handler_t;
         
 
-        typedef enum status_codes {
+        enum class status_codes {
             OFFLINE,
             ONLINE,
             BLOCKED,
             ABORTED,
             SUSPENDED
-        } status_t;
+        };
+        
+        using status_t = status_codes;
         
         /**
          * return a string representation of the current status
@@ -48,14 +50,25 @@ namespace ohlano {
          */
         std::string status_string() const {
             switch (status_.load()) {
-                case 0:
+                case status_codes::OFFLINE :
                     return "offline";
-                case 1:
+                case status_codes::ONLINE :
                     return "online";
-                case 2:
+                case status_codes::BLOCKED :
                     return "blocked";
-                case 3:
+                case status_codes::ABORTED :
                     return "aborted";
+                default:
+                    return "undefined";
+            }
+        }
+
+        template <typename S = threads::multi>
+        typename threads::opt_enable_if_single_thread<S, std::string>::type
+        status_str() const {
+            switch (status_) {
+                case status_codes::OFFLINE:
+                    return "offline";
                 default:
                     return "undefined";
             }
@@ -72,24 +85,34 @@ namespace ohlano {
             !ohlano::messages::is_direction_supported<M>::value>::type
         optional_set_direction(bool direction, Message *msg){};
 
-        explicit connection(boost::asio::io_context &ctx,
-                            typename Message::factory &allocator,
-                            std::atomic<int> *refc)
+        /// constructor for client role
+        template <typename R = Role>
+        explicit connection(
+            boost::asio::io_context &ctx, typename Message::factory &allocator,     // context and message allocator
+            std::atomic<int> *refc,                                                 // connections refcount
+            typename sessions::enable_for_client<R, std::nullptr_t>::type           // sfinae dummy
+                dummyarg = nullptr)
             : ctx_(ctx), read_strand_(ctx), stream_(ctx_),
-              allocator_(allocator), stats_(ctx), msg_pool_refc(refc) {
+              allocator_(allocator), stats_(ctx), msg_pool_refc(refc)
+        {
           status_.store(status_t::BLOCKED);
           (*msg_pool_refc)++;
         }
 
-        explicit connection(typename Stream::next_layer_type &&next_layer,
-                            boost::asio::io_context &ctx,
-                            typename Message::factory &allocator,
-                            std::atomic<int> *refc)
-            : ctx_(ctx), read_strand_(ctx),
+        /// constructor for server role
+        template <typename R = Role>
+        explicit connection(
+            typename Stream::next_layer_type &&next_layer,                          // take ownership of the socket
+            boost::asio::io_context &ctx, typename Message::factory &allocator,     // io_context and message allocator references
+            std::atomic<int> *refc,                                                 // connections_refcount
+            typename sessions::enable_for_server<R, std::nullptr_t>::type           // dummy arg for sfinae
+                dummyarg = nullptr)
+            : ctx_(ctx), read_strand_(ctx),                                         // construct references
               stream_(
-                  std::forward<typename Stream::next_layer_type>(next_layer)),
-              allocator_(allocator), stats_(ctx), msg_pool_refc(refc) {
-          status_.store(status_t::BLOCKED);
+                  std::forward<typename Stream::next_layer_type>(next_layer)),      // construct stream by forwarding socket
+              allocator_(allocator), stats_(ctx), msg_pool_refc(refc)
+        {
+          status_.store(status_t::BLOCKED);                                         // set connection status to blocked
           (*msg_pool_refc)++;
         }
 
@@ -356,7 +379,7 @@ namespace ohlano {
             std::unique_lock<std::mutex> lock{ write_queue_mutex_ };
             std::unique_lock<std::mutex> stats_lock{ stats().mtx() };
 
-			DBG(ec.message());
+            DBG(ec.message());
             
             stats().outbound().data().add(bytes);
             stats().outbound().msgs()++;

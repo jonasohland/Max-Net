@@ -8,6 +8,7 @@
 
 #include "../shared/messages/proto_message_base.h"
 #include "../shared/messages/iiwa_message.h"
+#include "../shared/messages/bytes_message.h"
 
 #include "../shared/devices/devices.h"
 
@@ -124,10 +125,6 @@ protected:
 				cerr << "args type error" << c74::min::endl;
 				boost::ignore_unused(ex);
 			}
-
-			//0.1 0.6 0.5 0.05
-
-			//0.05 1.2 0.1
 		}
 		else {
 			cerr << "not online" << c74::min::endl;
@@ -136,7 +133,7 @@ protected:
 		return args;
 	}
 
-	message<threadsafe::yes> set_joints { this, "joints", "set joints", min_wrap_member(&websocketclient_iiwa::handle_joints_message) };
+	message<threadsafe::yes> set_joints { this, "joints", "set joints", OHLANO_WRAP_DEFERRED_CALL(handle_joints_message) };
 
     // message<> status{ this, "status", "report status", min_wrap_member(&websocketclient_iiwa::report_status) };
     message<> version{ this, "anything", "print version number",

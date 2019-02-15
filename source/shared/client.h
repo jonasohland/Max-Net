@@ -65,7 +65,7 @@ namespace ohlano {
         typename client_base::session_type& session() { return session_; }
         const typename client_base::session_type& session() const { return session_; }
 
-		typename MessageType::factory& factory() { return factory_; }
+        typename MessageType::factory& factory() { return factory_; }
 
       private:
 

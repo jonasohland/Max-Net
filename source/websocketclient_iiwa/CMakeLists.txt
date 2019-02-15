@@ -47,6 +47,7 @@ set( SOURCE_FILES												# Project source files
 	../shared/messages/generic_max_message.h
 	../shared/messages/proto_message_base.h
 	../shared/messages/iiwa_message.h
+	../shared/messages/bytes_message.h
 	../shared/types.h
 	../shared/min_utils.h
 	../shared/net_url.h
