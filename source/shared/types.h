@@ -9,27 +9,31 @@ namespace ohlano {
     
     namespace messages {
         
-        BOOST_TTI_HAS_MEMBER_FUNCTION(set_direction);
+        namespace detail {
+            BOOST_TTI_HAS_MEMBER_FUNCTION(set_direction);
+            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send);
+            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send_done);
+        }
 
         template <typename Message>
-        using is_direction_supported = has_member_function_set_direction<
-            Message, void, boost::mpl::vector<bool>,
-            boost::function_types::const_qualified>;
+        using is_direction_supported =
+            detail::has_member_function_set_direction<
+                Message, void, boost::mpl::vector<bool>,
+                boost::function_types::const_qualified>;
 
         template <typename Message, typename Ty = void>
-        using enable_if_direction_supported = std::enable_if<is_direction_supported<Message>::value>;
-        
-        BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send);
-        BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send_done);
+        using enable_if_direction_supported =
+            std::enable_if<is_direction_supported<Message>::value>;
 
         template <typename Message>
-        using is_notify_send_supported = has_member_function_notify_send<
-            Message, void, boost::mpl::vector<>,
-            boost::function_types::const_qualified>;
+        using is_notify_send_supported =
+            detail::has_member_function_notify_send<
+                Message, void, boost::mpl::vector<>,
+                boost::function_types::const_qualified>;
 
         template <typename Message>
         using is_notify_send_done_supported =
-            has_member_function_notify_send_done<
+        detail::has_member_function_notify_send_done<
                 Message, void, boost::mpl::vector<>,
                 boost::function_types::const_qualified>;
 
@@ -38,7 +42,6 @@ namespace ohlano {
               is_notify_send_supported<Message>::value &&
               is_notify_send_done_supported<Message>::value;
         };
-
     }
     
     namespace sessions {
@@ -100,23 +103,21 @@ namespace ohlano {
             using type = Ty;
         };
         
-        BOOST_TTI_HAS_TYPE(thread_option);
-        
-        template<typename T>
-        struct is_multi_thread_enabled {
-          static constexpr const bool value = has_type_thread_option<
+        namespace detail {
+            BOOST_TTI_HAS_TYPE(thread_option);
+        }
+
+        template <typename T> struct is_multi_thread_enabled {
+          static constexpr const bool value = detail::has_type_thread_option<
               T, boost::is_same<boost::mpl::placeholders::_1, multi>>::value;
         };
-        
-        template<typename T, typename Ty = void>
-        using enable_if_multi_thread_enabled = typename std::enable_if<is_multi_thread_enabled<T>::value, Ty>;
-        
-        template<typename T, typename Ty = void>
-        using enable_if_multi_thread_enabled_t = typename enable_if_multi_thread_enabled<T, Ty>::type;
-    
-    }
-    
-    namespace utility {
-        
+
+        template <typename T, typename Ty = void>
+        using enable_if_multi_thread_enabled =
+            typename std::enable_if<is_multi_thread_enabled<T>::value, Ty>;
+
+        template <typename T, typename Ty = void>
+        using enable_if_multi_thread_enabled_t =
+            typename enable_if_multi_thread_enabled<T, Ty>::type;
     }
 };
