@@ -53,6 +53,7 @@ namespace ohlano {
         
         namespace features {
             struct timeout {};
+            struct statistics {};
         }
     
         template<typename Role, typename T = void>

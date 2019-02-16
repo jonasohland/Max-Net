@@ -24,7 +24,7 @@ class websocketclient : public object<websocketclient> {
 public:
 
 	using websocket_stream = boost::beast::websocket::stream<boost::asio::ip::tcp::socket>;
-	using websocket_connection = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, ohlano::max_message>;
+    using websocket_connection = ohlano::connection<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, ohlano::max_message, ohlano::sessions::roles::client>;
 
 	MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
 	MIN_TAGS{ "net" };

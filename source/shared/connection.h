@@ -24,16 +24,8 @@
 
 
 namespace ohlano {
-
-    template<typename Stream, typename Message, typename Role = sessions::roles::client>
-    class connection: public std::enable_shared_from_this<connection<Stream, Message>> {
-    public:
-        
-        typedef std::function<void(boost::system::error_code)> basic_completion_handler_t;
-        typedef std::function<void(const Message*)> write_completion_handler_t;
-        typedef std::function<void(boost::system::error_code, Message*, size_t)> read_completion_handler_t;
-        
-
+    
+    struct status_codes_base {
         enum class status_codes {
             OFFLINE,
             ONLINE,
@@ -41,6 +33,49 @@ namespace ohlano {
             ABORTED,
             SUSPENDED
         };
+    };
+    
+    template<typename T>
+    class session_threaded_base {};
+    
+    template<>
+    class session_threaded_base<threads::single> : public status_codes_base {
+        
+    protected:
+        
+        void status_set(status_codes cd){
+            opt_at_status_ = cd;
+        }
+        status_codes status_get() const {
+            return opt_at_status_;
+        }
+        status_codes opt_at_status_;
+        
+    };
+    
+    template<>
+    class session_threaded_base<threads::multi> : public status_codes_base {
+        
+    protected:
+        
+        void status_set(status_codes cd){
+            opt_at_status_.store(cd);
+        }
+        status_codes status_get() const {
+            return opt_at_status_.load();
+        }
+        std::atomic<status_codes> opt_at_status_;
+        
+    };
+    
+
+    template<typename Stream, typename Message, typename Role = sessions::roles::client>
+    class connection: public std::enable_shared_from_this<connection<Stream, Message>>, public session_threaded_base<threads::multi> {
+    public:
+        
+        typedef std::function<void(boost::system::error_code)> basic_completion_handler_t;
+        typedef std::function<void(const Message*)> write_completion_handler_t;
+        typedef std::function<void(boost::system::error_code, Message*, size_t)> read_completion_handler_t;
         
         using status_t = status_codes;
         
@@ -49,7 +84,7 @@ namespace ohlano {
          * @return the string
          */
         std::string status_string() const {
-            switch (status_.load()) {
+            switch (status_get()) {
                 case status_codes::OFFLINE :
                     return "offline";
                 case status_codes::ONLINE :
@@ -58,17 +93,6 @@ namespace ohlano {
                     return "blocked";
                 case status_codes::ABORTED :
                     return "aborted";
-                default:
-                    return "undefined";
-            }
-        }
-
-        template <typename S = threads::multi>
-        typename threads::opt_enable_if_single_thread<S, std::string>::type
-        status_str() const {
-            switch (status_) {
-                case status_codes::OFFLINE:
-                    return "offline";
                 default:
                     return "undefined";
             }
@@ -140,7 +164,7 @@ namespace ohlano {
         /**
          * get the current status of the session
          */
-        status_t status() const { return status_.load(); }
+        status_t status() const { return status_get(); }
         
         /**
          * Assign a handler that will be called as soon as the connection is ready to send and receive messages.
@@ -188,8 +212,10 @@ namespace ohlano {
          * session will be ready to write and already in a reading state.
          * @param a net_url that is in a resolved state and contains a valid endpoint.
          */
-        void connect(net_url<> url) {
-            status_.store(status_t::BLOCKED);
+        template <typename R = Role>
+        typename sessions::enable_for_client<R>::type connect(net_url<> url) {
+            
+            status_set(status_t::BLOCKED);
 
             assert(url.valid());
             assert(url.is_resolved());
@@ -211,7 +237,8 @@ namespace ohlano {
          * Accept the remote connection. The on_ready handler will be called when the operation completes.
          * After this operation completes, the session will be ready to write and in a reading state.
          */
-        void accept() {
+        template <typename R = Role>
+        typename sessions::enable_for_server<R>::type accept() {
             stream_.async_accept(
                 boost::asio::bind_executor(read_strand_,
                     std::bind(
@@ -308,7 +335,7 @@ namespace ohlano {
                 );
             }
             else {
-                status_.store(status_t::ABORTED);
+                status_set(status_t::ABORTED);
                 stats_.set_enabled(false);
                 if(on_ready_ != boost::none){
                     on_ready_.value()(ec);
@@ -318,14 +345,14 @@ namespace ohlano {
 
         void handshake_handler(boost::system::error_code ec) {
             if (ec) {
-                status_.store(status_t::ABORTED);
+                status_set(status_t::ABORTED);
                 stats_.set_enabled(false);
                 if(on_ready_ != boost::none){
                     on_ready_.value()(ec);
                 }
             }
             else {
-                status_.store(status_t::ONLINE);
+                status_set(status_t::ONLINE);
                 
                 if(on_ready_ != boost::none){
                     on_ready_.value()(ec);
@@ -338,11 +365,11 @@ namespace ohlano {
         void accepted_handler(boost::system::error_code ec) {
             
             if (ec) {
-                status_.store(status_t::ABORTED);
+                status_set(status_t::ABORTED);
                 stats_.set_enabled(false);
             }
             else {
-                status_.store(status_t::ONLINE);
+                status_set(status_t::ONLINE);
                 perform_read();
             }
             
@@ -469,10 +496,11 @@ namespace ohlano {
             } else {
 
                 if (ec != boost::beast::websocket::error::closed && ec.value() != 89) {
-                    status_.store(status_t::ABORTED);
+                    status_set(status_t::ABORTED);
                     stats_.set_enabled(false);
+                    
                 } else {
-                    status_.store(status_t::OFFLINE);
+                    status_set(status_t::OFFLINE);
                     stats_.set_enabled(false);
 
                     if (on_write_done_ != boost::none) {
@@ -501,7 +529,7 @@ namespace ohlano {
                 close_tmt->cancel();
             }
 
-            status_.store(status_t::OFFLINE);
+            status_set(status_t::OFFLINE);
 
             if(on_close_ != boost::none){
                 on_close_.value()(ec);

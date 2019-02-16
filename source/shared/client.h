@@ -61,6 +61,10 @@ namespace ohlano {
         void send(const MessageType* msg){
             session_->write(msg);
         }
+                                
+        MessageType* new_msg(){
+            return factory_.allocate();
+        }
 
         typename client_base::session_type& session() { return session_; }
         const typename client_base::session_type& session() const { return session_; }

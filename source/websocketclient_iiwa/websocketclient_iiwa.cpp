@@ -104,7 +104,7 @@ protected:
 
 			try {
 
-				iiwa_movement_message* message = this->factory().allocate();
+				iiwa_movement_message* message = new_msg();
 
 				for (int i = 0; i < 7; i++) {
 					message->add_joints(c74::min::atom::get<double>(args[i]));
