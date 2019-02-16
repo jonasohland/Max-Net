@@ -4,130 +4,94 @@
 #include <boost/asio/buffers_iterator.hpp>
 #include <google/protobuf/message.h>
 
-
-
-template<typename ProtoMessage>
-class proto_message_base {
-public:
-    
+template < typename ProtoMessage > class proto_message_base {
+  public:
     using proto_msg_type = ProtoMessage;
 
-    proto_message_base(){
-        mess_ = new ProtoMessage();
-    }
-    
-    virtual ~proto_message_base(){
-        delete mess_;
-    }
-    
-    template<typename ConstBufferSequence>
-    static void from_const_buffers(ConstBufferSequence buffers, proto_message_base* msg, bool text){
+    proto_message_base() { mess_ = new ProtoMessage(); }
 
-		if (!text) {
-			msg->data_.reserve(boost::asio::buffer_size(buffers));
+    virtual ~proto_message_base() { delete mess_; }
 
-			for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
-				std::copy(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
-			}
-		}
-    }
+    template < typename ConstBufferSequence >
+    static void from_const_buffers(ConstBufferSequence buffers, proto_message_base* msg,
+                                   bool text) {
 
-	std::string& vect() {
-		return data_;
-	}
+        if (!text) {
+            msg->data_.reserve(boost::asio::buffer_size(buffers));
 
-	ProtoMessage*& proto() {
-		return mess_;
-	}
-
-	ProtoMessage* const& const_proto() const {
-		return mess_;
-	}
-    
-    const std::string::value_type* data() const {
-        return data_.data();
-    }
-    
-    size_t size() const {
-        return data_.size();
+            for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
+                std::copy(boost::asio::buffers_begin(buffer),
+                          boost::asio::buffers_end(buffer),
+                          std::back_inserter(msg->data_));
+            }
+        }
     }
 
-	bool serialize() {
-		data_.reserve(mess_->ByteSizeLong());
-		return mess_->SerializeToString(&data_);
-	}
+    std::string& vect() { return data_; }
 
-	bool deserialize() {
-		return mess_->ParsePartialFromArray(data_.data(), (int) data_.size());
-	}
-    
-    
-    
-    
-private:
+    ProtoMessage*& proto() { return mess_; }
+
+    ProtoMessage* const& const_proto() const { return mess_; }
+
+    const std::string::value_type* data() const { return data_.data(); }
+
+    size_t size() const { return data_.size(); }
+
+    bool serialize() {
+        data_.reserve(mess_->ByteSizeLong());
+        return mess_->SerializeToString(&data_);
+    }
+
+    bool deserialize() {
+        return mess_->ParsePartialFromArray(data_.data(), (int)data_.size());
+    }
+
+  private:
     ProtoMessage* mess_;
     std::string data_;
-    
-    
 };
 
 class basic_proto_message {
 
-public:
+  public:
+    basic_proto_message() {}
 
-	basic_proto_message() {
-		
-	}
+    virtual ~basic_proto_message() {}
 
-	virtual ~basic_proto_message() {
+    template < typename ConstBufferSequence >
+    static void from_const_buffers(ConstBufferSequence buffers, basic_proto_message* msg,
+                                   bool text) {
 
-	}
+        if (!text) {
+            msg->data_.reserve(boost::asio::buffer_size(buffers));
 
-	template<typename ConstBufferSequence>
-	static void from_const_buffers(ConstBufferSequence buffers, basic_proto_message* msg, bool text) {
+            for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
+                std::move(boost::asio::buffers_begin(buffer),
+                          boost::asio::buffers_end(buffer),
+                          std::back_inserter(msg->data_));
+            }
+        }
+    }
 
-		if (!text) {
-			msg->data_.reserve(boost::asio::buffer_size(buffers));
+    std::string& vect() { return data_; }
 
-			for (const auto& buffer : boost::beast::detail::buffers_range(buffers)) {
-                std::move(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer), std::back_inserter(msg->data_));
-			}
-		}
-	}
+    google::protobuf::Message* proto() { return mess_; }
 
-	std::string& vect() {
-		return data_;
-	}
+    const google::protobuf::Message* proto() const { return mess_; }
 
-	google::protobuf::Message* proto() {
-		return mess_;
-	}
+    const void* data() const { return data_.data(); }
 
-	const google::protobuf::Message* proto() const {
-		return mess_;
-	}
+    size_t size() const { return data_.size(); }
 
-	const void* data() const {
-		return data_.data();
-	}
+    bool serialize() {
 
-	size_t size() const {
-		return data_.size();
-	}
+        data_.reserve(mess_->ByteSizeLong());
+        return mess_->SerializeToString(&data_);
+    }
 
-	bool serialize() {
+    bool deserialize() { return mess_->ParseFromString(data_); }
 
-		data_.reserve(mess_->ByteSizeLong());
-		return mess_->SerializeToString(&data_);
-	}
-
-	bool deserialize() {
-		return mess_->ParseFromString(data_);
-	}
-
-
-private:
-	google::protobuf::Message* mess_;
-	std::string data_;
-
+  private:
+    google::protobuf::Message* mess_;
+    std::string data_;
 };

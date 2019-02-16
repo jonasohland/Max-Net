@@ -4,107 +4,103 @@
 #include <string>
 #include <sstream>
 
-#define min_wrap_member(x) ohlano::make_func<c74::min::atoms(const c74::min::atoms&, int)>(std::bind(x, this, std::placeholders::_1, std::placeholders::_2))
-
+#define min_wrap_member(x)                                                               \
+    ohlano::make_func< c74::min::atoms(const c74::min::atoms&, int) >(                   \
+        std::bind(x, this, std::placeholders::_1, std::placeholders::_2))
 
 namespace ohlano {
-    
-	class console_stream_adapter_endl_marker {};
 
-	static console_stream_adapter_endl_marker endl;
+    class console_stream_adapter_endl_marker {};
 
-	class console_stream_adapter {
-	public:
+    static console_stream_adapter_endl_marker endl;
 
-    
-		console_stream_adapter() = delete;
-        
-		typedef std::function<void(std::string)> handler_function_type;
+    class console_stream_adapter {
+      public:
+        console_stream_adapter() = delete;
 
-		console_stream_adapter(handler_function_type handler, bool _space_separated = false, std::string _separator_char = std::string("")) {
-			separator_char = _separator_char;
-			space_separator = _space_separated;
-			string_handler = handler;
-		}
+        typedef std::function< void(std::string) > handler_function_type;
 
-		console_stream_adapter(const console_stream_adapter& other) {
-			string_handler = other.string_handler;
-			separator_char = other.separator_char;
-			space_separator = other.space_separator;
-		}
+        console_stream_adapter(handler_function_type handler,
+                               bool _space_separated = false,
+                               std::string _separator_char = std::string("")) {
+            separator_char = _separator_char;
+            space_separator = _space_separated;
+            string_handler = handler;
+        }
 
-		console_stream_adapter* operator=(const console_stream_adapter& other){
-			string_handler = other.string_handler;
-			separator_char = other.separator_char;
-			space_separator = other.space_separator;
-			return this;
-		}
+        console_stream_adapter(const console_stream_adapter& other) {
+            string_handler = other.string_handler;
+            separator_char = other.separator_char;
+            space_separator = other.space_separator;
+        }
 
-		bool has_sep_char() {
-			return separator_char.size() > 0;
-		}
+        console_stream_adapter* operator=(const console_stream_adapter& other) {
+            string_handler = other.string_handler;
+            separator_char = other.separator_char;
+            space_separator = other.space_separator;
+            return this;
+        }
 
-		bool space_separated() {
-			return space_separator;
-		}
+        bool has_sep_char() { return separator_char.size() > 0; }
 
-		template<typename T>
-		console_stream_adapter& operator<<(T&& input) {
+        bool space_separated() { return space_separator; }
 
-			sstr << std::forward<T>(input);
-			
-			if (space_separated()) 
-				sstr << " ";
-			
+        template < typename T > console_stream_adapter& operator<<(T&& input) {
 
-			if (has_sep_char()) {
-				sstr << separator_char;
-				if (space_separated())
-					sstr << " ";
-			}
-	
-			return *this;
-		}
+            sstr << std::forward< T >(input);
 
-		console_stream_adapter& operator<<(console_stream_adapter_endl_marker x) {
+            if (space_separated())
+                sstr << " ";
 
-			std::string out = sstr.str();
+            if (has_sep_char()) {
+                sstr << separator_char;
+                if (space_separated())
+                    sstr << " ";
+            }
 
-			if (space_separated()) { out.pop_back(); }
-			if (has_sep_char()) { out.pop_back(); }
+            return *this;
+        }
 
-			string_handler(out);
+        console_stream_adapter& operator<<(console_stream_adapter_endl_marker x) {
 
-			sstr.str(std::string());
-			return *this;
-		}
+            std::string out = sstr.str();
 
-		template<typename T>
-		void operator()(T&& thing_to_post) {
-			*this << thing_to_post << endl;
-		}
+            if (space_separated()) {
+                out.pop_back();
+            }
+            if (has_sep_char()) {
+                out.pop_back();
+            }
 
-		template<typename C, typename ...T>
-		void operator()(C&& current, T&& ...rest) {
-			*this << std::forward<C>(current);
+            string_handler(out);
+
+            sstr.str(std::string());
+            return *this;
+        }
+
+        template < typename T > void operator()(T&& thing_to_post) {
+            *this << thing_to_post << endl;
+        }
+
+        template < typename C, typename... T > void operator()(C&& current, T&&... rest) {
+            *this << std::forward< C >(current);
             (*this)(rest...);
-		}
+        }
 
-	private:
+      private:
+        handler_function_type string_handler;
 
-		handler_function_type string_handler;
+        std::stringstream sstr;
+        std::string separator_char;
+        bool space_separator;
+    };
 
-		std::stringstream sstr;
-		std::string separator_char;
-		bool space_separator;
-	};
-    
-    // static console_stream_adapter::endl_type endl = console_stream_adapter::endl_type();
+    // static console_stream_adapter::endl_type endl =
+    // console_stream_adapter::endl_type();
 
-	template<typename F, typename T>
-	std::enable_if_t<std::is_bind_expression<T>::value, std::function<F>> make_func(T&& bind_expr){
-		return std::function<F>(std::forward<T>(bind_expr));
-	}
-    
-    
+    template < typename F, typename T >
+    std::enable_if_t< std::is_bind_expression< T >::value, std::function< F > >
+    make_func(T&& bind_expr) {
+        return std::function< F >(std::forward< T >(bind_expr));
+    }
 }
