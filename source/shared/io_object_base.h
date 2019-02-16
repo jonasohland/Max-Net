@@ -13,22 +13,24 @@ namespace ohlano {
 
     namespace io_object {
 
-        template < typename ThreadOption > class thread_base {};
+        template < typename ThreadOption >
+        class thread_base {};
 
-        template <> class thread_base< threads::single > {
+        template <>
+        class thread_base< threads::single > {
           public:
             virtual ~thread_base() {}
 
             void await_threads_end() {
-                if (worker_thread_)
-                    if (worker_thread_->joinable())
+                if ( worker_thread_ )
+                    if ( worker_thread_->joinable() )
                         worker_thread_->join();
             }
 
           protected:
             void create_threads() {
                 worker_thread_ = std::make_unique< std::thread >(
-                    std::bind(&thread_base::perform_work, this));
+                    std::bind( &thread_base::perform_work, this ) );
             }
 
             virtual void perform_work() = 0;
@@ -37,23 +39,24 @@ namespace ohlano {
             std::unique_ptr< std::thread > worker_thread_;
         };
 
-        template <> class thread_base< threads::multi > {
+        template <>
+        class thread_base< threads::multi > {
           public:
             virtual ~thread_base() {}
 
           protected:
             void await_threads_end() {
-                for (auto& thread : worker_threads_) {
-                    if (thread)
-                        if (thread->joinable())
+                for ( auto& thread : worker_threads_ ) {
+                    if ( thread )
+                        if ( thread->joinable() )
                             thread->join();
                 }
             }
 
-            void create_threads(int num_threads = 1) {
-                for (int i = 0; i < num_threads; ++i) {
-                    worker_threads_.push_back(std::make_unique< std::thread >(
-                        std::bind(&thread_base::perform_work, this)));
+            void create_threads( int num_threads = 1 ) {
+                for ( int i = 0; i < num_threads; ++i ) {
+                    worker_threads_.push_back( std::make_unique< std::thread >(
+                        std::bind( &thread_base::perform_work, this ) ) );
                 }
             }
 
@@ -90,7 +93,7 @@ namespace ohlano {
             typename threads::opt_enable_if_multi_thread< Opt >::type
             call_work_end_notification() {
                 std::lock_guard< std::mutex > call_lock{ this->base_mtx() };
-                DBG("Multithread :)");
+                DBG( "Multithread :)" );
                 on_work_finished();
             }
 
@@ -104,7 +107,7 @@ namespace ohlano {
             template < typename Opt = ThreadOption >
             typename threads::opt_enable_if_single_thread< Opt >::type
             call_work_end_notification() {
-                DBG("Singlethread :(");
+                DBG( "Singlethread :(" );
                 on_work_finished();
             }
 
@@ -124,16 +127,18 @@ namespace ohlano {
 
             template < typename Opt = ThreadOption >
             typename threads::opt_enable_if_multi_thread< Opt >::type
-            begin_work(int threads = 1) {
-                this->create_threads(threads);
+            begin_work( int threads = 1 ) {
+                this->create_threads( threads );
             }
 
-            template < typename... Ts > void post(Ts&&... args) {
-                boost::asio::post(ctx_, std::forward< Ts >(args)...);
+            template < typename... Ts >
+            void post( Ts&&... args ) {
+                boost::asio::post( ctx_, std::forward< Ts >( args )... );
             }
 
-            template < typename... Ts > void dispatch(Ts&&... args) {
-                boost::asio::dispatch(ctx_, std::forward< Ts >(args)...);
+            template < typename... Ts >
+            void dispatch( Ts&&... args ) {
+                boost::asio::dispatch( ctx_, std::forward< Ts >( args )... );
             }
 
             virtual void perform_work() override {
@@ -143,7 +148,7 @@ namespace ohlano {
             }
 
             bool end_work() {
-                if (object_work_guard_.owns_work()) {
+                if ( object_work_guard_.owns_work() ) {
                     object_work_guard_.reset();
                     return true;
                 }
@@ -161,4 +166,6 @@ namespace ohlano {
                 object_work_guard_{ ctx_.get_executor() };
         };
     }
+}
+
 }

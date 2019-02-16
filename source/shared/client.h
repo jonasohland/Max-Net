@@ -20,37 +20,37 @@ namespace ohlano {
 
         virtual ~client() {}
 
-        virtual const MessageType* handle_message(const MessageType*, size_t) = 0;
+        virtual const MessageType* handle_message( const MessageType*, size_t ) = 0;
 
-        virtual void on_ready(boost::system::error_code) = 0;
+        virtual void on_ready( boost::system::error_code ) = 0;
 
-        virtual void on_close(boost::system::error_code) = 0;
+        virtual void on_close( boost::system::error_code ) = 0;
 
-        void session_create(net_url<> url) {
+        void session_create( net_url<> url ) {
 
             session_ = std::make_shared< typename client_base::session_impl_type >(
-                this->context(), factory_, &connections_refc_);
+                this->context(), factory_, &connections_refc_ );
 
-            if (!url.is_resolved()) {
+            if ( !url.is_resolved() ) {
 
                 resolver_.resolve(
-                    url, [=](boost::system::error_code ec, net_url<> resolved_url) {
-                        do_session_connect(resolved_url);
-                    });
+                    url, [=]( boost::system::error_code ec, net_url<> resolved_url ) {
+                        do_session_connect( resolved_url );
+                    } );
 
                 return;
             }
 
-            do_session_connect(url);
+            do_session_connect( url );
             return;
         }
 
         void session_close() {
-            if (session_)
+            if ( session_ )
                 session_->close();
         }
 
-        void send(const MessageType* msg) { session_->write(msg); }
+        void send( const MessageType* msg ) { session_->write( msg ); }
 
         MessageType* new_msg() { return factory_.allocate(); }
 
@@ -60,29 +60,31 @@ namespace ohlano {
         typename MessageType::factory& factory() { return factory_; }
 
       private:
-        void do_session_connect(net_url<> url) {
+        void do_session_connect( net_url<> url ) {
 
             // why does this work?
-            session_->on_ready(std::bind(&client::on_ready, this, std::placeholders::_1));
+            session_->on_ready(
+                std::bind( &client::on_ready, this, std::placeholders::_1 ) );
 
-            session_->on_close(std::bind(&client::on_close, this, std::placeholders::_1));
+            session_->on_close(
+                std::bind( &client::on_close, this, std::placeholders::_1 ) );
 
-            session_->on_read(std::bind(&client::handle_message_wrapper, this,
-                                        std::placeholders::_1, std::placeholders::_2,
-                                        std::placeholders::_3));
+            session_->on_read( std::bind( &client::handle_message_wrapper, this,
+                                          std::placeholders::_1, std::placeholders::_2,
+                                          std::placeholders::_3 ) );
 
-            session_->connect(url);
+            session_->connect( url );
         }
 
-        void handle_message_wrapper(boost::system::error_code ec, const MessageType* msg,
-                                    size_t bytes) {
+        void handle_message_wrapper( boost::system::error_code ec, const MessageType* msg,
+                                     size_t bytes ) {
 
-            if (msg != nullptr) {
-                factory_.deallocate(handle_message(msg, bytes));
+            if ( msg != nullptr ) {
+                factory_.deallocate( handle_message( msg, bytes ) );
             }
 
             else
-                DBG(ec.message());
+                DBG( ec.message() );
         }
 
         typename client_base::session_type session_;

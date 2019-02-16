@@ -10,9 +10,9 @@ namespace ohlano {
     namespace messages {
 
         namespace detail {
-            BOOST_TTI_HAS_MEMBER_FUNCTION(set_direction);
-            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send);
-            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send_done);
+            BOOST_TTI_HAS_MEMBER_FUNCTION( set_direction );
+            BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send );
+            BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send_done );
         }
 
         template < typename Message >
@@ -102,7 +102,7 @@ namespace ohlano {
         };
 
         namespace detail {
-            BOOST_TTI_HAS_TYPE(thread_option);
+            BOOST_TTI_HAS_TYPE( thread_option );
         }
 
         template < typename T >

@@ -8,7 +8,8 @@
 #include "protobuf_decoder.h"
 
 namespace ohlano {
-    template < typename Message > class protobuf_decoder_worker {
+    template < typename Message >
+    class protobuf_decoder_worker {
 
         boost::asio::io_context ioc_;
         std::vector< std::thread > threads_;
@@ -17,44 +18,44 @@ namespace ohlano {
             ioc_.get_executor()
         };
 
-        typedef std::function< void(Message*) > decoded_handler;
-        typedef std::function< void(Message*) > encoded_handler;
+        typedef std::function< void( Message* ) > decoded_handler;
+        typedef std::function< void( Message* ) > encoded_handler;
 
       public:
         protobuf_decoder_worker() {}
 
-        void run(size_t num_threads) {
+        void run( size_t num_threads ) {
 
-            for (size_t i = 0; i < num_threads; i++) {
-                threads_.emplace_back([this]() { ioc_.run(); });
+            for ( size_t i = 0; i < num_threads; i++ ) {
+                threads_.emplace_back( [this]() { ioc_.run(); } );
             }
         }
 
         void stop() {
 
-            if (work_.owns_work()) {
+            if ( work_.owns_work() ) {
                 work_.reset();
             }
 
-            for (auto& thread : threads_) {
-                if (thread.joinable()) {
+            for ( auto& thread : threads_ ) {
+                if ( thread.joinable() ) {
                     thread.join();
                 }
             }
         }
 
-        void async_decode(Message* msg, decoded_handler handler) {
-            ioc_.post([=]() mutable {
+        void async_decode( Message* msg, decoded_handler handler ) {
+            ioc_.post( [=]() mutable {
                 msg->deserialize();
-                handler(msg);
-            });
+                handler( msg );
+            } );
         }
 
-        void async_encode(Message* msg, encoded_handler handler) {
-            ioc_.post([=]() mutable {
+        void async_encode( Message* msg, encoded_handler handler ) {
+            ioc_.post( [=]() mutable {
                 msg->serialize();
-                handler(msg);
-            });
+                handler( msg );
+            } );
         }
     };
 }

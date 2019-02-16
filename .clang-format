@@ -14,6 +14,6 @@ NamespaceIndentation: All
 PointerAlignment: Left
 SpaceInEmptyParentheses: 'false'
 SpacesInAngles: 'true'
-SpacesInCStyleCastParentheses: 'false'
+SpacesInParentheses: 'true'
 
 ...

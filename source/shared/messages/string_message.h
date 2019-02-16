@@ -8,34 +8,34 @@ namespace ohlano {
         std::string mess;
 
       public:
-        string_message(std::string&& mess_in) { mess = std::move(mess_in); }
+        string_message( std::string&& mess_in ) { mess = std::move( mess_in ); }
 
-        string_message(const std::string& mess_in) : mess(mess_in) {}
+        string_message( const std::string& mess_in ) : mess( mess_in ) {}
 
-        string_message(string_message&& other) : mess(std::move(other.mess)) {}
+        string_message( string_message&& other ) : mess( std::move( other.mess ) ) {}
 
-        string_message(const string_message& other) : mess(other.mess) {}
+        string_message( const string_message& other ) : mess( other.mess ) {}
 
-        string_message* operator=(const string_message& other) {
+        string_message* operator=( const string_message& other ) {
             mess = other.mess;
             return this;
         }
 
-        bool operator==(const string_message& other) { return mess == other.mess; }
+        bool operator==( const string_message& other ) { return mess == other.mess; }
 
-        bool operator!=(const string_message& other) { return !(mess == other.mess); }
+        bool operator!=( const string_message& other ) { return !( mess == other.mess ); }
 
         template < typename ConstBufferSequence >
-        static string_message from_const_buffers(ConstBufferSequence const& seq) {
+        static string_message from_const_buffers( ConstBufferSequence const& seq ) {
 
             std::string buf;
-            buf.reserve(boost::asio::buffer_size(seq));
+            buf.reserve( boost::asio::buffer_size( seq ) );
 
-            for (auto buffer : boost::beast::detail::buffers_range(seq)) {
-                buf.append(static_cast< char const* >(buffer.data()), buffer.size());
+            for ( auto buffer : boost::beast::detail::buffers_range( seq ) ) {
+                buf.append( static_cast< char const* >( buffer.data() ), buffer.size() );
             }
 
-            return string_message(buf);
+            return string_message( buf );
         }
 
         std::string str() const { return mess; }
