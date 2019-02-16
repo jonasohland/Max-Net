@@ -28,7 +28,8 @@ namespace ohlano {
         enum class status_codes { OFFLINE, ONLINE, BLOCKED, ABORTED, SUSPENDED };
     };
 
-    template < typename T > class session_threaded_base {};
+    template < typename T >
+    class session_threaded_base {};
 
     template <>
     class session_threaded_base< threads::single > : public status_codes_base {
@@ -39,7 +40,8 @@ namespace ohlano {
         status_codes opt_at_status_;
     };
 
-    template <> class session_threaded_base< threads::multi > : public status_codes_base {
+    template <>
+    class session_threaded_base< threads::multi > : public status_codes_base {
 
       protected:
         void status_set(status_codes cd) { opt_at_status_.store(cd); }
@@ -95,13 +97,17 @@ namespace ohlano {
         template < typename R = Role >
         explicit connection(
             boost::asio::io_context& ctx,
-            typename Message::factory& allocator, // context and message allocator
-            std::atomic< int >* refc,             // connections refcount
+            typename Message::factory& allocator,
+            std::atomic< int >* refc,
             typename sessions::enable_for_client< R,
-                                                  std::nullptr_t >::type // sfinae dummy
+                                                  std::nullptr_t >::type
             dummyarg = nullptr)
-            : ctx_(ctx), read_strand_(ctx), stream_(ctx_), allocator_(allocator),
-              stats_(ctx), msg_pool_refc(refc) {
+            : ctx_(ctx)
+            , read_strand_(ctx)
+            , stream_(ctx_)
+            , allocator_(allocator)
+            , stats_(ctx)
+            , msg_pool_refc(refc) {
             status_set(status_t::BLOCKED);
             (*msg_pool_refc)++;
         }
@@ -109,20 +115,17 @@ namespace ohlano {
         /// constructor for server role
         template < typename R = Role >
         explicit connection(
-            typename Stream::next_layer_type&& next_layer, // take ownership of the socket
-            boost::asio::io_context& ctx,
-            typename Message::factory&
-                allocator,            // io_context and message allocator references
-            std::atomic< int >* refc, // connections_refcount
-            typename sessions::enable_for_server< R, std::nullptr_t >::type // dummy arg
-                                                                            // for sfinae
-            dummyarg = nullptr)
-            : ctx_(ctx), read_strand_(ctx), // construct references
-              stream_(std::forward< typename Stream::next_layer_type >(
-                  next_layer)), // construct stream by forwarding socket
-              allocator_(allocator),
-              stats_(ctx), msg_pool_refc(refc) {
-            status_set(status_t::BLOCKED); // set connection status to blocked
+            typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx,
+            typename Message::factory& allocator, std::atomic< int >* refc,
+            typename sessions::enable_for_server< R, std::nullptr_t >::type dummyarg =
+                nullptr)
+            : ctx_(ctx)
+            , read_strand_(ctx)
+            , stream_(std::forward< typename Stream::next_layer_type >(next_layer))
+            , allocator_(allocator)
+            , stats_(ctx)
+            , msg_pool_refc(refc) {
+            status_set(status_t::BLOCKED);
             (*msg_pool_refc)++;
         }
 

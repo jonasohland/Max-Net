@@ -1,0 +1,19 @@
+﻿---
+BasedOnStyle: LLVM
+AlignEscapedNewlinesLeft: 'false'
+AlignTrailingComments: 'true'
+AllowShortBlocksOnASingleLine: 'false'
+AlwaysBreakTemplateDeclarations: 'true'
+BreakConstructorInitializersBeforeComma: 'true'
+ColumnLimit: '90'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+Cpp11BracedListStyle: 'false'
+DerivePointerAlignment: 'false'
+IndentWidth: '4'
+NamespaceIndentation: All
+PointerAlignment: Left
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'true'
+SpacesInCStyleCastParentheses: 'false'
+
+...

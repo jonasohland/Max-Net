@@ -34,7 +34,8 @@ namespace ohlano {
                 Message, void, boost::mpl::vector<>,
                 boost::function_types::const_qualified >;
 
-        template < typename Message > struct is_send_notification_supported {
+        template < typename Message >
+        struct is_send_notification_supported {
             static constexpr const bool value =
                 is_notify_send_supported< Message >::value &&
                 is_notify_send_done_supported< Message >::value;
@@ -53,15 +54,19 @@ namespace ohlano {
             struct statistics {};
         }
 
-        template < typename Role, typename T = void > struct enable_for_client {};
+        template < typename Role, typename T = void >
+        struct enable_for_client {};
 
-        template < typename Ty > struct enable_for_client< roles::client, Ty > {
+        template < typename Ty >
+        struct enable_for_client< roles::client, Ty > {
             using type = Ty;
         };
 
-        template < typename Role, typename T = void > struct enable_for_server {};
+        template < typename Role, typename T = void >
+        struct enable_for_server {};
 
-        template < typename Ty > struct enable_for_server< roles::server, Ty > {
+        template < typename Ty >
+        struct enable_for_server< roles::server, Ty > {
             using type = Ty;
         };
     }
@@ -74,19 +79,25 @@ namespace ohlano {
         // obvious
         struct multi {};
 
-        template < typename T > struct opt_is_multi : public std::false_type {};
+        template < typename T >
+        struct opt_is_multi : public std::false_type {};
 
-        template <> struct opt_is_multi< threads::multi > : public std::true_type {};
+        template <>
+        struct opt_is_multi< threads::multi > : public std::true_type {};
 
-        template < class Op, class Ty = void > struct opt_enable_if_multi_thread {};
+        template < class Op, class Ty = void >
+        struct opt_enable_if_multi_thread {};
 
-        template < class Ty > struct opt_enable_if_multi_thread< threads::multi, Ty > {
+        template < class Ty >
+        struct opt_enable_if_multi_thread< threads::multi, Ty > {
             using type = Ty;
         };
 
-        template < class Op, class Ty = void > struct opt_enable_if_single_thread {};
+        template < class Op, class Ty = void >
+        struct opt_enable_if_single_thread {};
 
-        template < class Ty > struct opt_enable_if_single_thread< threads::single, Ty > {
+        template < class Ty >
+        struct opt_enable_if_single_thread< threads::single, Ty > {
             using type = Ty;
         };
 
@@ -94,7 +105,8 @@ namespace ohlano {
             BOOST_TTI_HAS_TYPE(thread_option);
         }
 
-        template < typename T > struct is_multi_thread_enabled {
+        template < typename T >
+        struct is_multi_thread_enabled {
             static constexpr const bool value = detail::has_type_thread_option<
                 T, boost::is_same< boost::mpl::placeholders::_1, multi > >::value;
         };
