@@ -66,6 +66,8 @@ add_library( 													# target config
 	${SOURCE_FILES}
 )
 
+target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
+
 if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				# definition for Windows.h 
 endif()															# (Makes Boost.Asio happy)

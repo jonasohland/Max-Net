@@ -1,13 +1,11 @@
-#include <mutex>
-#include <thread>
+#include "../shared/types.h"
 
-#include "../shared/net_url.h"
-#include "../shared/connection.h"
+#include "../shared/proto/generated/Movement.pb.h"
+
 #include "../shared/client.h"
-#include "../shared/devices/protobuf_decoder_worker.h"
+#include "../shared/connection.h"
+#include "../shared/net_url.h"
 
-#include "../shared/messages/proto_message_base.h"
-#include "../shared/messages/iiwa_message.h"
 #include "../shared/messages/bytes_message.h"
 
 #include "../shared/devices/devices.h"
@@ -15,8 +13,6 @@
 #include "../shared/ohlano_min.h"
 
 #include "../shared/min_utils.h"
-
-#include "../shared/types.h"
 
 #include "c74_min.h"
 
@@ -27,10 +23,10 @@ namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
 
 class websocketclient_iiwa
     : public object< websocketclient_iiwa >,
-      public ohlano::client< iiwa_movement_message, ohlano::threads::single > {
+      public ohlano::client< ohlano::bytes_message, ohlano::threads::single > {
 
   public:
-    using client_t = ohlano::client< iiwa_movement_message, ohlano::threads::single >;
+    using client_t = ohlano::client< ohlano::bytes_message, ohlano::threads::single >;
 
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
     MIN_TAGS{ "net" };
@@ -41,16 +37,16 @@ class websocketclient_iiwa
     outlet< thread_check::none, thread_action::assert > data_out{ this, "data out" };
     outlet<> status_out{ this, "status out" };
 
-    explicit websocketclient_iiwa(const atoms& args = {}) {
+    explicit websocketclient_iiwa( const atoms& args = {} ) {
 
-        net_url<> url = net_url_from_atoms(args);
+        net_url<> url = net_url_from_atoms( args );
 
         cout << "address: " << url.host() << c74::min::endl;
         cout << "port: " << url.port() << c74::min::endl;
 
-        if (url) {
+        if ( url ) {
             begin_work();
-            session_create(url);
+            session_create( url );
         }
     }
 
@@ -63,18 +59,18 @@ class websocketclient_iiwa
     }
 
   protected:
-    const iiwa_movement_message* handle_message(const iiwa_movement_message* msg,
-                                                size_t bytes) override {
+    const ohlano::bytes_message* handle_message( const ohlano::bytes_message* msg,
+                                                 size_t bytes ) override {
         cout << "received " << bytes << " bytes" << c74::min::endl;
         return msg;
     }
 
-    void on_ready(boost::system::error_code ec) override {
+    void on_ready( boost::system::error_code ec ) override {
         cout << "session is ready" << c74::min::endl;
-        session()->stream().binary(true);
+        session()->stream().binary( true );
     }
 
-    void on_close(boost::system::error_code ec) override {
+    void on_close( boost::system::error_code ec ) override {
         cout << "session closed" << c74::min::endl;
     }
 
@@ -86,59 +82,171 @@ class websocketclient_iiwa
         cout << "finished running network worker" << c74::min::endl;
     }
 
-    c74::min::atoms handle_joints_message(const c74::min::atoms& args, int inlet) {
+    /// convert an atom vector to a std::array of any type
+    template < typename T, size_t Size >
+    std::array< T, Size > get_typed_arg_array( const c74::min::atoms& args ) {
 
-        if (session() &&
-            session()->status() == client_base::session_impl_type::status_codes::ONLINE) {
+        std::array< T, Size > out;
 
-            if (args.size() < 7) {
-                cerr << "not enough arguments, size:" << args.size() << c74::min::endl;
+        if ( args.size() < Size ) {
+            throw std::runtime_error( "not enough arguments provided" );
+        }
 
-                return args;
+        for ( size_t i = 0; i < Size; ++i ) {
+            out[i] = args[i].get< double >();
+        }
+
+        return out;
+    }
+
+    c74::min::atoms handle_joints_message( const c74::min::atoms& args, int inlet ) {
+
+        try {
+
+            auto joints = get_typed_arg_array< double, 7 >( args );
+
+            for ( double joint : joints ) {
+                movement_state.clear_jointpositions();
+                movement_state.mutable_jointpositions()->add_joints( joint );
             }
 
-            try {
-
-                iiwa_movement_message* message = new_msg();
-
-                for (int i = 0; i < 7; i++) {
-                    message->add_joints(c74::min::atom::get< double >(args[i]));
-                }
-
-                message->set_joint_params(0.1, 0.6, 0.5, 0.05);
-
-                message->set_filter_params(0.05, 1.2, 0.1);
-
-                message->serialize();
-
-                message->set_move_type(
-                    iiwa::Movement::MovementType::Movement_MovementType_JOINT);
-
-                send(message);
-
-            } catch (c74::min::bad_atom_access& ex) {
-                cerr << "args type error" << c74::min::endl;
-                boost::ignore_unused(ex);
-            }
-        } else {
-            cerr << "not online" << c74::min::endl;
+        } catch ( std::exception& ex ) {
+            cerr << ex.what() << c74::min::endl;
+            return args;
         }
 
         return args;
     }
 
+    c74::min::atoms handle_filter_params( const c74::min::atoms args, int inlet ) {
+
+        try {
+
+            auto filter_params = get_typed_arg_array< double, 3 >( args );
+
+            movement_state.clear_filterparameter();
+
+            auto filterp = movement_state.mutable_filterparameter();
+
+            filterp->set_stepsize( filter_params[0] );
+            filterp->set_friction( filter_params[1] );
+            filterp->set_epsilon( filter_params[2] );
+
+        } catch ( c74::min::bad_atom_access& ex ) {
+            cerr << ex.what() << c74::min::endl;
+            return args;
+        }
+
+        return args;
+    }
+
+    c74::min::atoms handle_joint_params( const c74::min::atoms args, int inlet ) {
+
+        try {
+
+            auto joint_params = get_typed_arg_array< double, 4 >( args );
+
+            movement_state.clear_filterparameter();
+
+            auto filterp = movement_state.mutable_jointparameter();
+
+            filterp->set_jointvelocity( joint_params[0] );
+            filterp->set_jointaccelerationrel( joint_params[1] );
+            filterp->set_jointjerkrel( joint_params[2] );
+            filterp->set_blendingrel( joint_params[3] );
+
+        } catch ( c74::min::bad_atom_access& ex ) {
+            cerr << ex.what() << c74::min::endl;
+            return args;
+        }
+
+        return args;
+    }
+
+    c74::min::atoms handle_set_movetype( c74::min::atoms& args, int inlet ) {
+
+        if ( args.size() < 1 ) {
+            cerr << "not enough args" << c74::min::endl;
+        }
+
+        try {
+
+            auto ty_sym = c74::min::atom::get< c74::min::symbol >( args[0] );
+
+            if ( ty_sym == joint_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_JOINT );
+            else if ( ty_sym == pip_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_PIP );
+            else if ( ty_sym == lin_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_LIN );
+            else if ( ty_sym == circle_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_CIRCLE );
+            else if ( ty_sym == bezier_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_BEZIER );
+            else if ( ty_sym == batch_sym )
+                movement_state.set_movetype(
+                    iiwa::Movement_MovementType::Movement_MovementType_BATCH );
+            else
+                cerr << "unrecognized movement type" << c74::min::endl;
+
+        } catch ( std::exception& ex ) {
+            cerr << ex.what() << c74::min::endl;
+        }
+    }
+
+    c74::min::atoms send_msg(const c74::min::atoms& args, int inlet){ 
+        
+        auto out_msg = this->new_msg();
+
+        size_t s = movement_state.ByteSizeLong();
+
+        out_msg->storage().reserve(s);
+
+        movement_state.SerializeToArray(out_msg->data(), s);
+
+        this->send(out_msg);
+
+        return args;
+    }
+
+    c74::min::symbol joint_sym{ "JOINT" };
+    c74::min::symbol pip_sym{ "PIP" };
+    c74::min::symbol lin_sym{ "LIN" };
+    c74::min::symbol circle_sym{ "CIRCLE" };
+    c74::min::symbol bezier_sym{ "BEZIER" };
+    c74::min::symbol batch_sym{ "BATCH" };
+
     message< threadsafe::yes > set_joints{
-        this, "joints", "set joints", OHLANO_WRAP_DEFERRED_CALL(handle_joints_message)
+        this, "Joints", "set joints", O_CREATE_DEFERRED_CALL( handle_joints_message )
+    };
+
+    message< threadsafe::yes > set_joind_params{
+        this, "JointParams", "set joints", O_CREATE_DEFERRED_CALL( handle_joint_params )
+    };
+
+    message< threadsafe::yes > set_filter_params{
+        this, "FilterParams", "set movement filter parameters",
+        O_CREATE_DEFERRED_CALL( handle_filter_params )
+    };
+
+    message< threadsafe::yes > do_send_msg{
+        this, "doSend", "send message",
+        O_CREATE_DEFERRED_CALL( send_msg )
     };
 
     // message<> status{ this, "status", "report status",
     // min_wrap_member(&websocketclient_iiwa::report_status) };
     message<> version{ this, "anything", "print version number",
 
-                       [=](const atoms& args, int inlet) -> atoms {
+                       [=]( const atoms& args, int inlet ) -> atoms {
 #ifdef VERSION_TAG
-                           cout << "WebSocket Client for Max " << STR(VERSION_TAG) << "-"
-                                << STR(CONFIG_TAG) << "-" << STR(OS_TAG)
+                           cout << "WebSocket Client for Max " << STR( VERSION_TAG )
+                                << "-" << STR( CONFIG_TAG ) << "-" << STR( OS_TAG )
                                 << c74::min::endl;
 #else
                            cout << "test build" << c74::min::endl;
@@ -147,21 +255,26 @@ class websocketclient_iiwa
                        }
 
     };
+
+  private:
+    iiwa::Movement movement_state;
+    std::mutex movement_lock;
 };
 
-void ext_main(void* r) {
+void ext_main( void* r ) {
 
 #ifdef VERSION_TAG
     c74::max::object_post(
         nullptr,
         "WebSocket Client for Max // (c) Jonas Ohland 2018 -- %s-%s-%s built: %s",
-        STR(VERSION_TAG), STR(CONFIG_TAG), STR(OS_TAG), __DATE__);
+        STR( VERSION_TAG ), STR( CONFIG_TAG ), STR( OS_TAG ), __DATE__ );
 #else
-    c74::max::object_post(nullptr, "WebSocket Client for Max // (c) Jonas Ohland 2018 -- "
-                                   "built %s - test build",
-                          __DATE__);
+    c74::max::object_post( nullptr,
+                           "WebSocket Client for Max // (c) Jonas Ohland 2018 -- "
+                           "built %s - test build",
+                           __DATE__ );
 #endif
 
-    c74::min::wrap_as_max_external< websocketclient_iiwa >("websocketclient.iiwa",
-                                                           __FILE__, r);
+    c74::min::wrap_as_max_external< websocketclient_iiwa >( "websocketclient.iiwa",
+                                                            __FILE__, r );
 }

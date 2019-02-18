@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/tti/has_type.hpp>
+#include <boost/tti/tti.hpp>
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -13,7 +13,7 @@ namespace ohlano {
             BOOST_TTI_HAS_MEMBER_FUNCTION( set_direction );
             BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send );
             BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send_done );
-        }
+        } // namespace detail
 
         template < typename Message >
         using is_direction_supported = detail::has_member_function_set_direction<
@@ -40,19 +40,19 @@ namespace ohlano {
                 is_notify_send_supported< Message >::value &&
                 is_notify_send_done_supported< Message >::value;
         };
-    }
+    } // namespace messages
 
     namespace sessions {
 
         namespace roles {
             struct server {};
             struct client {};
-        }
+        } // namespace roles
 
         namespace features {
             struct timeout {};
             struct statistics {};
-        }
+        } // namespace features
 
         template < typename Role, typename T = void >
         struct enable_for_client {};
@@ -69,7 +69,7 @@ namespace ohlano {
         struct enable_for_server< roles::server, Ty > {
             using type = Ty;
         };
-    }
+    } // namespace sessions
 
     namespace threads {
 
@@ -118,5 +118,5 @@ namespace ohlano {
         template < typename T, typename Ty = void >
         using enable_if_multi_thread_enabled_t =
             typename enable_if_multi_thread_enabled< T, Ty >::type;
-    }
-}
+    } // namespace threads
+} // namespace ohlano

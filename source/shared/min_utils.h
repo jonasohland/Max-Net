@@ -1,7 +1,7 @@
 #include "c74_min.h"
 #include "net_url.h"
 
-#define OHLANO_WRAP_DEFERRED_CALL( f )                                                   \
+#define O_CREATE_DEFERRED_CALL( f )                                                   \
     [this]( const c74::min::atoms& args, int inlet ) -> c74::min::atoms {                \
         this->post( [=]() { f( args, inlet ); } );                                       \
         return args;                                                                     \
