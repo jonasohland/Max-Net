@@ -28,9 +28,9 @@ add_library(
 	${PROJECT_NAME}.cpp
 )
 
-target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
 
 if(WIN32)
+	target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
 	add_compile_definitions(_WIN32_WINNT=0x0A00)				
 endif()															
 
