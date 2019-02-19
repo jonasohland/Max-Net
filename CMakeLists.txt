@@ -19,7 +19,7 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 endif ()
 
 
-if(NOT build_protobuf_targets)
+if(build_protobuf_targets)
 
 	set(PROTO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/")
 
