@@ -1,20 +1,16 @@
-#include "../shared/types.h"
+#include <boost/asio.hpp>
+#include <boost/beast.hpp>
 
-#include "../shared/proto/generated/Movement.pb.h"
-
-#include "../shared/client.h"
-#include "../shared/connection.h"
-#include "../shared/net_url.h"
-
-#include "../shared/messages/bytes_message.h"
-
-#include "../shared/devices/devices.h"
-
-#include "../shared/ohlano_min.h"
-
-#include "../shared/min_utils.h"
-
+#include "Movement.pb.h"
 #include "c74_min.h"
+#include "client.h"
+#include "connection.h"
+#include "devices/devices.h"
+#include "messages/bytes_message.h"
+#include "min_utils.h"
+#include "net_url.h"
+#include "ohlano_min.h"
+#include "types.h"
 
 using namespace c74::min;
 using namespace std::placeholders;
@@ -199,17 +195,17 @@ class websocketclient_iiwa
         }
     }
 
-    c74::min::atoms send_msg(const c74::min::atoms& args, int inlet){ 
-        
+    c74::min::atoms send_msg( const c74::min::atoms& args, int inlet ) {
+
         auto out_msg = this->new_msg();
 
         size_t s = movement_state.ByteSizeLong();
 
-        out_msg->storage().reserve(s);
+        out_msg->storage().reserve( s );
 
-        movement_state.SerializeToArray(out_msg->data(), s);
+        movement_state.SerializeToArray( out_msg->data(), s );
 
-        this->send(out_msg);
+        this->send( out_msg );
 
         return args;
     }
@@ -234,10 +230,8 @@ class websocketclient_iiwa
         O_CREATE_DEFERRED_CALL( handle_filter_params )
     };
 
-    message< threadsafe::yes > do_send_msg{
-        this, "doSend", "send message",
-        O_CREATE_DEFERRED_CALL( send_msg )
-    };
+    message< threadsafe::yes > do_send_msg{ this, "doSend", "send message",
+                                            O_CREATE_DEFERRED_CALL( send_msg ) };
 
     // message<> status{ this, "status", "report status",
     // min_wrap_member(&websocketclient_iiwa::report_status) };

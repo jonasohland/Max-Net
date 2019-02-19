@@ -19,7 +19,7 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 endif ()
 
 
-if(build_protobuf_targets)
+if(NOT build_protobuf_targets)
 
 	set(PROTO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto/")
 
@@ -63,11 +63,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api/script/min-package.cmake)
 # enable_testing()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared)
 
-# Add the Lib, if it exists
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/min-lib/CMakeLists.txt")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-lib)
-endif ()
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto)
 
 
 if(build_protobuf_targets)

@@ -1,24 +1,23 @@
 #pragma once
 
-#include "net_url.h"
 #include "devices/stats.h"
+#include "net_url.h"
 #include "ohlano.h"
-#include <cassert>
-#include <atomic>
-#include <functional>
-#include <deque>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio/bind_executor.hpp>
-#include <boost/asio/dispatch.hpp>
-#include <boost/asio/post.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/io_context_strand.hpp>
 
-#include <boost/tti/has_member_function.hpp>
+#include <atomic>
+#include <boost/asio.hpp>
+
+#include <boost/beast/websocket.hpp>
+#include <boost/system/error_code.hpp>
+
+#include <cassert>
+#include <deque>
+#include <functional>
+
 #include <boost/function_types/property_tags.hpp>
 #include <boost/mpl/vector.hpp>
+
+#include <boost/tti/has_member_function.hpp>
 
 #include "types.h"
 
@@ -51,9 +50,8 @@ namespace ohlano {
 
     template < typename Stream, typename Message,
                typename Role = sessions::roles::client >
-    class connection
-        : public std::enable_shared_from_this< connection< Stream, Message > >,
-          public session_threaded_base< threads::multi > {
+    class session : public std::enable_shared_from_this< session< Stream, Message > >,
+                    public session_threaded_base< threads::multi > {
       public:
         typedef std::function< void( boost::system::error_code ) >
             basic_completion_handler_t;
@@ -64,9 +62,9 @@ namespace ohlano {
         using status_t = status_codes;
 
         /**
-             * return a string representation of the current status
-             * @return the string
-             */
+         * return a string representation of the current status
+         * @return the string
+         */
         std::string status_string() const {
             switch ( status_get() ) {
             case status_codes::OFFLINE:
@@ -95,11 +93,10 @@ namespace ohlano {
 
         /// constructor for client role
         template < typename R = Role >
-        explicit connection(
-            boost::asio::io_context& ctx, typename Message::factory& allocator,
-            std::atomic< int >* refc,
-            typename sessions::enable_for_client< R, std::nullptr_t >::type dummyarg =
-                nullptr )
+        explicit session( boost::asio::io_context& ctx,
+                          typename Message::factory& allocator, std::atomic< int >* refc,
+                          typename sessions::enable_for_client< R, std::nullptr_t >::type
+                              dummyarg = nullptr )
             : ctx_( ctx )
             , read_strand_( ctx )
             , stream_( ctx_ )
@@ -112,11 +109,11 @@ namespace ohlano {
 
         /// constructor for server role
         template < typename R = Role >
-        explicit connection(
-            typename Stream::next_layer_type&& next_layer, boost::asio::io_context& ctx,
-            typename Message::factory& allocator, std::atomic< int >* refc,
-            typename sessions::enable_for_server< R, std::nullptr_t >::type dummyarg =
-                nullptr )
+        explicit session( typename Stream::next_layer_type&& next_layer,
+                          boost::asio::io_context& ctx,
+                          typename Message::factory& allocator, std::atomic< int >* refc,
+                          typename sessions::enable_for_server< R, std::nullptr_t >::type
+                              dummyarg = nullptr )
             : ctx_( ctx )
             , read_strand_( ctx )
             , stream_( std::forward< typename Stream::next_layer_type >( next_layer ) )
@@ -127,9 +124,9 @@ namespace ohlano {
             ( *msg_pool_refc )++;
         }
 
-        ~connection() {
+        ~session() {
 
-            DBG( "connection destructor" );
+            DBG( "session destructor" );
 
             if ( on_write_done_ != boost::none ) {
                 while ( msg_queue.size() > 0 ) {
@@ -148,64 +145,24 @@ namespace ohlano {
             ( *msg_pool_refc )--;
         }
 
-        /**
-             * get the current status of the session
-             */
         status_t status() const { return status_get(); }
 
-        /**
-             * Assign a handler that will be called as soon as the connection is ready to
-         * send and receive messages.
-             * The method will return immediatly. It is guaranteed that the handler
-             * will be called from the service thread.
-             * @param a basic_completion_handler that will be called when the session is
-         * ready
-             */
         void on_ready( basic_completion_handler_t handler ) {
             on_ready_ = boost::make_optional( handler );
         }
 
-        /**
-             * Assign a handler that will be called as soon as the connection is receives
-         * a message or an error occurs
-             * while performing the read operation. If the read operation failed the
-         * message given to the handler
-             * will be a nullptr.
-             * The method will return immediatly. It is guaranteed that the handler
-             * will be called from the service thread.
-             * @param a read_completion_handler_t to be called
-             */
         void on_read( read_completion_handler_t handler ) {
             on_read_ = boost::make_optional( handler );
         }
 
-        /**
-             * Assign a handler that will be called if a close operation performed from
-         * this side succeeds.
-             * @param a basic_completion_handler that will be called on close.
-             */
         void on_close( basic_completion_handler_t handler ) {
             on_close_ = boost::make_optional( handler );
         }
 
-        /**
-             * Assign a handler that will be called when a write operation completes.
-             * The method will return immediatly. It is guaranteed that the handler
-             * will be called from the service thread.
-             * @param a write_completion_handler that will be called.
-             */
         void on_write_done( write_completion_handler_t handler ) {
             on_write_done_ = boost::make_optional( handler );
         }
 
-        /**
-             * Begin a connect operation on this session. The on_ready handler will be
-         * called when the operation
-             * completes. This Method will manage connecting and handshaking. After a
-         * successful connect operation, the
-             * session will be ready to write and already in a reading state.
-             * @param a net_url that is in a resolved state and contains a valid endpoint.
-             */
         template < typename R = Role >
         typename sessions::enable_for_client< R >::type connect( net_url<> url ) {
 
@@ -215,22 +172,16 @@ namespace ohlano {
             assert( url.is_resolved() );
 
             boost::asio::async_connect( stream_.next_layer(), url.endpoints(),
-                                        std::bind( &connection::connect_handler,
+                                        std::bind( &session::connect_handler,
                                                    this->shared_from_this(),
                                                    std::placeholders::_1, url ) );
         }
 
-        /**
-             * Accept the remote connection. The on_ready handler will be called when the
-         * operation completes.
-             * After this operation completes, the session will be ready to write and in a
-         * reading state.
-             */
         template < typename R = Role >
         typename sessions::enable_for_server< R >::type accept() {
             stream_.async_accept( boost::asio::bind_executor(
                 read_strand_,
-                std::bind( &connection::accepted_handler, this->shared_from_this(),
+                std::bind( &session::accepted_handler, this->shared_from_this(),
                            std::placeholders::_1 ) ) );
         }
 
@@ -253,7 +204,6 @@ namespace ohlano {
                 stream_.get_executor().context(), std::chrono::milliseconds( 500 ) );
 
             close_tmt->async_wait( [=]( boost::system::error_code ec ) {
-
                 if ( !ec ) {
 
                     try {
@@ -280,7 +230,7 @@ namespace ohlano {
                 boost::asio::dispatch( write_strand_, [self]() {
                     self->stream_.async_close(
                         boost::beast::websocket::close_code::normal,
-                        std::bind( &connection::close_handler, self->shared_from_this(),
+                        std::bind( &session::close_handler, self->shared_from_this(),
                                    std::placeholders::_1 ) );
                 } );
             }
@@ -301,7 +251,7 @@ namespace ohlano {
                 stream_.async_handshake(
                     url.host(), url.path(),
                     boost::asio::bind_executor( read_strand_,
-                                                std::bind( &connection::handshake_handler,
+                                                std::bind( &session::handshake_handler,
                                                            this->shared_from_this(),
                                                            std::placeholders::_1 ) ) );
             } else {
@@ -354,7 +304,7 @@ namespace ohlano {
                     boost::asio::buffer( msg->data(), msg->size() ),
                     boost::asio::bind_executor(
                         this->write_strand_,
-                        std::bind( &connection::write_complete_handler,
+                        std::bind( &session::write_complete_handler,
                                    this->shared_from_this(), std::placeholders::_1,
                                    std::placeholders::_2, msg ) ) );
             } else {
@@ -365,7 +315,7 @@ namespace ohlano {
                         boost::asio::buffer( msg->data(), msg->size() ),
                         boost::asio::bind_executor(
                             self->write_strand_,
-                            std::bind( &connection::write_complete_handler,
+                            std::bind( &session::write_complete_handler,
                                        self->shared_from_this(), std::placeholders::_1,
                                        std::placeholders::_2, msg ) ) );
                 } );
@@ -425,9 +375,8 @@ namespace ohlano {
                         self->buffer_,
                         boost::asio::bind_executor(
                             self->read_strand_,
-                            std::bind( &connection::read_handler,
-                                       self->shared_from_this(), std::placeholders::_1,
-                                       std::placeholders::_2 ) ) );
+                            std::bind( &session::read_handler, self->shared_from_this(),
+                                       std::placeholders::_1, std::placeholders::_2 ) ) );
                 } );
             }
         }
@@ -523,4 +472,4 @@ namespace ohlano {
 
         std::atomic< int >* msg_pool_refc;
     };
-}
+} // namespace ohlano

@@ -1,8 +1,7 @@
-#include "types.h"
+#include "devices/multi_resolver.h"
 #include "io_object_base.h"
 #include "net_url.h"
-#include "c74_min.h"
-#include "devices/multi_resolver.h"
+#include "types.h"
 
 #include <atomic>
 
@@ -11,10 +10,18 @@
 namespace ohlano {
 
     template < typename MessageType, typename ThreadOptions >
-    class client : public io_object::base< MessageType, ThreadOptions > {
+    class client : public io_object::base< ThreadOptions > {
 
       public:
-        using client_base = io_object::base< MessageType, ThreadOptions >;
+        using message_type = MessageType;
+
+        using session_impl_type = ohlano::session<
+            boost::beast::websocket::stream< boost::asio::ip::tcp::socket >,
+            MessageType >;
+
+        using session_type = std::shared_ptr< session_impl_type >;
+
+        using io_base = io_object::base< ThreadOptions >;
 
         using thread_option = ThreadOptions;
 
@@ -28,7 +35,7 @@ namespace ohlano {
 
         void session_create( net_url<> url ) {
 
-            session_ = std::make_shared< typename client_base::session_impl_type >(
+            session_ = std::make_shared< typename session_impl_type >(
                 this->context(), factory_, &connections_refc_ );
 
             if ( !url.is_resolved() ) {
@@ -54,8 +61,8 @@ namespace ohlano {
 
         MessageType* new_msg() { return factory_.allocate(); }
 
-        typename client_base::session_type& session() { return session_; }
-        const typename client_base::session_type& session() const { return session_; }
+        typename session_type& session() { return session_; }
+        const typename session_type& session() const { return session_; }
 
         typename MessageType::factory& factory() { return factory_; }
 
@@ -87,7 +94,7 @@ namespace ohlano {
                 DBG( ec.message() );
         }
 
-        typename client_base::session_type session_;
+        typename session_type session_;
 
         typename MessageType::factory factory_;
 
@@ -95,4 +102,4 @@ namespace ohlano {
 
         std::atomic< int > connections_refc_;
     };
-}
+} // namespace ohlano
