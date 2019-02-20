@@ -15,7 +15,9 @@ find_package(Boost COMPONENTS
 
 message(STATUS "shared code")
 
-if (${CMAKE_GENERATOR} MATCHES "Xcode")
+message(STATUS ${CMAKE_GENERATOR})
+
+if ((${CMAKE_GENERATOR} MATCHES "Xcode") OR (${CMAKE_GENERATOR} MATCHES "Visual Studio 15 2017 Win64"))
 
 	add_library(websockets_shared_source STATIC 
 		${SHARED_HEADERS}

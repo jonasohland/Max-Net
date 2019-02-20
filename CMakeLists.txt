@@ -72,6 +72,7 @@ if(build_protobuf_targets)
 	
 	if(build_iiwa_targets)
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient_iiwa")
+		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/iiwa_move")
 	endif()
 	
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient")

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <functional>
-#include <string>
 #include <sstream>
+#include <string>
 
 #define min_wrap_member( x )                                                             \
     ohlano::make_func< c74::min::atoms( const c74::min::atoms&, int ) >(                 \
@@ -106,4 +106,22 @@ namespace ohlano {
     make_func( T&& bind_expr ) {
         return std::function< F >( std::forward< T >( bind_expr ) );
     }
-}
+
+    /// convert an atom vector to a std::array of any type
+    template < typename T, size_t Size >
+    std::array< T, Size > array_from_atoms( const c74::min::atoms& args ) {
+
+        std::array< T, Size > out;
+
+        if ( args.size() < Size ) {
+            throw std::runtime_error( "not enough arguments provided" );
+        }
+
+        for ( size_t i = 0; i < Size; ++i ) {
+            out[i] = args[i].get< double >();
+        }
+
+        return out;
+    }
+
+} // namespace ohlano
