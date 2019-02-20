@@ -15,21 +15,24 @@ find_package(Boost COMPONENTS
 
 message(STATUS "shared code")
 
-add_library(websockets_shared_source STATIC 
-    ${SHARED_HEADERS}
-    ${DEVICE_HEADERS}
-    ${MESSAGES_HEADERS}
-)
+if (${CMAKE_GENERATOR} MATCHES "Xcode")
 
-set_target_properties(websockets_shared_source PROPERTIES LINKER_LANGUAGE CXX)
+	add_library(websockets_shared_source STATIC 
+		${SHARED_HEADERS}
+		${DEVICE_HEADERS}
+		${MESSAGES_HEADERS}
+	)
 
-target_include_directories(websockets_shared_source INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+	set_target_properties(websockets_shared_source PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(websockets_shared_source PUBLIC ${Boost_INCLUDE_DIRS})
+	target_include_directories(websockets_shared_source INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_include_directories(websockets_shared_source PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
-target_include_directories(websockets_shared_source PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")
+	target_include_directories(websockets_shared_source PUBLIC ${Boost_INCLUDE_DIRS})
 
+	target_include_directories(websockets_shared_source PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
+	target_include_directories(websockets_shared_source PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")
+
+endif()
 
 add_library(websockets_shared INTERFACE)
 

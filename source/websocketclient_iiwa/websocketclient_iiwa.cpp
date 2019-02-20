@@ -1,7 +1,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 
-#include "Movement.pb.h"
+#include "generated/Movement.pb.h"
 #include "c74_min.h"
 #include "client.h"
 #include "connection.h"

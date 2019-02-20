@@ -3,8 +3,8 @@
 
 #include "connection.h"
 
-#include "messages/generic_max_message.h"
-#include "messages/proto_message_base.h"
+#include "proto_messages/generic_max_message.h"
+#include "proto_messages/proto_message_base.h"
 
 #include "devices/devices.h"
 

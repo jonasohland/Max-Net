@@ -35,7 +35,7 @@ namespace ohlano {
 
         void session_create( net_url<> url ) {
 
-            session_ = std::make_shared< typename session_impl_type >(
+            session_ = std::make_shared< session_impl_type >(
                 this->context(), factory_, &connections_refc_ );
 
             if ( !url.is_resolved() ) {
@@ -61,8 +61,8 @@ namespace ohlano {
 
         MessageType* new_msg() { return factory_.allocate(); }
 
-        typename session_type& session() { return session_; }
-        const typename session_type& session() const { return session_; }
+        session_type& session() { return session_; }
+        const session_type& session() const { return session_; }
 
         typename MessageType::factory& factory() { return factory_; }
 
@@ -94,7 +94,7 @@ namespace ohlano {
                 DBG( ec.message() );
         }
 
-        typename session_type session_;
+        session_type session_;
 
         typename MessageType::factory factory_;
 
