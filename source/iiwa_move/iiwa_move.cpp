@@ -3,11 +3,14 @@
 #include "generated/Movement.pb.h"
 #include "ohlano_min.h"
 
+#include <checked_ptr.h>
+
 namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
 
 class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
   public:
     explicit iiwa_movement_message( const c74::min::atoms& args = {} ) {
+
         if ( args.size() == 0 )
             return;
 
@@ -28,10 +31,10 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
             auto joints = ohlano::array_from_atoms< double, 7 >( args );
 
-            movement_state.clear_jointpositions();
+            movement_state->clear_jointpositions();
 
             for ( double joint : joints ) {
-                movement_state.mutable_jointpositions()->add_joints( joint );
+                movement_state->mutable_jointpositions()->add_joints( joint );
             }
 
         } catch ( std::exception& ex ) {
@@ -48,9 +51,9 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
             auto filter_params = ohlano::array_from_atoms< double, 3 >( args );
 
-            movement_state.clear_filterparameter();
+            movement_state->clear_filterparameter();
 
-            auto filterp = movement_state.mutable_filterparameter();
+            auto filterp = movement_state->mutable_filterparameter();
 
             filterp->set_stepsize( filter_params[0] );
             filterp->set_friction( filter_params[1] );
@@ -70,9 +73,9 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
             auto joint_params = ohlano::array_from_atoms< double, 4 >( args );
 
-            movement_state.clear_filterparameter();
+            movement_state->clear_filterparameter();
 
-            auto filterp = movement_state.mutable_jointparameter();
+            auto filterp = movement_state->mutable_jointparameter();
 
             filterp->set_jointvelocity( joint_params[0] );
             filterp->set_jointaccelerationrel( joint_params[1] );
@@ -135,7 +138,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
     }
 
     bool ensure_correct_move_type( iiwa::Movement::MovementType ty ) {
-        return movement_state.movetype() == ty;
+        return movement_state->movetype() == ty;
     }
 
     bool is_correct_move_type( c74::min::symbol& ty_sym ) {
@@ -144,7 +147,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
         auto move_t = move_type_from_sym( ty_sym, success );
 
         if ( success )
-            return ( movement_state.movetype() == move_t );
+            return ( movement_state->movetype() == move_t );
 
         return false;
     }
@@ -155,7 +158,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
         auto move_t = move_type_from_sym( ty_sym, succ );
 
         if ( succ ) {
-            movement_state.set_movetype( move_t );
+            movement_state->set_movetype( move_t );
         }
     }
 
@@ -189,9 +192,11 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
     };
 
   private:
-    iiwa::Movement movement_state;
+    checkable_obj< iiwa::Movement > movement_state{ CONSTEXPR_TYPENAME_HASH(
+        iiwa::Movement ) };
 };
 
 void ext_main( void* r ) {
+
     c74::min::wrap_as_max_external< iiwa_movement_message >( "iiwa_move", __FILE__, r );
 }

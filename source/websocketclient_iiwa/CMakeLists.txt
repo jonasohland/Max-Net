@@ -50,5 +50,6 @@ add_dependencies(${PROJECT_NAME} shared_protos)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC shared_protos)
 target_link_libraries(${PROJECT_NAME} PUBLIC websockets_shared)
+target_link_libraries(${PROJECT_NAME} PUBLIC checked_ptr)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
 

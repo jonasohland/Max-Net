@@ -67,12 +67,16 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/checked_ptr)
+
 
 if(build_protobuf_targets)
 	
 	if(build_iiwa_targets)
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient_iiwa")
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/iiwa_move")
+		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/iiwa_joints")
+		
 	endif()
 	
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient")

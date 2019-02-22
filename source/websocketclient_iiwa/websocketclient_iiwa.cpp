@@ -12,6 +12,8 @@
 #include "ohlano_min.h"
 #include "types.h"
 
+#include <checked_ptr.h>
+
 using namespace c74::min;
 using namespace std::placeholders;
 
@@ -87,24 +89,29 @@ class websocketclient_iiwa
     c74::min::symbol bezier_sym{ "BEZIER" };
     c74::min::symbol batch_sym{ "BATCH" };
 
+    const std::ptrdiff_t iiwa_move_t_hash = CONSTEXPR_TYPENAME_HASH( iiwa::Movement );
+
     message< threadsafe::yes > new_mv_msg{
         this, "iiwa_move", "send new iiwa move msg",
         [=]( const c74::min::atoms& args, int inlet ) -> c74::min::atoms {
+            auto msg = new_msg();
+
             try {
 
-                auto msg = reinterpret_cast< iiwa::Movement* >(
-                    c74::min::atom::get< long long >( args[0] ) );
+                auto mv_ptr = make_checked< iiwa::Movement >(
+                    reinterpret_cast< void* >(
+                        c74::min::atom::get< long long >( args[0] ) ),
+                    iiwa_move_t_hash );
 
-                auto bytes_msg = new_msg();
+                msg->storage().resize( mv_ptr->ByteSizeLong() );
 
-                bytes_msg->storage().resize( msg->ByteSizeLong() );
+                mv_ptr->SerializeToArray( msg->data(), msg->size() );
 
-                msg->SerializeToArray( bytes_msg->data(), bytes_msg->size() );
+                send( msg );
 
-                send( bytes_msg );
-
-            } catch ( c74::min::bad_atom_access& ex ) {
+            } catch ( std::exception& ex ) {
                 cerr << ex.what() << c74::min::endl;
+                factory().deallocate( msg );
             }
 
             return args;
