@@ -2,11 +2,21 @@ cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api)
 
+if(use_version_tags)
+
 execute_process(COMMAND "git" "describe" "--tags" 
 				OUTPUT_VARIABLE VERSION_TAG 
 				ERROR_VARIABLE VERSION_TAG
 				ERROR_STRIP_TRAILING_WHITESPACE
 				OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+else()
+
+set(VERSION_TAG "x.x")
+
+endif()
+
+include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)	
@@ -18,9 +28,6 @@ find_package(Boost COMPONENTS
 					REQUIRED)
 
 find_package(Protobuf REQUIRED)	
-
-
-include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
 add_library( 												
 	${PROJECT_NAME} 

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 option(build_protobuf_targets "build externals that depend on the protobuf library" ON)
 option(build_iiwa_targets "build externals for communicating with iiwa robots" OFF)
+option(use_version_tags "define version tag macros from git tags" ON)
 
 if((build_iiwa_targets) AND (NOT build_protobuf_targets))
 	message(WARNING "iiwa targets cant built without protobuf targets enabled")
