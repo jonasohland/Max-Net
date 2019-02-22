@@ -12,6 +12,8 @@
 #include "ohlano_min.h"
 #include "types.h"
 
+#define CHECKED_PTR_USE_TEMPLATE_HASH
+
 #include <checked_ptr.h>
 
 using namespace c74::min;
@@ -88,9 +90,7 @@ class websocketclient_iiwa
     c74::min::symbol circle_sym{ "CIRCLE" };
     c74::min::symbol bezier_sym{ "BEZIER" };
     c74::min::symbol batch_sym{ "BATCH" };
-
-    const std::ptrdiff_t iiwa_move_t_hash = CONSTEXPR_TYPENAME_HASH( iiwa::Movement );
-
+          
     message< threadsafe::yes > new_mv_msg{
         this, "iiwa_move", "send new iiwa move msg",
         [=]( const c74::min::atoms& args, int inlet ) -> c74::min::atoms {
@@ -101,7 +101,7 @@ class websocketclient_iiwa
                 auto mv_ptr = make_checked< iiwa::Movement >(
                     reinterpret_cast< void* >(
                         c74::min::atom::get< long long >( args[0] ) ),
-                    iiwa_move_t_hash );
+                    CONSTEXPR_TYPENAME_HASH( iiwa::message ) );
 
                 msg->storage().resize( mv_ptr->ByteSizeLong() );
 

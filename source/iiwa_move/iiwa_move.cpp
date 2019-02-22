@@ -2,7 +2,7 @@
 #include "c74_min.h"
 #include "generated/Movement.pb.h"
 #include "ohlano_min.h"
-
+#define CHECKED_PTR_USE_TEMPLATE_HASH
 #include <checked_ptr.h>
 
 namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
@@ -92,17 +92,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
     c74::min::atoms handle_set_movetype( c74::min::atoms& args, int inlet ) {
 
-        if ( args.size() < 1 ) {
-            cerr << "not enough args" << c74::min::endl;
-        }
-
-        try {
-
-            auto ty_sym = c74::min::atom::get< c74::min::symbol >( args[0] );
-
-        } catch ( std::exception& ex ) {
-            cerr << ex.what() << c74::min::endl;
-        }
+        return args;
     }
 
     c74::min::atoms send_msg( const c74::min::atoms& args, int inlet ) {
@@ -192,8 +182,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
     };
 
   private:
-    checkable_obj< iiwa::Movement > movement_state{ CONSTEXPR_TYPENAME_HASH(
-        iiwa::Movement ) };
+    checkable_obj< iiwa::Movement > movement_state { CONSTEXPR_TYPENAME_HASH( iiwa::message ) };
 };
 
 void ext_main( void* r ) {

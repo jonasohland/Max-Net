@@ -79,8 +79,7 @@ class iiwa_joints : public c74::min::object< iiwa_joints > {
     c74::min::outlet<> data_out{ this, "output", "anything" };
 
   private:
-    checkable_obj< iiwa::Movement > movement_state{ CONSTEXPR_TYPENAME_HASH(
-        iiwa::Movement ) };
+    checkable_obj< iiwa::Movement > movement_state { CONSTEXPR_TYPENAME_HASH(iiwa::message) };
 };
 
 void ext_main( void* r ) {
