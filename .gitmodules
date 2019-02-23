@@ -1,3 +1,6 @@
 [submodule "lib/min-api"]
 	path = lib/min-api
 	url = https://github.com/jonasohland/min-api
+[submodule "lib/checked_ptr"]
+	path = lib/checked_ptr
+	url = https://github.com/jonasohland/checked_ptr
