@@ -6,7 +6,7 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
 
-#include "connection.h"
+#include "session.h"
 #include "types.h"
 
 namespace ohlano {

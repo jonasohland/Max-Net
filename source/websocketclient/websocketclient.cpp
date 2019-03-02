@@ -1,9 +1,9 @@
 #include <mutex>
 #include <thread>
 
-#include "connection.h"
 #include "devices/protobuf_decoder_worker.h"
 #include "net_url.h"
+#include "session.h"
 
 #include "proto_messages/generic_max_message.h"
 #include "proto_messages/proto_message_base.h"

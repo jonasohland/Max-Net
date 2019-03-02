@@ -3,13 +3,13 @@
 
 #include "c74_min.h"
 #include "client.h"
-#include "connection.h"
 #include "devices/devices.h"
 #include "generated/Movement.pb.h"
 #include "messages/bytes_message.h"
 #include "min_utils.h"
 #include "net_url.h"
 #include "ohlano_min.h"
+#include "session.h"
 #include "types.h"
 
 #define CHECKED_PTR_USE_TEMPLATE_HASH
@@ -90,7 +90,7 @@ class websocketclient_iiwa
     c74::min::symbol circle_sym{ "CIRCLE" };
     c74::min::symbol bezier_sym{ "BEZIER" };
     c74::min::symbol batch_sym{ "BATCH" };
-          
+
     message< threadsafe::yes > new_mv_msg{
         this, "iiwa_move", "send new iiwa move msg",
         [=]( const c74::min::atoms& args, int inlet ) -> c74::min::atoms {
@@ -98,10 +98,7 @@ class websocketclient_iiwa
 
             try {
 
-                auto mv_ptr = make_checked< iiwa::Movement >(
-                    reinterpret_cast< void* >(
-                        c74::min::atom::get< long long >( args[0] ) ),
-                    CONSTEXPR_TYPENAME_HASH( iiwa::message ) );
+                GEN_CHECKED_PTR( iiwa::Movement, mv_ptr, args[0].get< long long >() );
 
                 msg->storage().resize( mv_ptr->ByteSizeLong() );
 
