@@ -32,10 +32,10 @@ namespace ohlano {
           protected:
             void create_threads() {
                 worker_thread_ = std::make_unique< std::thread >(
-                    std::bind( &thread_base::do_work_impl, this ) );
+                    std::bind( &thread_base::do_run, this ) );
             }
 
-            virtual void do_work_impl() = 0;
+            virtual void do_run() = 0;
 
           private:
             std::unique_ptr< std::thread > worker_thread_;
@@ -60,11 +60,11 @@ namespace ohlano {
             void create_threads( int num_threads = 1 ) {
                 for ( int i = 0; i < num_threads; ++i ) {
                     worker_threads_.push_back( std::make_unique< std::thread >(
-                        std::bind( &thread_base::do_work_impl, this ) ) );
+                        std::bind( &thread_base::do_run, this ) ) );
                 }
             }
 
-            virtual void do_work_impl() = 0;
+            virtual void do_run() = 0;
 
             std::mutex& base_mtx() { return thread_base_mutex; }
 
@@ -81,6 +81,8 @@ namespace ohlano {
 
             using thread_option = ThreadOption;
             using context_type = boost::asio::io_context;
+            using executor_type = boost::asio::io_context::executor_type;
+            using strand_type = boost::asio::io_context::strand;
 
           protected:
             template < typename Opt = ThreadOption >
@@ -137,7 +139,7 @@ namespace ohlano {
                 boost::asio::dispatch( ctx_, std::forward< Ts >( args )... );
             }
 
-            virtual void do_work_impl() override {
+            virtual void do_run() override {
                 call_work_start_notification();
                 ctx_.run();
                 call_work_end_notification();

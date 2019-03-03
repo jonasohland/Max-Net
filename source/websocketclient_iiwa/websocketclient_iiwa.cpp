@@ -23,10 +23,11 @@ namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
 
 class websocketclient_iiwa
     : public object< websocketclient_iiwa >,
-      public ohlano::client< ohlano::bytes_message, ohlano::threads::single > {
+      public ohlano::client< ohlano::messages::bytes_message, ohlano::threads::single > {
 
   public:
-    using client_t = ohlano::client< ohlano::bytes_message, ohlano::threads::single >;
+    using client_t =
+        ohlano::client< ohlano::messages::bytes_message, ohlano::threads::single >;
 
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
     MIN_TAGS{ "net" };
@@ -59,8 +60,8 @@ class websocketclient_iiwa
     }
 
   protected:
-    const ohlano::bytes_message* handle_message( const ohlano::bytes_message* msg,
-                                                 size_t bytes ) override {
+    const ohlano::messages::bytes_message*
+    handle_message( const ohlano::messages::bytes_message* msg, size_t bytes ) override {
         cout << "received " << bytes << " bytes" << c74::min::endl;
         return msg;
     }

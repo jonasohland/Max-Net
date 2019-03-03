@@ -36,7 +36,7 @@
 #define OHLANO_FOREACH_DO( SEQ, PRED, ACTION )                                           \
     auto _p = PRED;                                                                      \
     auto _a = ACTION;                                                                    \
-    for ( auto it = SEQ.begin(); it != SEQ.end(); it++ ) {                               \
+    for ( auto it = SEQ.begin(); it != SEQ.end(); ++it ) {                               \
         if ( _p( *it ) ) {                                                               \
             _a( it );                                                                    \
         }                                                                                \
@@ -54,8 +54,8 @@
 #define OHLANO_NODEFAULT( class ) class() = delete;
 
 #include <iostream>
-#include <utility>
 #include <sstream>
+#include <utility>
 
 namespace ohlano {
 
@@ -94,7 +94,7 @@ namespace ohlano {
         log( std::forward< T >( rest )... );
     }
 #endif
-}
+} // namespace ohlano
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
