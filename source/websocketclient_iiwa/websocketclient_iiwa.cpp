@@ -55,8 +55,8 @@ class websocketclient_iiwa
 
         session_close();
 
-        this->end_work();
-        this->await_work_end();
+        this->shutdown_app();
+        this->await_app_shutdown();
     }
 
   protected:

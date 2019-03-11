@@ -62,6 +62,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api/script/min-package.cmake)
 
 # Add unit tests for the API
 # enable_testing()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/optional_locks)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared)

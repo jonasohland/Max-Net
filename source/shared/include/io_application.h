@@ -121,12 +121,14 @@ namespace ohlano {
             template < typename Opt = ThreadOption >
             typename threads::opt_enable_if_single_thread< Opt >::type begin_work() {
                 this->create_threads();
+                is_running_ = true;
             }
 
             template < typename Opt = ThreadOption >
             typename threads::opt_enable_if_multi_thread< Opt >::type
             begin_work( int threads = 1 ) {
                 this->create_threads( threads );
+                is_running_ = true;
             }
 
             template < typename... Ts >
@@ -146,7 +148,9 @@ namespace ohlano {
             }
 
             /// allow the executor to end its work
-            bool end_work() {
+            bool shutdown_app() {
+                
+                is_running_ = false;
 
                 if ( object_work_guard_.owns_work() ) {
                     object_work_guard_.reset();
@@ -157,11 +161,18 @@ namespace ohlano {
             }
 
             /// wait for any work to end on the executor
-            void await_work_end() { this->await_threads_end(); }
+            void await_app_shutdown() { this->await_threads_end(); }
 
             boost::asio::io_context& context() { return ctx_; }
 
+            boost::asio::io_context::executor_type& executor() {
+                return ctx_.get_executor();
+            }
+
+            bool running() const { return is_running_; }
+
           private:
+            bool is_running_;
             boost::asio::io_context ctx_;
             boost::asio::executor_work_guard< boost::asio::io_context::executor_type >
                 object_work_guard_{ ctx_.get_executor() };

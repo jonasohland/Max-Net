@@ -38,6 +38,8 @@ endif()
 
 add_library(websockets_shared INTERFACE)
 
+target_link_libraries(websockets_shared INTERFACE optional_locks)
+
 target_include_directories(websockets_shared INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_include_directories(websockets_shared INTERFACE ${Boost_INCLUDE_DIRS})

@@ -16,20 +16,20 @@
 #include "ohlano.h"
 #include <boost/asio/ip/tcp.hpp>
 
-struct websocket_decoder_template {
+struct ws_parser_template {
     static constexpr const char* const url_separator_char = "/";
     static constexpr const char* const url_prefix = "ws:";
     static constexpr const char* const std_port = "80";
 };
 
-struct hypertext_decoder_template {
+struct http_parser_template {
     static constexpr const char* const url_separator_char = "/";
     static constexpr const char* const url_prefix = "http:";
     static constexpr const char* const std_port = "80";
 };
 
 template < typename ProtocolType = boost::asio::ip::tcp,
-           typename UrlTemplate = websocket_decoder_template >
+           typename UrlTemplate = ws_parser_template >
 class net_url {
 
   public:
@@ -40,7 +40,7 @@ class net_url {
     typedef typename std::vector< typename ProtocolType::endpoint >
         endpoint_sequence_type;
 
-    typedef net_url< boost::asio::ip::tcp, websocket_decoder_template > websocket_url;
+    typedef net_url< boost::asio::ip::tcp, ws_parser_template > websocket_url;
 
     typedef enum error_code { FAIL, SUCCESS } error_code;
 
