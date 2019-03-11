@@ -1,5 +1,5 @@
 #include "devices/listener.h"
-#include "io_object_base.h"
+#include "io_application.h"
 #include "messages/bytes_message.h"
 #include "session.h"
 #include "session_query_macros.h"
@@ -8,7 +8,7 @@
 namespace ohlano {
 
     template < typename MessageType, typename ThreadOption >
-    class websocket_server : public io_object::base< ThreadOption > {
+    class websocket_server : public io_app::base< ThreadOption > {
 
       public:
         using message_type = MessageType;
@@ -20,7 +20,7 @@ namespace ohlano {
         using session_type = std::shared_ptr< session_impl_type >;
         using session_sequence = std::vector< session_type >;
 
-        using io_base = io_object::base< ThreadOption >;
+        using io_base = io_app::base< ThreadOption >;
 
         using thread_option = ThreadOption;
 

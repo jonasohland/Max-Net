@@ -11,7 +11,7 @@
 
 namespace ohlano {
 
-    namespace io_object {
+    namespace io_app {
 
         template < typename ThreadOption >
         class thread_base {};
@@ -166,5 +166,5 @@ namespace ohlano {
             boost::asio::executor_work_guard< boost::asio::io_context::executor_type >
                 object_work_guard_{ ctx_.get_executor() };
         };
-    } // namespace io_object
+    } // namespace io_app
 } // namespace ohlano

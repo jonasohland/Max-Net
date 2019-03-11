@@ -1,5 +1,5 @@
 #include "devices/multi_resolver.h"
-#include "io_object_base.h"
+#include "io_application.h"
 #include "net_url.h"
 #include "types.h"
 
@@ -10,7 +10,7 @@
 namespace ohlano {
 
     template < typename MessageType, typename ThreadOptions >
-    class client : public io_object::base< ThreadOptions > {
+    class client : public io_app::base< ThreadOptions > {
 
       public:
         using message_type = MessageType;
@@ -21,7 +21,7 @@ namespace ohlano {
 
         using session_type = std::shared_ptr< session_impl_type >;
 
-        using io_base = io_object::base< ThreadOptions >;
+        using io_base = io_app::base< ThreadOptions >;
 
         using thread_option = ThreadOptions;
 
