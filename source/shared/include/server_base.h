@@ -15,12 +15,7 @@ namespace ohlano::net::server {
 
       public:
         using sessions_map = std::map< size_t, std::shared_ptr< Session > >;
-
-        using sessions_visitor = std::function< void( sessions_map& ) >;
-        using const_sessions_visitor = std::function< void( const sessions_map& ) >;
-
-        using sessions_visitor_fptr = void ( * )( sessions_map& );
-        using const_sessions_visitor_fptr = void ( * )( const sessions_map& );
+        using sessions_type = ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >;
 
         template < typename Opt = ThreadOption >
         typename threads::opt_enable_if_multi_thread< Opt >::type start( int threads ) {

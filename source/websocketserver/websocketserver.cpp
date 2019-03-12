@@ -221,19 +221,6 @@ class websocketserver : public c74::min::object< websocketserver > {
     }
 };
 
-using server2 = ohlano::net::server::base<
-    ohlano::session< boost::beast::websocket::stream< boost::asio::ip::tcp::socket >,
-                     ohlano::max_message >,
-    ohlano::threads::multi >;
-
-
-class wss2 : public server2 {
-
-    void doStuff() {
-        
-    }
-};
-
 void ext_main( void* r ) {
 
 #ifdef VERSION_TAG

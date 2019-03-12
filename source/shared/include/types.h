@@ -142,8 +142,7 @@ namespace ohlano {
     } // namespace threads
 
     template < typename Thing, bool DoLock, typename Mutex = std::mutex >
-    class safe_visitable
-        : public threads::detail::single_mtx_base< DoLock, Mutex > {
+    class safe_visitable : public threads::detail::single_mtx_base< DoLock, Mutex > {
 
         Thing thing;
 
@@ -159,7 +158,7 @@ namespace ohlano {
         }
 
         template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< !(Enable) >::type apply( Visitor v ) {
+        typename std::enable_if< !( Enable ) >::type apply( Visitor v ) {
             v( thing );
         }
 
@@ -175,11 +174,17 @@ namespace ohlano {
         Thing& operator*() { return thing; }
 
         const Thing& operator*() const { return thing; }
+
+        static constexpr bool locks_enabled() { return DoLock; }
     };
-    
+
     namespace threads {
         template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
-        class opt_safe_visitable : public safe_visitable<Thing, threads::opt_is_multi< ThreadOption >::value, Mutex> {};
+        class opt_safe_visitable
+            : public safe_visitable< Thing, threads::opt_is_multi< ThreadOption >::value,
+                                     Mutex > {
+            using thread_option = ThreadOption;
+        };
     }
 
 } // namespace ohlano
