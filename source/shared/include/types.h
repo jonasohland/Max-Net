@@ -128,8 +128,8 @@ namespace ohlano {
             template < typename Mutex >
             class single_mtx_base< true, Mutex > {
 
-              protected:
-                Mutex& opt_mutex() { return opt_mtx_; }
+              public:
+                Mutex& mutex() { return opt_mtx_; }
 
               private:
                 Mutex opt_mtx_;
@@ -143,7 +143,7 @@ namespace ohlano {
 
     template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
     class safe_visitable
-        : threads::detail::single_mtx_base< threads::opt_is_multi< ThreadOption >::value,
+        : public threads::detail::single_mtx_base< threads::opt_is_multi< ThreadOption >::value,
                                             Mutex > {
 
         Thing thing;
@@ -155,7 +155,7 @@ namespace ohlano {
 
         template < typename Visitor, typename Opt = ThreadOption >
         typename threads::opt_enable_if_multi_thread< Opt >::type apply( Visitor v ) {
-            std::lock_guard< Mutex > visit_lock( this->opt_mutex() );
+            std::lock_guard< Mutex > visit_lock( this->mutex() );
             v( thing );
         }
 

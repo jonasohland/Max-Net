@@ -40,63 +40,32 @@ namespace ohlano::net::server {
         /// delete all closed/aborted sessions
         void sess_cleanup() {}
 
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_multi_thread< Opt >::type
-        visit_sessions( Visitor visitor ) const {
-            std::lock_guard< std::mutex > sess_lock{ sessions_mtx_ };
-            visitor( sessions() );
-        }
-
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_single_thread< Opt >::type
-        visit_sessions( Visitor visitor ) const {
-            visitor( sessions() );
-        }
-
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_multi_thread< Opt >::type
-        visit_sessions( Visitor visitor ) {
-            std::lock_guard< std::mutex > sess_lock{ sessions_mtx_ };
-            visitor( sessions() );
-        }
-
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_single_thread< Opt >::type
-        visit_sessions( Visitor visitor ) {
-            visitor( sessions() );
-        }
-        
-        template<typename Visitor>
-        void visit_sess(Visitor v){
-            sessions_.apply(v);
-        }
-
         /// close all connections and delete all sessions
         void sess_close_all() {
-            
-            sessions_.apply([](sessions_map& sessions){
+
+            sessions_.apply( [this]( sessions_map& sessions ) {
                 
                 for ( auto it = sessions.begin(); it != sessions.end(); ++it ) {
-                    
+
                     auto[key, sess] = *it;
-                    
+
                     if ( sess )
                         sess->close();
                     
                     sessions.erase( it );
                 }
-                
-            });
-            
+            } );
         }
 
-        ohlano::safe_visitable<sessions_map, ThreadOption>& sessions() { return sessions_; }
+        ohlano::safe_visitable< sessions_map, ThreadOption >& sessions() {
+            return sessions_;
+        }
 
-        const ohlano::safe_visitable<sessions_map, ThreadOption>& sessions() const { return sessions_; }
+        const ohlano::safe_visitable< sessions_map, ThreadOption >& sessions() const {
+            return sessions_;
+        }
 
       private:
-        
-        ohlano::safe_visitable<sessions_map, ThreadOption> sessions_;
-        std::mutex sessions_mtx_;
+        ohlano::safe_visitable< sessions_map, ThreadOption > sessions_;
     };
 }
