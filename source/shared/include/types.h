@@ -164,6 +164,12 @@ namespace ohlano {
             v( thing );
         }
 
+        template < typename Visitor, typename Opt = ThreadOption >
+        typename threads::opt_enable_if_multi_thread< Opt >::type
+        apply_adopt( Visitor v ) {
+            v( thing, this->mutex() );
+        }
+
         Thing* operator->() { return thing; }
 
         const Thing* operator->() const { return thing; }
