@@ -186,11 +186,51 @@ namespace ohlano {
         static constexpr bool locks_enabled() { return DoLock; }
     };
 
+    template < typename Visitable, bool DoLock, typename Mutex = std::mutex >
+    class enable_safe_visit : public threads::detail::single_mtx_base< DoLock, Mutex > {
+        
+    public:
+
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< Enable >::type apply( Visitor v ) {
+            std::lock_guard< Mutex > visit_lock( this->mutex() );
+            v( *static_cast< Visitable* >(this) );
+        }
+
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< !( Enable ) >::type apply( Visitor v ) {
+            v( *static_cast< Visitable* >(this) );
+        }
+        
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
+            v( *static_cast< Visitable* >(this), this->mutex() );
+            //                                         ^^^^^^^^^^^^^
+            // if you are getting an error like: "calling private constructor of 'mutex'"
+            // here, you tried to visit the mutex by copying, which is illegal. a legal
+            // lambda to use would be:
+            //
+            //     [](auto& thing, Mutex& mtx){
+            //         thing->do_stuff();
+            //     }
+        }
+        
+        static constexpr bool locks_enabled() { return DoLock; }
+    };
+
     namespace threads {
         template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
-        class opt_safe_visitable
+        struct opt_safe_visitable
             : public safe_visitable< Thing, threads::opt_is_multi< ThreadOption >::value,
                                      Mutex > {
+            using thread_option = ThreadOption;
+        };
+
+        template < typename Visitable, typename ThreadOption,
+                   typename Mutex = std::mutex >
+        struct opt_enable_safe_visit
+            : public enable_safe_visit<
+                  Visitable, threads::opt_is_multi< ThreadOption >::value, Mutex > {
             using thread_option = ThreadOption;
         };
     }

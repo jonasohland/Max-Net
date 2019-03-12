@@ -221,7 +221,19 @@ class websocketserver : public c74::min::object< websocketserver > {
     }
 };
 
+struct thing : public ohlano::threads::opt_enable_safe_visit<thing, ohlano::threads::multi> {
+    void hello(){}
+};
+
+
+
 void ext_main( void* r ) {
+    
+    thing th;
+    
+    th.apply([](auto& t){
+        t.hello();
+    });
 
 #ifdef VERSION_TAG
     c74::max::object_post(

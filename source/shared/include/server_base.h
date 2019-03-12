@@ -52,15 +52,15 @@ namespace ohlano::net::server {
             } );
         }
 
-        ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >& sessions() {
+        sessions_type& sessions() {
             return sessions_;
         }
 
-        const ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >& sessions() const {
+        const sessions_type& sessions() const {
             return sessions_;
         }
 
       private:
-        ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption > sessions_;
+        sessions_type sessions_;
     };
 }
