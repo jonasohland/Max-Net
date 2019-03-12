@@ -141,10 +141,9 @@ namespace ohlano {
 
     } // namespace threads
 
-    template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
+    template < typename Thing, bool DoLock, typename Mutex = std::mutex >
     class safe_visitable
-        : public threads::detail::single_mtx_base< threads::opt_is_multi< ThreadOption >::value,
-                                            Mutex > {
+        : public threads::detail::single_mtx_base< DoLock, Mutex > {
 
         Thing thing;
 
@@ -153,20 +152,19 @@ namespace ohlano {
         explicit safe_visitable( Args... args )
             : thing( std::forward< Args >( args )... ) {}
 
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_multi_thread< Opt >::type apply( Visitor v ) {
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< Enable >::type apply( Visitor v ) {
             std::lock_guard< Mutex > visit_lock( this->mutex() );
             v( thing );
         }
 
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_single_thread< Opt >::type apply( Visitor v ) {
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< !(Enable) >::type apply( Visitor v ) {
             v( thing );
         }
 
-        template < typename Visitor, typename Opt = ThreadOption >
-        typename threads::opt_enable_if_multi_thread< Opt >::type
-        apply_adopt( Visitor v ) {
+        template < bool Enable = DoLock, typename Visitor >
+        typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
             v( thing, this->mutex() );
         }
 
@@ -178,5 +176,10 @@ namespace ohlano {
 
         const Thing& operator*() const { return thing; }
     };
+    
+    namespace threads {
+        template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
+        class opt_safe_visitable : public safe_visitable<Thing, threads::opt_is_multi< ThreadOption >::value, Mutex> {};
+    }
 
 } // namespace ohlano

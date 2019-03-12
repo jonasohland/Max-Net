@@ -43,7 +43,7 @@ namespace ohlano::net::server {
         /// close all connections and delete all sessions
         void sess_close_all() {
 
-            sessions_.apply( [this]( sessions_map& sessions ) {
+            sessions_.apply( [this]( auto& sessions ) {
                 
                 for ( auto it = sessions.begin(); it != sessions.end(); ++it ) {
 
@@ -57,15 +57,15 @@ namespace ohlano::net::server {
             } );
         }
 
-        ohlano::safe_visitable< sessions_map, ThreadOption >& sessions() {
+        ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >& sessions() {
             return sessions_;
         }
 
-        const ohlano::safe_visitable< sessions_map, ThreadOption >& sessions() const {
+        const ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >& sessions() const {
             return sessions_;
         }
 
       private:
-        ohlano::safe_visitable< sessions_map, ThreadOption > sessions_;
+        ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption > sessions_;
     };
 }
