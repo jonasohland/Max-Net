@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <boost/tti/tti.hpp>
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/placeholders.hpp>
@@ -118,5 +119,58 @@ namespace ohlano {
         template < typename T, typename Ty = void >
         using enable_if_multi_thread_enabled_t =
             typename enable_if_multi_thread_enabled< T, Ty >::type;
+
+        namespace detail {
+
+            template < bool HasMutex, typename Mutex = std::mutex >
+            class single_mtx_base;
+
+            template < typename Mutex >
+            class single_mtx_base< true, Mutex > {
+
+              protected:
+                Mutex& opt_mutex() { return opt_mtx_; }
+
+              private:
+                Mutex opt_mtx_;
+            };
+
+            template < typename Mutex >
+            class single_mtx_base< false, Mutex > {};
+        }
+
     } // namespace threads
+
+    template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
+    class safe_visitable
+        : threads::detail::single_mtx_base< threads::opt_is_multi< ThreadOption >::value,
+                                            Mutex > {
+
+        Thing thing;
+
+      public:
+        template < typename... Args >
+        explicit safe_visitable( Args... args )
+            : thing( std::forward< Args >( args )... ) {}
+
+        template < typename Visitor, typename Opt = ThreadOption >
+        typename threads::opt_enable_if_multi_thread< Opt >::type apply( Visitor v ) {
+            std::lock_guard< Mutex > visit_lock( this->opt_mutex() );
+            v( thing );
+        }
+
+        template < typename Visitor, typename Opt = ThreadOption >
+        typename threads::opt_enable_if_single_thread< Opt >::type apply( Visitor v ) {
+            v( thing );
+        }
+
+        Thing* operator->() { return thing; }
+
+        const Thing* operator->() const { return thing; }
+
+        Thing& operator*() { return thing; }
+
+        const Thing& operator*() const { return thing; }
+    };
+
 } // namespace ohlano

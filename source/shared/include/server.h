@@ -63,6 +63,7 @@ namespace ohlano {
         typename MessageType::factory factory_;
         listener listener_;
         session_sequence sessions_;
+        
     };
 
 } // namespace ohlano

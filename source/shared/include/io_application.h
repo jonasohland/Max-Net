@@ -23,7 +23,7 @@ namespace ohlano {
 
             size_t thread_count() { return static_cast< bool >( worker_thread_ ); }
 
-            void await_threads_end() {
+            void await_threads_end() const {
                 if ( worker_thread_ )
                     if ( worker_thread_->joinable() )
                         worker_thread_->join();
@@ -49,7 +49,7 @@ namespace ohlano {
             size_t thread_count() { return worker_threads_.size(); }
 
           protected:
-            void await_threads_end() {
+            void await_threads_end() const {
                 for ( auto& thread : worker_threads_ ) {
                     if ( thread )
                         if ( thread->joinable() )
@@ -119,14 +119,14 @@ namespace ohlano {
             virtual void on_work_finished(){};
 
             template < typename Opt = ThreadOption >
-            typename threads::opt_enable_if_single_thread< Opt >::type begin_work() {
+            typename threads::opt_enable_if_single_thread< Opt >::type app_begin_op() {
                 this->create_threads();
                 is_running_ = true;
             }
 
             template < typename Opt = ThreadOption >
             typename threads::opt_enable_if_multi_thread< Opt >::type
-            begin_work( int threads = 1 ) {
+            app_begin_op( int threads = 1 ) {
                 this->create_threads( threads );
                 is_running_ = true;
             }
@@ -148,7 +148,7 @@ namespace ohlano {
             }
 
             /// allow the executor to end its work
-            bool shutdown_app() {
+            bool app_end_op() {
                 
                 is_running_ = false;
 
@@ -161,7 +161,7 @@ namespace ohlano {
             }
 
             /// wait for any work to end on the executor
-            void await_app_shutdown() { this->await_threads_end(); }
+            void app_wait_op_end() const { this->await_threads_end(); }
 
             boost::asio::io_context& context() { return ctx_; }
 

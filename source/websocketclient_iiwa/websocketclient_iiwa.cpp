@@ -46,7 +46,7 @@ class websocketclient_iiwa
         cout << "port: " << url.port() << c74::min::endl;
 
         if ( url ) {
-            begin_work();
+            this->app_begin_op();
             session_create( url );
         }
     }
@@ -55,8 +55,8 @@ class websocketclient_iiwa
 
         session_close();
 
-        this->shutdown_app();
-        this->await_app_shutdown();
+        this->app_end_op();
+        this->app_wait_op_end();
     }
 
   protected:

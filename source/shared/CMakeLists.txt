@@ -27,6 +27,12 @@ if ((${CMAKE_GENERATOR} MATCHES "Xcode") OR (${CMAKE_GENERATOR} MATCHES "Visual 
 
 	set_target_properties(websockets_shared_source PROPERTIES LINKER_LANGUAGE CXX)
 
+	set_target_properties(websockets_shared_source PROPERTIES
+		CXX_STANDARD 17
+		CXX_STANDARD_REQUIRED YES
+		CXX_EXTENSIONS YES
+	)
+
 	target_include_directories(websockets_shared_source INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 	target_include_directories(websockets_shared_source PUBLIC ${Boost_INCLUDE_DIRS})

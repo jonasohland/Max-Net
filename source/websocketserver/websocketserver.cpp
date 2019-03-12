@@ -2,6 +2,7 @@
 #include <thread>
 
 #include "session.h"
+#include "server_base.h"
 
 #include "proto_messages/generic_max_message.h"
 #include "proto_messages/proto_message_base.h"

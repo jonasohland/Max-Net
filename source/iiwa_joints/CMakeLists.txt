@@ -49,6 +49,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 add_dependencies(${PROJECT_NAME} shared_protos)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED YES
+	CXX_EXTENSIONS YES
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC shared_protos)
 target_link_libraries(${PROJECT_NAME} PUBLIC websockets_shared)
 target_link_libraries(${PROJECT_NAME} PUBLIC checked_ptr)

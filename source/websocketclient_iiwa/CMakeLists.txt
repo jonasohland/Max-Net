@@ -47,6 +47,12 @@ include_directories(${C74_INCLUDES})
 
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED YES
+	CXX_EXTENSIONS YES
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC 				
 						${Boost_LIBRARIES})
 
