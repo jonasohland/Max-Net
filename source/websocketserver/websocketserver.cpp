@@ -246,6 +246,34 @@ class websocketserver : public c74::min::object< websocketserver > {
     }
 };
 
+using app_base = ohlano::io_app::simple_io_app<ohlano::threads::single>;
+
+struct app : public app_base {
+    
+    void start(){
+        this->app_launch();
+    }
+    
+    virtual void on_app_exit(int reason) override {
+        std::cout << "Goodbye World!" << std::endl;
+    }
+    
+    virtual void on_app_started() override {
+        std::cout << "Hello World!" << std::endl;
+    }
+    
+    void join(){
+        this->app_join();
+    }
+};
+
+int main() {
+    app a;
+    a.perform();
+    return 0;
+}
+
+
 void ext_main( void* r ) {
 
 #ifdef VERSION_TAG

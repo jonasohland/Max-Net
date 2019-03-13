@@ -71,7 +71,7 @@ class websocketclient_iiwa
         cout << "port: " << url.port() << c74::min::endl;
 
         if ( url ) {
-            this->app_begin_op();
+            this->app_launch();
             session_create( url );
         }
     }
@@ -80,8 +80,8 @@ class websocketclient_iiwa
 
         session_close();
 
-        this->app_end_op();
-        this->app_wait_op_end();
+        this->app_allow_exit();
+        this->app_join();
     }
 
   protected:
@@ -100,11 +100,11 @@ class websocketclient_iiwa
         cout << "session closed" << c74::min::endl;
     }
 
-    void on_work_started() override {
+    void on_app_started() override {
         cout << "running network worker" << c74::min::endl;
     }
 
-    void on_work_finished() override {
+    void on_app_stopped() override {
         cout << "finished running network worker" << c74::min::endl;
     }
 
