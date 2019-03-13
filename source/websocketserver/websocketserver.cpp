@@ -221,7 +221,23 @@ class websocketserver : public c74::min::object< websocketserver > {
     }
 };
 
+using server2 = ohlano::net::server::base<
+ohlano::session< boost::beast::websocket::stream<boost::asio::ip::tcp::socket>, ohlano::max_message >,
+    ohlano::threads::single >;
+
+struct serv2 : public server2 {
+    
+};
+
 void ext_main( void* r ) {
+    
+    serv2 server;
+    
+    server.is_in_app_call();
+    
+    server.perform();
+    std::cout << "perform done" << std::endl;
+    
 
 #ifdef VERSION_TAG
     c74::max::object_post(

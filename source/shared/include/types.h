@@ -204,7 +204,7 @@ namespace ohlano {
         template < bool Enable = DoLock, typename Visitor >
         typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
             v( *static_cast< Visitable* >( this ), this->mutex() );
-            //                                         ^^^^^^^^^^^^^
+            //                                     ^^^^^^^^^^^^^
             // if you are getting an error like: "calling private constructor of 'mutex'"
             // here, you tried to visit the mutex by copying, which is illegal. a legal
             // lambda to use would be:

@@ -28,6 +28,10 @@ namespace ohlano {
                     if ( worker_thread_->joinable() )
                         worker_thread_->join();
             }
+            
+            void perform() {
+                do_run();
+            }
 
           protected:
             void create_threads() {
@@ -83,6 +87,38 @@ namespace ohlano {
             using context_type = boost::asio::io_context;
             using executor_type = boost::asio::io_context::executor_type;
             using strand_type = boost::asio::io_context::strand;
+
+            /// Run the application in this thread. This call will return as soon as the
+            /// application runs out of work.
+            void perform() { do_run(); }
+
+            /** Determine if the caller is running in one of the applications threads. */
+            bool is_in_app_call() {
+                return context().get_executor().running_in_this_thread();
+            }
+
+            /// Determine if the caller is running in the applications thread, and the
+            /// call to the apps resources would be safe
+            template < typename Opt = ThreadOption >
+            bool call_is_safe() {
+                return is_in_app_call() && !( multithreaded< Opt > );
+            }
+
+            /// Invoke a function from inside the app. If the caller is inside the
+            /// applications thread, the function will be invoked from this call.
+            /// Otherwise it will be scheduled for later execution from one of the apps
+            /// threads.
+            template < typename Callable,
+                       typename Allocator = std::allocator< Callable > >
+            void call_safe( Callable&& c,
+                            const Allocator& alloc = std::allocator< Callable >() ) {
+                this->context().get_executor().dispatch( std::forward< Callable >( c ),
+                                                         alloc );
+            }
+
+            void exit() { app_end_op(); }
+
+            bool running() const { return is_running_; }
 
           protected:
             template < typename Opt = ThreadOption >
@@ -143,7 +179,7 @@ namespace ohlano {
 
             virtual void do_run() override {
                 call_work_start_notification();
-                ctx_.run();
+                this->context().run();
                 call_work_end_notification();
             }
 
@@ -168,8 +204,6 @@ namespace ohlano {
             boost::asio::io_context::executor_type& executor() {
                 return ctx_.get_executor();
             }
-
-            bool running() const { return is_running_; }
 
           private:
             bool is_running_;

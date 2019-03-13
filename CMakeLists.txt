@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 option(build_protobuf_targets "build externals that depend on the protobuf library" ON)
 option(build_iiwa_targets "build externals for communicating with iiwa robots" OFF)
 option(use_version_tags "define version tag macros from git tags" ON)
+option(build_docs "Build documentation" OFF)
 
 if((build_iiwa_targets) AND (NOT build_protobuf_targets))
 	message(WARNING "iiwa targets cant built without protobuf targets enabled")
@@ -18,6 +19,28 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 			return ()
 		endif ()
 endif ()
+
+if(build_docs)
+
+	find_package(Doxygen)
+	if (DOXYGEN_FOUND)
+
+		set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+		set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+		configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+		message(STATUS "Generating Doxygen build Task")
+
+		add_custom_target( doc_doxygen ALL
+			COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Generating API documentation with Doxygen"
+			VERBATIM )
+	else (DOXYGEN_FOUND)
+	message("Doxygen need to be installed to generate the doxygen documentation")
+	endif (DOXYGEN_FOUND)
+
+endif(build_docs)
 
 
 if(build_protobuf_targets)
