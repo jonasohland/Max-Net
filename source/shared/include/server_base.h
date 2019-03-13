@@ -15,7 +15,8 @@ namespace ohlano::net::server {
 
       public:
         using sessions_map = std::map< size_t, std::shared_ptr< Session > >;
-        using sessions_type = ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >;
+        using sessions_type =
+            ohlano::threads::opt_safe_visitable< sessions_map, ThreadOption >;
 
         template < typename Opt = ThreadOption >
         typename threads::opt_enable_if_multi_thread< Opt >::type start( int threads ) {
@@ -33,32 +34,29 @@ namespace ohlano::net::server {
         }
 
         /// delete all closed/aborted sessions
-        void sess_cleanup() {}
+        void sess_cleanup() {
+            sessions_.apply( []( auto& sessions ) {
+
+            } );
+        }
 
         /// close all connections and delete all sessions
         void sess_close_all() {
 
-            sessions_.apply( [this]( auto& sessions ) {
-                
-                for ( auto it = sessions.begin(); it != sessions.end(); ++it ) {
+            sessions_.apply( []( auto& sessions ) {
 
-                    auto[key, sess] = *it;
-
+                for ( auto & [ key, sess ] : sessions )
                     if ( sess )
                         sess->close();
-                    
-                    sessions.erase( it );
-                }
+
+                sessions.clear();
+
             } );
         }
 
-        sessions_type& sessions() {
-            return sessions_;
-        }
+        sessions_type& sessions() { return sessions_; }
 
-        const sessions_type& sessions() const {
-            return sessions_;
-        }
+        const sessions_type& sessions() const { return sessions_; }
 
       private:
         sessions_type sessions_;

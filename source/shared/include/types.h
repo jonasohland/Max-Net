@@ -188,23 +188,22 @@ namespace ohlano {
 
     template < typename Visitable, bool DoLock, typename Mutex = std::mutex >
     class enable_safe_visit : public threads::detail::single_mtx_base< DoLock, Mutex > {
-        
-    public:
 
+      public:
         template < bool Enable = DoLock, typename Visitor >
         typename std::enable_if< Enable >::type apply( Visitor v ) {
             std::lock_guard< Mutex > visit_lock( this->mutex() );
-            v( *static_cast< Visitable* >(this) );
+            v( *static_cast< Visitable* >( this ) );
         }
 
         template < bool Enable = DoLock, typename Visitor >
         typename std::enable_if< !( Enable ) >::type apply( Visitor v ) {
-            v( *static_cast< Visitable* >(this) );
+            v( *static_cast< Visitable* >( this ) );
         }
-        
+
         template < bool Enable = DoLock, typename Visitor >
         typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
-            v( *static_cast< Visitable* >(this), this->mutex() );
+            v( *static_cast< Visitable* >( this ), this->mutex() );
             //                                         ^^^^^^^^^^^^^
             // if you are getting an error like: "calling private constructor of 'mutex'"
             // here, you tried to visit the mutex by copying, which is illegal. a legal
@@ -214,7 +213,7 @@ namespace ohlano {
             //         thing->do_stuff();
             //     }
         }
-        
+
         static constexpr bool locks_enabled() { return DoLock; }
     };
 
@@ -233,6 +232,11 @@ namespace ohlano {
                   Visitable, threads::opt_is_multi< ThreadOption >::value, Mutex > {
             using thread_option = ThreadOption;
         };
+    }
+
+    template < typename Visitor, typename SafeVisitable >
+    void safe_visit( Visitor vis, SafeVisitable& svis ) {
+        svis.apply( vis );
     }
 
 } // namespace ohlano
