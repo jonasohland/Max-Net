@@ -29,7 +29,7 @@
 #include <mutex>
 #include <chrono>
 #include <type_traits>
-#include "../ohlano.h"
+#include "../o.h"
 #include <boost/asio/post.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/optional.hpp>
@@ -40,7 +40,7 @@
 #include <boost/beast/core/type_traits.hpp>
 #include <boost/system/error_code.hpp>
 
-namespace ohlano {
+namespace o {
 
 template<typename Message, typename Stream, typename Enable = void>
 class write_queue;

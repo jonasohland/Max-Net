@@ -36,7 +36,7 @@
 #include <boost/asio/executor_work_guard.hpp>
 #include <boost/system/error_code.hpp>
 
-namespace ohlano {
+namespace o {
 
     template < typename ProtocolType >
     class multi_resolver {

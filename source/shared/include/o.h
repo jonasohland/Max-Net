@@ -75,7 +75,7 @@
 #include <sstream>
 #include <utility>
 
-namespace ohlano {
+namespace o {
 
     using void_t = void;
 
@@ -112,11 +112,11 @@ namespace ohlano {
         log( std::forward< T >( rest )... );
     }
 #endif
-} // namespace ohlano
+} // namespace o
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
-#define DBG( ... ) ohlano::log( __VA_ARGS__ );
+#define DBG( ... ) o::log( __VA_ARGS__ );
 #define CONFIG_TAG d
 #else
 #define DBG( ... ) ;
@@ -134,7 +134,7 @@ namespace ohlano {
 #endif
 #else
 #ifndef NDEBUG
-#define DBG( ... ) ohlano::log( __VA_ARGS__ );
+#define DBG( ... ) o::log( __VA_ARGS__ );
 #define CONFIG_TAG d
 #else
 #define DBG( ... ) ;
@@ -146,7 +146,7 @@ namespace ohlano {
 #ifndef NDEBUG
 #define LOG( ... )                                                                       \
     std::cout << __FILE__ << " " << __LINE__ << ": ";                                    \
-    ohlano::log( __VA_ARGS__ );
+    o::log( __VA_ARGS__ );
 #else
 #define LOG( ... ) ;
 #endif
@@ -160,4 +160,4 @@ namespace ohlano {
 
 #define ENABLE_LOG _Pragma( "pop_macro(\"LOG\")" )
 
-#endif /* ohlano_h */
+#endif /* o_h */

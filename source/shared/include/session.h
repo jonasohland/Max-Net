@@ -27,7 +27,7 @@
 
 #include "devices/stats.h"
 #include "net_url.h"
-#include "ohlano.h"
+#include "o.h"
 
 #include <atomic>
 #include <boost/asio.hpp>
@@ -46,7 +46,7 @@
 
 #include "types.h"
 
-namespace ohlano {
+namespace o {
 
     struct status_codes_base {
         enum class status_codes { OFFLINE, ONLINE, BLOCKED, ABORTED, SUSPENDED };
@@ -106,14 +106,14 @@ namespace ohlano {
         }
 
         template < typename M = Message >
-        typename ohlano::messages::enable_if_direction_supported< M >::type
+        typename o::messages::enable_if_direction_supported< M >::type
         optional_set_direction( bool direction, Message* msg ) {
             msg->set_direction( false );
         };
 
         template < typename M = Message >
         typename std::enable_if<
-            !ohlano::messages::is_direction_supported< M >::value >::type
+            !o::messages::is_direction_supported< M >::value >::type
         optional_set_direction( bool direction, Message* msg ){};
 
         /// constructor for client role
@@ -497,4 +497,4 @@ namespace ohlano {
 
         std::atomic< int >* msg_pool_refc;
     };
-} // namespace ohlano
+} // namespace o

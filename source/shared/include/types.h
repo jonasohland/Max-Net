@@ -31,7 +31,11 @@
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 
-namespace ohlano {
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+#define O_NET_POSIX
+#endif
+
+namespace o {
 
     namespace messages {
 
@@ -104,6 +108,8 @@ namespace ohlano {
 
         // obvious
         struct multi {};
+        
+        struct none {};
 
         template < typename T >
         struct opt_is_multi : public std::false_type {};
@@ -127,6 +133,40 @@ namespace ohlano {
             using type = Ty;
         };
 
+        template < class Op, class Ty = void >
+        struct opt_enable_if_no_threads {};
+
+        template < class Ty >
+        struct opt_enable_if_no_threads< threads::none, Ty > {
+            using type = Ty;
+        };
+        
+        template < class Op, class Ty = void >
+        struct opt_enable_if_single_or_none {};
+        
+        template < class Ty >
+        struct opt_enable_if_single_or_none< threads::single, Ty > {
+            using type = Ty;
+        };
+        
+        template < class Ty >
+        struct opt_enable_if_single_or_none< threads::none, Ty > {
+            using type = Ty;
+        };
+        
+        template < class Op, class Ty = void >
+        struct opt_enable_if_threads {};
+        
+        template < class Ty >
+        struct opt_enable_if_threads< threads::single, Ty > {
+            using type = Ty;
+        };
+        
+        template < class Ty >
+        struct opt_enable_if_threads< threads::multi, Ty > {
+            using type = Ty;
+        };
+        
         namespace detail {
             BOOST_TTI_HAS_TYPE( thread_option );
         }
@@ -264,4 +304,4 @@ namespace ohlano {
         svis.apply( vis );
     }
 
-} // namespace ohlano
+} // namespace o

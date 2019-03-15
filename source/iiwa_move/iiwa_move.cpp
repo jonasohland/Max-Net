@@ -53,7 +53,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
         try {
 
-            auto joints = ohlano::array_from_atoms< double, 7 >( args );
+            auto joints = o::array_from_atoms< double, 7 >( args );
 
             movement_state->clear_jointpositions();
 
@@ -73,7 +73,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
         try {
 
-            auto filter_params = ohlano::array_from_atoms< double, 3 >( args );
+            auto filter_params = o::array_from_atoms< double, 3 >( args );
 
             movement_state->clear_filterparameter();
 
@@ -95,7 +95,7 @@ class iiwa_movement_message : public c74::min::object< iiwa_movement_message > {
 
         try {
 
-            auto joint_params = ohlano::array_from_atoms< double, 4 >( args );
+            auto joint_params = o::array_from_atoms< double, 4 >( args );
 
             movement_state->clear_filterparameter();
 

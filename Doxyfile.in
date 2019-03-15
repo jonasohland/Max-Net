@@ -1,2 +1,6 @@
-OUTPUT_DIRECTORY       = "@CMAKE_CURRENT_BINARY_DIR@/doc_doxygen/"
-INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/source/shared/include" "@CMAKE_CURRENT_SOURCE_DIR@/docs"
+OUTPUT_DIRECTORY       	= "@CMAKE_CURRENT_BINARY_DIR@/doc_doxygen/"
+INPUT                  	= "@CMAKE_CURRENT_SOURCE_DIR@/source/shared/include" "@CMAKE_CURRENT_SOURCE_DIR@/docs"
+EXAMPLE_PATH		= "@CMAKE_CURRENT_SOURCE_DIR@/source/shared/example"
+
+ENABLE_PREPROCESSING   	= YES
+PREDEFINED 		= DOXY_GENERATE

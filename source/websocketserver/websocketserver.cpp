@@ -46,12 +46,12 @@ class websocketserver : public c74::min::object< websocketserver > {
     struct iolet;
 
     // the type used
-    using message_type = ohlano::max_message;
+    using message_type = o::max_message;
 
     // the websocket session type
     using websocket_session_type =
-        ohlano::session< boost::beast::websocket::stream< boost::asio::ip::tcp >,
-                         message_type, ohlano::sessions::roles::server >;
+        o::session< boost::beast::websocket::stream< boost::asio::ip::tcp >,
+                         message_type, o::sessions::roles::server >;
 
     // the websocket session type representation as shared_ptr
     using session_type = std::shared_ptr< websocket_session_type >;
@@ -67,7 +67,7 @@ class websocketserver : public c74::min::object< websocketserver > {
     // holds an in and outlet that may be associated with one or more websocket sessions
     struct iolet {
 
-        using output_type = ohlano::outlet_output_adapter< message_type >;
+        using output_type = o::outlet_output_adapter< message_type >;
 
         c74::min::inlet<> inlet_;
         c74::min::outlet< c74::min::thread_check::none, c74::min::thread_action::assert >
@@ -172,7 +172,7 @@ class websocketserver : public c74::min::object< websocketserver > {
     std::unique_ptr< std::thread > network_worker_;
 
     // listens for incoming connections;
-    ohlano::listener listener_{ ctx_ };
+    o::listener listener_{ ctx_ };
 
     // list of all connections
     server_sessions connections_;
@@ -245,34 +245,6 @@ class websocketserver : public c74::min::object< websocketserver > {
         return out;
     }
 };
-
-using app_base = ohlano::io_app::simple_io_app<ohlano::threads::single>;
-
-struct app : public app_base {
-    
-    void start(){
-        this->app_launch();
-    }
-    
-    virtual void on_app_exit(int reason) override {
-        std::cout << "Goodbye World!" << std::endl;
-    }
-    
-    virtual void on_app_started() override {
-        std::cout << "Hello World!" << std::endl;
-    }
-    
-    void join(){
-        this->app_join();
-    }
-};
-
-int main() {
-    app a;
-    a.perform();
-    return 0;
-}
-
 
 void ext_main( void* r ) {
 

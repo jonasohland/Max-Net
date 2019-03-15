@@ -32,7 +32,7 @@
 #include <boost/asio/executor_work_guard.hpp>
 #include "protobuf_decoder.h"
 
-namespace ohlano {
+namespace o {
     template < typename Message >
     class protobuf_decoder_worker {
 

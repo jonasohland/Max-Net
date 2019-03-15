@@ -30,7 +30,8 @@
 #include "session_query_macros.h"
 #include "types.h"
 
-namespace ohlano {
+namespace o::io::net {
+    
 
     template < typename MessageType, typename ThreadOption >
     class websocket_server : public io_app::base< ThreadOption > {
@@ -91,4 +92,4 @@ namespace ohlano {
         
     };
 
-} // namespace ohlano
+} // namespace o::io::net

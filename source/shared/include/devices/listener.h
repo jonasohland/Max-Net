@@ -23,10 +23,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../ohlano.h"
+#include "../o.h"
 #include <boost/asio.hpp>
 
-namespace ohlano {
+namespace o {
 
     class listener {
       public:
@@ -141,4 +141,4 @@ namespace ohlano {
         boost::asio::io_context& ctx_;
         boost::asio::io_context::strand strand_;
     };
-} // namespace ohlano
+} // namespace o

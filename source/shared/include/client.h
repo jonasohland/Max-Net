@@ -32,21 +32,21 @@
 
 #include <boost/system/error_code.hpp>
 
-namespace ohlano {
+namespace o {
 
     template < typename MessageType, typename ThreadOptions >
-    class client : public io_app::base< ThreadOptions > {
+    class client : public io::io_app_base< ThreadOptions > {
 
       public:
         using message_type = MessageType;
 
-        using session_impl_type = ohlano::session<
+        using session_impl_type = o::session<
             boost::beast::websocket::stream< boost::asio::ip::tcp::socket >,
             MessageType >;
 
         using session_type = std::shared_ptr< session_impl_type >;
 
-        using io_base = io_app::base< ThreadOptions >;
+        using io_base = io::io_app_base< ThreadOptions >;
 
         using thread_option = ThreadOptions;
 
@@ -127,4 +127,4 @@ namespace ohlano {
 
         std::atomic< int > connections_refc_;
     };
-} // namespace ohlano
+} // namespace o

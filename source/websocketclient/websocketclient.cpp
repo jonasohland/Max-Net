@@ -48,8 +48,8 @@ class websocketclient : public object< websocketclient > {
     using websocket_stream =
         boost::beast::websocket::stream< boost::asio::ip::tcp::socket >;
     using websocket_connection =
-        ohlano::session< boost::beast::websocket::stream< boost::asio::ip::tcp::socket >,
-                         ohlano::max_message, ohlano::sessions::roles::client >;
+        o::session< boost::beast::websocket::stream< boost::asio::ip::tcp::socket >,
+                         o::max_message, o::sessions::roles::client >;
 
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
     MIN_TAGS{ "net" };
@@ -165,7 +165,7 @@ class websocketclient : public object< websocketclient > {
         } );
 
         connection_->on_read(
-            [=]( boost::system::error_code ec, ohlano::max_message* msg, size_t bytes ) {
+            [=]( boost::system::error_code ec, o::max_message* msg, size_t bytes ) {
                 if ( ec ) {
                     cerr << "read operation failed: " << ec.message() << c74::min::endl;
                     return;
@@ -239,26 +239,26 @@ class websocketclient : public object< websocketclient > {
     };
 
     /** This object is responsible for resolving hostnames to ip addresses */
-    ohlano::multi_resolver< boost::asio::ip::tcp > resolver{ io_context_ };
+    o::multi_resolver< boost::asio::ip::tcp > resolver{ io_context_ };
 
-    ohlano::max_message::factory allocator_;
+    o::max_message::factory allocator_;
 
     std::shared_ptr< websocket_connection > connection_;
 
     std::unique_ptr< std::thread > client_thread_ptr;
 
-    ohlano::protobuf_decoder_worker< ohlano::max_message > dec_worker_{};
+    o::protobuf_decoder_worker< o::max_message > dec_worker_{};
 
-    ohlano::outlet_output_adapter< ohlano::max_message > output_{ &data_out };
+    o::outlet_output_adapter< o::max_message > output_{ &data_out };
 
     std::atomic< int > refc{ 0 };
 
     std::mutex post_mtx;
 
-    ohlano::console_stream_adapter console_adapter{
+    o::console_stream_adapter console_adapter{
         [this]( std::string str ) { cout << str << endl; }, true
     };
-    ohlano::console_stream_adapter console_error_adapter{
+    o::console_stream_adapter console_error_adapter{
         [this]( std::string str ) { cerr << str << endl; }, true
     };
 };

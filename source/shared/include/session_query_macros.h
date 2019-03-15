@@ -30,7 +30,7 @@
 #define CON_IS( x ) == session_impl_type::status_codes::x
 #define CON_IS_NOT( x ) != session_impl_type::status_codes::x
 
-// will expand to [ status (==)/(!=) ohlano::websocket_connection::STATUS (||)/(&&) ]
+// will expand to [ status (==)/(!=) o::websocket_connection::STATUS (||)/(&&) ]
 #define _OHLANO_EXPAND_STATUS_CHECK_OR( r, data, elem ) status elem ||
 
 #define _OHLANO_EXPAND_STATUS_INCLUDES( r, data, elem )                                  \
@@ -59,8 +59,8 @@
 
 
     if(
-        status == ohlano::websocket_connections::status_codes::ONLINE ||    <-- repeats
-        status == ohlano::websocket_connections::status_codes::OFFLINE ||
+        status == o::websocket_connections::status_codes::ONLINE ||    <-- repeats
+        status == o::websocket_connections::status_codes::OFFLINE ||
         false
     ) { return true; } else { return false; }
  

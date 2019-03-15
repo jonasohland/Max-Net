@@ -28,7 +28,7 @@
 #include <mutex>
 #include "c74_min.h"
 
-namespace ohlano {
+namespace o {
 
     template < typename Message >
     class outlet_output_adapter {

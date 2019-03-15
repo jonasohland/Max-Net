@@ -29,11 +29,11 @@
 #include <sstream>
 #include <string>
 
-#define min_wrap_member( x )                                                             \
-    ohlano::make_func< c74::min::atoms( const c74::min::atoms&, int ) >(                 \
+#define min_wrap_member( x )                                                        \
+    o::make_func< c74::min::atoms( const c74::min::atoms&, int ) >(                 \
         std::bind( x, this, std::placeholders::_1, std::placeholders::_2 ) )
 
-namespace ohlano {
+namespace o {
 
     class console_stream_adapter_endl_marker {};
 
@@ -149,4 +149,4 @@ namespace ohlano {
         return out;
     }
 
-} // namespace ohlano
+} // namespace o

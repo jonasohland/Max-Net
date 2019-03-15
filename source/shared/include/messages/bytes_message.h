@@ -30,7 +30,7 @@
 #include <boost/asio/buffers_iterator.hpp>
 #include <string>
 
-namespace ohlano {
+namespace o {
     namespace messages {
 
         class bytes_message {
@@ -78,4 +78,4 @@ namespace ohlano {
 
     } // namespace messages
 
-} // namespace ohlano
+} // namespace o

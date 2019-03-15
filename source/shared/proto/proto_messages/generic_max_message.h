@@ -26,11 +26,11 @@
 #pragma once
 
 #include "c74_min.h"
-#include "ohlano.h"
+#include "o.h"
 #include "proto_message_base.h"
 #include "generated/generic_max.pb.h"
 
-namespace ohlano {
+namespace o {
 
     class max_message : public proto_message_base< generic_max > {
 
