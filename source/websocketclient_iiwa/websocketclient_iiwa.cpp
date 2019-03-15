@@ -30,12 +30,11 @@
 #include "client.h"
 #include "devices/devices.h"
 #include "generated/Movement.pb.h"
-#include "messages/bytes_message.h"
 #include "min_utils.h"
 #include "net_url.h"
 #include "ohlano_min.h"
 #include "session.h"
-#include "types.h"
+#include "o.h"
 
 #define CHECKED_PTR_USE_TEMPLATE_HASH
 

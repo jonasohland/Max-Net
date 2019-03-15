@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -28,7 +28,7 @@
 #include <string>
 #include <boost/asio/buffer.hpp>
 
-namespace ohlano {
+namespace o::messages {
     class string_message {
         std::string mess;
 
@@ -60,7 +60,7 @@ namespace ohlano {
                 buf.append( static_cast< char const* >( buffer.data() ), buffer.size() );
             }
 
-            return string_message( buf );
+            return string_message( std::move(buf) );
         }
 
         std::string str() const { return mess; }

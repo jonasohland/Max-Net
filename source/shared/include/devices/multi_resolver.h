@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //

@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -29,9 +29,7 @@
 
 #include <boost/asio.hpp>
 
-#include "io_application.h"
-#include "o.h"
-#include "types.h"
+#include "../io.h"
 
 namespace o::io::net::server {
 

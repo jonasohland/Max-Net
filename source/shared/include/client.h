@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -24,9 +24,10 @@
 // SOFTWARE.
 
 #include "devices/multi_resolver.h"
-#include "io_application.h"
 #include "net_url.h"
-#include "types.h"
+#include "session.h"
+
+#include "o.h"
 
 #include <atomic>
 

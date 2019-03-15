@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -24,13 +24,13 @@
 // SOFTWARE.
 
 #pragma once
-
-#include "../types.h"
+#include <boost/beast.hpp>
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <string>
 
 namespace o {
+    
     namespace messages {
 
         class bytes_message {

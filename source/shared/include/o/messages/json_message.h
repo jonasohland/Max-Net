@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -25,13 +25,14 @@
 
 #pragma once
 
+/*
+
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <valijson/validator.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/adapters/nlohmann_json_adapter.hpp>
 #include <json.hpp>
-
 
 namespace ohlano {
     
@@ -196,3 +197,4 @@ namespace ohlano {
 	};
 
 }
+ */

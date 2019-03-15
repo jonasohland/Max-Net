@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -31,7 +31,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/system/error_code.hpp>
-#include "o.h"
+#include "ohlano.h"
 #include <boost/asio/ip/tcp.hpp>
 
 struct ws_parser_template {

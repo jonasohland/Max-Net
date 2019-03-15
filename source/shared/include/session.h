@@ -1,5 +1,5 @@
 //
-// This file is part of the Max Network Extensions Project
+// This file is part of the Max-Net Project
 //
 // Copyright (c) 2019, Jonas Ohland
 //
@@ -27,7 +27,7 @@
 
 #include "devices/stats.h"
 #include "net_url.h"
-#include "o.h"
+#include "ohlano.h"
 
 #include <atomic>
 #include <boost/asio.hpp>
@@ -44,7 +44,7 @@
 
 #include <boost/tti/has_member_function.hpp>
 
-#include "types.h"
+#include "o.h"
 
 namespace o {
 

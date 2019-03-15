@@ -26,7 +26,7 @@
 #pragma once
 
 #include "c74_min.h"
-#include "o.h"
+#include "ohlano.h"
 #include "proto_message_base.h"
 #include "generated/generic_max.pb.h"
 

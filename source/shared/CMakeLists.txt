@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.3)
 
-file(GLOB SHARED_HEADERS "include/*.h")
-file(GLOB DEVICE_HEADERS "include/devices/*.h" )
-file(GLOB MESSAGES_HEADERS "include/messages/*.h" )
+file(GLOB_RECURSE IO_HEADERS "include/*.h")
+
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)	
@@ -14,15 +13,15 @@ find_package(Boost COMPONENTS
 					REQUIRED)
 
 message(STATUS "shared code")
-
+message(STATUS ${IO_HEADERS})
 message(STATUS ${CMAKE_GENERATOR})
 
 if ((${CMAKE_GENERATOR} MATCHES "Xcode") OR (${CMAKE_GENERATOR} MATCHES "Visual Studio 15 2017 Win64"))
 
+	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "o Headers" FILES ${IO_HEADERS})
+
 	add_library(websockets_shared_source STATIC 
-		${SHARED_HEADERS}
-		${DEVICE_HEADERS}
-		${MESSAGES_HEADERS}
+		${IO_HEADERS}
 	)
 
 	set_target_properties(websockets_shared_source PROPERTIES LINKER_LANGUAGE CXX)
