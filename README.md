@@ -1,4 +1,4 @@
-# Networking Extensions for Max/MSP - [![Build Status](https://travis-ci.com/jonasohland/max-websockets.svg?branch=master)](https://travis-ci.com/jonasohland/max-websockets)
+# Networking Extensions for Max/MSP - [![Build Status](https://travis-ci.com/jonasohland/Max-Net.svg?branch=master)](https://travis-ci.com/jonasohland/Max-Net)
 
 ## Building 
 To successfully build  these externals you will need:
