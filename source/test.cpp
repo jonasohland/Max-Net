@@ -24,11 +24,7 @@ struct app : public base_app, public udpin {
 
     virtual void on_app_exit( int reason ) override { this->udp_close(); }
 
-    virtual void on_data_received( std::vector< char > input ) override {
-
-        std::cout << "socket " << ( ( this->udp_sock().is_open() ) ? "open" : "not open" )
-                  << std::endl;
-
+    virtual void on_data_received( std::string input ) override {
         std::cout << "received " << input.size()
                   << " bytes: " << std::string( input.data(), input.size() ) << std::endl;
     }

@@ -40,7 +40,7 @@ namespace o::net {
          *
          * @param   parameter1  The first parameter.
          */
-        virtual void on_data_received( std::vector< char > ) = 0;
+        virtual void on_data_received( std::string ) = 0;
 
         /**
          * Executes the UDP error action
@@ -103,15 +103,15 @@ namespace o::net {
             if ( ec )
                 return on_udp_error( error_case::read, ec );
 
-            std::vector< char > bytes;
+            buf_.commit( bytes_s );
+
+            std::string out_bytes;
+
+            std::cout << "bytes: " << bytes_s << std::endl;
+
+            on_data_received( boost::beast::buffers_to_string( buf_.data() ) );
 
             buf_.consume( bytes_s );
-
-            std::copy( boost::asio::buffers_begin( buf_.data() ),
-                       boost::asio::buffers_end( buf_.data() ),
-                       std::back_inserter( bytes ) );
-
-            on_data_received( bytes );
 
             sock_.async_receive( buf_.prepare( 1024 ),
                                  std::bind( &udp_receiver::udp_on_data_received, this,
