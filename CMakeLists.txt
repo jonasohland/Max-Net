@@ -111,12 +111,24 @@ if(build_protobuf_targets)
 
 endif()
 
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)	
+
+find_package(Boost COMPONENTS 
+					"system" 
+					"date_time" 
+					"regex" 
+					REQUIRED)
+
 add_executable(
     TestApp
     "${CMAKE_CURRENT_SOURCE_DIR}/source/test.cpp"
 )
 
 target_link_libraries(TestApp PUBLIC  websockets_shared)
+
+
+target_link_libraries(TestApp PUBLIC ${Boost_LIBRARIES})
 
 set_target_properties(TestApp PROPERTIES
 	CXX_STANDARD 17

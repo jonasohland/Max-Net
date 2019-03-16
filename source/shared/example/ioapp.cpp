@@ -34,6 +34,8 @@ int main() {
 using app_base = o::io::io_app_base< ohlano::threads::none >;
 
 std::mutex mtx;
+
+// prints (call from [thing] is [not] safe)
 void print( std::string place, bool is_safe ) {
     std::lock_guard< std::mutex > print_lock( mtx );
     std::cout << "call from " << place << ( ( is_safe ) ? " is safe" : " is not safe" )

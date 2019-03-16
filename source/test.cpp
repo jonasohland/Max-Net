@@ -1,76 +1,44 @@
+#define _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
+#define _WIN32_WINNT 0x0A00
+
 #include "o.h"
-/*
-using app_base = o::io::simple_io_app<o::threads::none>;
 
-struct app : public app_base, public o::io::istream_listener {
+using base_app = o::io::basic_io_app< o::threads::none >;
+using udpin = o::net::udp_receiver< o::threads::none >;
 
-    app() : o::io::istream_listener(this->context())
-    {}
- 
-    virtual void on_console_input(std::string str) override {
-        std::cout << "You entered: " << str << std::endl;
+struct app : public base_app, public udpin {
+
+    app() : udpin( this->context() ) {}
+
+    virtual void on_app_started() {
+        this->udp_bind(
+            boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), 6000 ) );
+    }
+
+    virtual void on_udp_error( udpin::error_case eca,
+                               boost::system::error_code ec ) override {
+
+        std::cout << ( ( eca == udpin::error_case::bind ) ? "bind" : "read" ) << " error "
+                  << ec.message() << std::endl;
+    }
+
+    virtual void on_app_exit( int reason ) override { this->udp_close(); }
+
+    virtual void on_data_received( std::vector< char > input ) override {
+
+        std::cout << "socket " << ( ( this->udp_sock().is_open() ) ? "open" : "not open" )
+                  << std::endl;
+
+        std::cout << "received " << input.size()
+                  << " bytes: " << std::string( input.data(), input.size() ) << std::endl;
     }
 };
 
 int main() {
- 
+
     app a;
- 
+
     a.run();
- 
-    return 0;
-}
-*/
 
-using app_base = o::io::io_app_base< o::threads::none >;
-
-std::mutex mtx;
-void print( std::string place, bool is_safe ) {
-    std::lock_guard< std::mutex > print_lock( mtx );
-    std::cout << "call from " << place << ( ( is_safe ) ? " is safe" : " is not safe" )
-              << std::endl;
-}
-
-struct app : public app_base {
-
-    app() : timer( this->context() ) {}
-
-    virtual void on_app_started() override {
-
-        print( "startup method", this->call_is_safe() );
-
-        this->post( [this]() {
-            print( "executor", this->call_is_safe() );
-        } );
-
-        timer.async_wait( [this]( boost::system::error_code ec ) {
-            print( "timer callback", this->call_is_safe() );
-        } );
-
-        timer.expires_from_now( std::chrono::milliseconds( 1 ) );
-        
-        this->app_allow_exit();
-    }
-    
-    virtual void on_app_exit(int code) override {
-        print("exit request handler", this->call_is_safe());
-    }
-    
-    virtual void on_app_stopped() override {
-        print("app stopped handler", this->call_is_safe());
-    }
-
-    boost::asio::steady_timer timer;
-};
-
-int main() {
-
-    app a;
-    std::thread runner{ [&]() { a.run(); } };
-
-    print( "other thread", a.call_is_safe() );
-
-    runner.join();
-    
     return 0;
 }

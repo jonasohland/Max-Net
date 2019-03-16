@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <boost/asio.hpp>
 #include "../types.h"
+#include <boost/asio.hpp>
 
 namespace o::io {
 
@@ -39,18 +39,43 @@ namespace o::io {
          * own */
         template <>
         class thread_base< threads::none > {
+
+          public:
+            thread_base() = default;
+            virtual ~thread_base() = default;
+            thread_base( const thread_base< threads::none >& other ) = delete;
+            thread_base( const thread_base< threads::none >&& other ) = delete;
+
+            thread_base< threads::none >*
+            operator=( const thread_base< threads::none >& other ) = delete;
+            thread_base< threads::none >*
+            operator=( const thread_base< threads::none >&& other ) = delete;
+
+          protected:
             virtual void do_run() = 0;
         };
 
-        /** base for classes that want to perform work on one or many threads */
+        /**
+         * Base class that manages the execution of a function on one Thread.
+         *
+         * @author  Jonas Ohland
+         */
         template <>
         class thread_base< threads::single > {
 
           public:
-            virtual ~thread_base() {}
+            thread_base( const thread_base< threads::single >& other ) = delete;
+            thread_base( const thread_base< threads::single >&& other ) = delete;
+
+            thread_base< threads::single >*
+            operator=( const thread_base< threads::single >& other ) = delete;
+            thread_base< threads::single >*
+            operator=( const thread_base< threads::single >&& other ) = delete;
+
+            virtual ~thread_base() = default;
 
             /** determine on how many threads this app is running */
-            size_t thread_count() { return static_cast< bool >( worker_thread_ ); }
+            size_t thread_count() const { return static_cast< bool >( worker_thread_ ); }
 
           protected:
             /** wait for all threads to exit */
@@ -78,13 +103,27 @@ namespace o::io {
         class thread_base< threads::multi > {
 
           public:
-            virtual ~thread_base() {}
+            thread_base( const thread_base< threads::multi >& other ) = delete;
+            thread_base( const thread_base< threads::multi >&& other ) = delete;
 
-            /** determine on how many threads this app is running */
-            size_t thread_count() { return worker_threads_.size(); }
+            thread_base< threads::multi >*
+            operator=( const thread_base< threads::multi >& other ) = delete;
+
+            thread_base< threads::multi >*
+            operator=( const thread_base< threads::multi >&& other ) = delete;
+
+            virtual ~thread_base() = default;
+
+            /**
+             * Determine on how many threads this app is running
+             *
+             * @returns The number of threads, this application is currently running on.
+             */
+
+            size_t thread_count() const { return worker_threads_.size(); }
 
           protected:
-            /** wait for the application thread to exit */
+            /** Wait for all threads to exit. */
             void await_threads_end() const {
                 for ( auto& thread : worker_threads_ ) {
                     if ( thread )
@@ -93,9 +132,13 @@ namespace o::io {
                 }
             }
 
-            /** create x new threads and begin performing work on them */
-            void create_threads( int num_threads = 1 ) {
-                for ( int i = 0; i < num_threads; ++i ) {
+            /**
+             * create x new threads and begin performing work on them
+             *
+             * @param   num_threads (Optional) Number of threads.
+             */
+            void create_threads( const int num_threads = 1 ) {
+                for ( auto i = 0; i < num_threads; ++i ) {
                     worker_threads_.push_back( std::make_unique< std::thread >(
                         std::bind( &thread_base::do_run, this ) ) );
                 }
@@ -104,13 +147,16 @@ namespace o::io {
             /** implemented by the application to perform actual work */
             virtual void do_run() = 0;
 
-            /** access the base_mtx that should be locked when performing any
-             * operations
-             * on the worker threads container */
-            std::mutex& base_mtx() { return thread_base_mutex; }
+            /**
+             * Access the mutex that will be used to synchronize  actions
+             * on the thread management level.
+             *
+             * @returns A reference to a std::mutex.
+             */
+            std::mutex& base_mtx() { return thread_base_mutex_; }
 
           private:
-            std::mutex thread_base_mutex;
+            std::mutex thread_base_mutex_;
             std::vector< std::unique_ptr< std::thread > > worker_threads_;
         };
     } // namespace detail
@@ -122,7 +168,7 @@ namespace o::io {
     class io_app_base : public detail::thread_base< ThreadOption > {
 
       public:
-        virtual ~io_app_base() {}
+        virtual ~io_app_base() = default;
 
         /** applications thread option (either o::threads::single or
          * o::threads::multi) */
@@ -147,28 +193,42 @@ namespace o::io {
             return context().get_executor().running_in_this_thread();
         }
 
-        /** Determine if the caller is running in the applications thread, and the
-         call
-         to the apps resources would be safe.
-         \snippet ioapp.cpp ioapp_call_is_safe_example
-
-         Will output:
-         \code
-         call from startup method is not safe
-         call from other thread is not safe
-         call from executor is safe
-         call from timer callback is safe
-         call from exit request handler is safe
-         call from app stopped handler is not safe
-         \endcode
+        /**
+         * Determine if the caller is running in the applications thread, and the
+         * call to the apps resources would be safe. \snippet ioapp.cpp
+         * ioapp_call_is_safe_example
+         *
+         * @snippet ioapp.cpp ioapp_call_is_safe_example
+         *
+         * Will output: @code
+         * call from startup method is not safe
+         * call from other thread is not safe
+         * call from executor is safe
+         * call from timer callback is safe
+         * call from exit request handler is safe
+         * call from app stopped handler is not safe
+         * @endcode
+         *
+         * @tparam  Opt Type of the option.
+         *
+         * @returns True if it succeeds, false if it fails.
          */
         template < typename Opt = ThreadOption >
         bool call_is_safe() {
             return call_is_in_app() && !( multithreaded< Opt > );
         }
 
-        /** determine if the app is running */
-        bool running() const { return is_running_; }
+        /**
+         * Determine if the app is running. Effectively calls thread_cout() > 0
+         *
+         * @tparam  Opt Type of the option.
+         *
+         * @returns True if it the app is running, false if not.
+         */
+        template < typename Opt = ThreadOption >
+        typename threads::opt_enable_if_threads< Opt, bool >::type running() const {
+            return this->thread_count() > 0;
+        }
 
       protected:
         /** is this a multithreaded application? */
@@ -176,22 +236,27 @@ namespace o::io {
         static constexpr const bool multithreaded =
             std::is_same< Opt, threads::multi >::value;
 
-        /** Begin this apps operation. This will spawn x new threads and use those to
-         * perform work */
+        /**
+         * @brief   Launch the application on a specified number of threads.
+         *          This function is disabled if the o::threads::none
+         *          template argument was supplied for the class.
+         *
+         * @tparam  Opt multi single or no thread management
+         * @param   threads (Optional) The threads. Will be ignored if
+         *          the o::threads::single template argument was supplied
+         *
+         */
         template < typename Opt = ThreadOption >
         typename threads::opt_enable_if_threads< Opt >::type
         app_launch( int threads = 1 ) {
             app_prepare();
             this->create_threads( threads );
-            is_running_ = true;
         }
 
         /** Allow the application to exit. This will call the on_app_exit handler with
          * the supplied reason code (or 0 by default) from inside the application and
          * exit after that. */
         bool app_allow_exit( int reason = 0 ) {
-
-            is_running_ = false;
 
             this->dispatch( [this, reason]() { this->on_app_exit( reason ); } );
 
@@ -219,25 +284,69 @@ namespace o::io {
             boost::asio::dispatch( ctx_, std::forward< Ts >( args )... );
         }
 
-        /** get the underlying io context used to perform io by this app */
+        /**
+         * get the underlying io context used to perform io by this app
+         *
+         * @returns A reference to a context_type.
+         */
         context_type& context() { return ctx_; }
 
-        /** get the underlying executor used by this app */
+        /**
+         * get the underlying executor used by this app
+         *
+         * @author  Jonas Ohland
+         * @date    16.03.2019
+         *
+         * @returns A reference to an executor_type.
+         */
         executor_type& executor() { return ctx_.get_executor(); }
 
-        /** will be called when the app is started */
-        virtual void on_app_started(){};
+        /**
+         * Will be called when the app is started. This Function will be called once
+         * per thread. If the o::threads::multi template argument was supplied, this
+         * call will be synchronized.
+         *
+         * @author  Jonas Ohland
+         * @date    16.03.2019
+         */
+        virtual void on_app_started() {}
 
-        /** will be called right after the app was allowed to exit */
-        virtual void on_app_exit( int reason ){};
+        /**
+         * will be called right after the app was allowed to exit. This function
+         * will be called only once from one of the Applications Threads.
+         *
+         * @author  Jonas Ohland
+         * @date    16.03.2019
+         *
+         * @param   reason  The reason.
+         */
+        virtual void on_app_exit( int reason ) {}
 
-        /** will be called when the app is stopped */
-        virtual void on_app_stopped(){};
+        /**
+         * Will be called when the app is stopped. This Function will be called once
+         * per thread. If the o::threads::multi template argument was supplied, this
+         * call will be synchronized.
+         *
+         * @author  Jonas Ohland
+         * @date    16.03.2019
+         */
+        virtual void on_app_stopped() {}
 
-        /** will be called when the app is started before any thread was launched */
-        virtual void app_prepare(){};
+        /**
+         * will be called when the app is started before any thread was launched
+         *
+         * @author  Jonas Ohland
+         * @date    16.03.2019
+         */
+        virtual void app_prepare() {}
 
-        /** implemented by the io::base<> to perform actual work */
+        /**
+         * Implemented to perform the actual work of this application.
+         *
+         * @author  Jonas Ohland
+         *
+         * @date    16.03.2019
+         */
         virtual void do_run() override {
             call_work_start_notification();
             this->context().run();
@@ -248,14 +357,14 @@ namespace o::io {
         template < typename Opt = ThreadOption >
         typename threads::opt_enable_if_multi_thread< Opt >::type
         call_work_end_notification() {
-            std::lock_guard< std::mutex > call_lock{ this->base_mtx() };
+            auto call_lock = std::lock_guard( this->base_mtx() );
             on_app_stopped();
         }
 
         template < typename Opt = ThreadOption >
         typename threads::opt_enable_if_multi_thread< Opt >::type
         call_work_start_notification() {
-            std::lock_guard< std::mutex > call_lock{ this->base_mtx() };
+            auto call_lock = std::lock_guard( this->base_mtx() );
             on_app_started();
         }
 
@@ -271,10 +380,9 @@ namespace o::io {
             on_app_started();
         }
 
-        bool is_running_;
         context_type ctx_;
         boost::asio::executor_work_guard< executor_type > object_work_guard_{
             ctx_.get_executor()
         };
     };
-}
+} // namespace o::io
