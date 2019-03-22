@@ -7,7 +7,7 @@ struct app : public base_app, public udpin {
 
     app() : udpin( this->context() ) {}
 
-    virtual void on_app_started() {
+    virtual void on_app_started() override {
         this->udp_bind(
             boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), 6000 ) );
     }
