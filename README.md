@@ -1,5 +1,8 @@
 # Networking Extensions for Max/MSP - [![Build Status](https://travis-ci.com/jonasohland/Max-Net.svg?branch=master)](https://travis-ci.com/jonasohland/Max-Net)
 
+## Status
+Currently this is just a bunch of WIP classes and functions. Nothing to see here. 
+
 ## Building 
 To successfully build  these externals you will need:
 - Boost.Asio
