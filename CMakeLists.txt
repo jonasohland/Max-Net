@@ -124,14 +124,8 @@ endif()
 
 # ---------------------------------          this is just a small executable for testing stuff
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)	
-
-find_package(Boost COMPONENTS 
-					"system" 
-					"date_time" 
-					"regex" 
-					REQUIRED)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ohlib.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx17.cmake")
 
 add_executable(
     TestApp
@@ -140,11 +134,5 @@ add_executable(
 
 target_link_libraries(TestApp PUBLIC  ohlib_include)
 
-
-target_link_libraries(TestApp PUBLIC ${Boost_LIBRARIES})
-
-set_target_properties(TestApp PROPERTIES
-	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED YES
-	CXX_EXTENSIONS YES
-)
+ohlib_setup(TestApp)
+enable_cxx_17(TestApp)

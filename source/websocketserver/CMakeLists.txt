@@ -7,8 +7,6 @@ include("../../cmake/cxx17.cmake")
 include("../../cmake/ohlib.cmake")
 include("../../cmake/version_tag.cmake")
 
-get_version_tag()
-
 find_package(Protobuf REQUIRED)	
 
 add_library( 												
@@ -17,18 +15,11 @@ add_library(
 	${PROJECT_NAME}.cpp
 )
 
-if(WIN32)
-	add_compile_definitions(_WIN32_WINNT=0x0A00)
-endif()
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})
+version_tag(${PROJECT_NAME})
 
 include_directories(${C74_INCLUDES})
 
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)	
-
-target_link_libraries(${PROJECT_NAME} PUBLIC 				
-						${Boost_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC 					
 						${Protobuf_LIBRARIES})

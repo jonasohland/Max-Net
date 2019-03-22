@@ -15,3 +15,11 @@ macro(get_version_tag)
     endif()
 
 endmacro(get_version_tag)
+
+macro(version_tag input_target) 
+
+    get_version_tag()
+
+    target_compile_definitions(${input_target} PRIVATE VERSION_TAG=${VERSION_TAG})
+
+endmacro(version_tag)

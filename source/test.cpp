@@ -1,6 +1,3 @@
-#define _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
-#define _WIN32_WINNT 0x0A00
-
 #include "o.h"
 
 using base_app = o::io::signal_listener_app< o::threads::none >;

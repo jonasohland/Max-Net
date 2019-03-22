@@ -7,23 +7,15 @@ include("../../cmake/cxx17.cmake")
 include("../../cmake/ohlib.cmake")
 include("../../cmake/version_tag.cmake")
 
-get_version_tag()
-
 find_package(Protobuf REQUIRED)
 
 add_library( 												
 	${PROJECT_NAME} 
 	MODULE
 	${PROJECT_NAME}.cpp
-)
+)											
 
-
-if(WIN32)
-	target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
-	add_compile_definitions(_WIN32_WINNT=0x0A00)				
-endif()															
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC VERSION_TAG=${VERSION_TAG})
+version_tag(${PROJECT_NAME})
 
 include_directories(${C74_INCLUDES})
 
