@@ -25,8 +25,5 @@
 
 #pragma once
 
-#include "o/types.h"
 #include "o/io.h"
-#include "o/messages.h"
-#include "o/net.h"
-
+#include "o/types.h"

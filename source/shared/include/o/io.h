@@ -27,4 +27,7 @@
 
 #include "io/io_app_base.h"
 #include "io/io_signals.h"
+#include "io/messages.h"
+#include "io/net.h"
 #include "io/sin_listener.h"
+#include "io/thread_pool.h"

@@ -29,7 +29,7 @@
 
 #include <boost/asio.hpp>
 
-#include "../io.h"
+#include "../io_app_base.h"
 
 namespace o::io::net::server {
 
@@ -67,13 +67,11 @@ namespace o::io::net::server {
         void sess_close_all() {
 
             sessions_.apply( []( auto& sessions ) {
-
-                for ( auto & [ key, sess ] : sessions )
+                for ( auto& [key, sess] : sessions )
                     if ( sess )
                         sess->close();
 
                 sessions.clear();
-
             } );
         }
 

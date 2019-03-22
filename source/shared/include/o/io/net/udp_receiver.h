@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 #include <functional>
 
-namespace o::net {
+namespace o::io::net {
 
     /**
      * An UDP receiver.
@@ -93,6 +93,16 @@ namespace o::net {
             }
         }
 
+        void send( std::string thing_to_send ) {
+
+            std::string* output_str = new std::string( std::move( thing_to_send ) );
+
+            sock_.async_send(
+                boost::asio::buffer( output_str->data(), output_str->size() ),
+                std::bind( &udp_receiver::impl_udp_on_send_done, this,
+                           std::placeholders::_1, output_str ) );
+        }
+
         boost::asio::basic_datagram_socket< boost::asio::ip::udp >& udp_sock() {
             return sock_;
         }
@@ -119,8 +129,13 @@ namespace o::net {
                                             std::placeholders::_2 ) );
         }
 
+        void impl_udp_on_send_done( boost::system::error_code ec, std::string* out_str ) {
+
+            delete out_str;
+        }
+
         boost::asio::streambuf buf_;
         boost::asio::ip::udp::socket sock_;
     };
 
-} // namespace o::net
+} // namespace o::io::net

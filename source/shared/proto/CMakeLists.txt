@@ -14,8 +14,6 @@ add_library(shared_protos STATIC ${PROTO_SOURCES} ${PROTO_HEADERS} ${PROTO_MESSA
 
 set_property(TARGET shared_protos PROPERTY CXX_STANDARD 14)
 
-target_link_libraries(shared_protos PUBLIC websockets_shared)
-
 target_include_directories(shared_protos PUBLIC ${Protobuf_INCLUDE_DIRS})
 
 target_include_directories(shared_protos INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")

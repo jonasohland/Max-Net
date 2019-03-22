@@ -32,9 +32,9 @@
 #include "generated/Movement.pb.h"
 #include "min_utils.h"
 #include "net_url.h"
+#include "o.h"
 #include "ohlano_min.h"
 #include "session.h"
-#include "o.h"
 
 #define CHECKED_PTR_USE_TEMPLATE_HASH
 
@@ -47,11 +47,10 @@ namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
 
 class websocketclient_iiwa
     : public object< websocketclient_iiwa >,
-      public o::client< o::messages::bytes_message, o::threads::single > {
+      public o::client< o::io::messages::bytes_message, o::threads::single > {
 
   public:
-    using client_t =
-        o::client< o::messages::bytes_message, o::threads::single >;
+    using client_t = o::client< o::io::messages::bytes_message, o::threads::single >;
 
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
     MIN_TAGS{ "net" };
@@ -84,8 +83,8 @@ class websocketclient_iiwa
     }
 
   protected:
-    const o::messages::bytes_message*
-    handle_message( const o::messages::bytes_message* msg, size_t bytes ) override {
+    const o::io::messages::bytes_message*
+    handle_message( const o::io::messages::bytes_message* msg, size_t bytes ) override {
         cout << "received " << bytes << " bytes" << c74::min::endl;
         return msg;
     }
@@ -99,9 +98,7 @@ class websocketclient_iiwa
         cout << "session closed" << c74::min::endl;
     }
 
-    void on_app_started() override {
-        cout << "running network worker" << c74::min::endl;
-    }
+    void on_app_started() override { cout << "running network worker" << c74::min::endl; }
 
     void on_app_stopped() override {
         cout << "finished running network worker" << c74::min::endl;

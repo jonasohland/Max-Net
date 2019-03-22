@@ -30,34 +30,58 @@
 #include "../types.h"
 #include "io_app_base.h"
 
-
-
 namespace o::io {
-    
-        /** Base class for applications that want to perform io and handle os signals.
-         This class provides all features from o::io::io_app_base, but automatically
-         handles signals from the operating system. By default it will handle SIGINT and
-         SIGQUIT. Both Signals will eventually lead to call to
-         o::io::io_app_base::app_allow_exit(int signal_num).
-         \snippet ioapp.cpp basic_io_app_ex
-         */
-        template < typename ThreadOption >
-        class basic_io_app : public io_app_base< ThreadOption > {
+
+    /**
+     * Base class for applications that want to perform io and handle os
+     * signals. This class provides all features from o::io::io_app_base, but
+     * automatically handles signals from the operating system. By default it
+     * will handle SIGINT and SIGQUIT. Both Signals will eventually lead to a
+     * call of o::io::io_app_base::app_allow_exit(int signal_num). \snippet
+     * ioapp.cpp basic_io_app_ex
+     *
+     * This class is available on Windows and Posix Systems.
+     *
+     * @author  Jonas Ohland
+     * @date    21.03.2019
+     *
+     * @tparam  ThreadOption    Type of the thread option.
+     */
+    template < typename ThreadOption >
+    class signal_listener_app : public virtual io_app_base< ThreadOption > {
 
       public:
-        basic_io_app() : signal_set_( this->context(), 2, 15 ) {}
+        signal_listener_app() : signal_set_( this->context(), 2, 15 ) {}
 
       protected:
-        /** Implemented to setup the signal set. If you override this, make sure you call
-         * setup_signals() yourself */
+        /**
+         * Implemented to setup the signal set. If you override this, make sure you call
+         * setup_signals() yourself.
+         *
+         * @author  Jonas Ohland
+         * @date    21.03.2019
+         */
         virtual void app_prepare() override { setup_signals(); }
 
-        /** implement to be notified about signals you subscribed to with
-         * signals().add(num) */
+        /**
+         * implement to be notified about signals you subscribed to with
+         * signals().add(num).
+         *
+         * @author  Jonas Ohland
+         * @date    21.03.2019
+         *
+         * @param   signal_number   The signal number.
+         */
         virtual void on_signal( int signal_number ) {}
 
-        /** Begin listening to signals. This will be called from the app when it is
-         * started. */
+        /**
+         * Sets up the signal listening. The implementation will call this once via the
+         * overridden app_prepare() method and call it again, whenever a signal was
+         * received. This effectively does an async_wait() on the underlying signal_set.
+         *
+         * @author  Jonas Ohland
+         * @date    21.03.2019
+         */
         void setup_signals() {
             signal_set_.async_wait(
                 [this]( const boost::system::error_code& ec, int signal_number ) {
@@ -72,10 +96,17 @@ namespace o::io {
                 } );
         }
 
-        /** Access the underlying boost::asio::signal_set */
+        /**
+         * Access the underlying boost::asio::signal_set
+         *
+         * @author  Jonas Ohland
+         * @date    21.03.2019
+         *
+         * @returns A reference to a boost::asio::signal_set.
+         */
         boost::asio::signal_set& signals() { return signal_set_; }
 
       private:
         boost::asio::signal_set signal_set_;
     };
-}
+} // namespace o::io

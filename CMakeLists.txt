@@ -5,6 +5,9 @@ option(build_iiwa_targets "build externals for communicating with iiwa robots" O
 option(use_version_tags "define version tag macros from git tags" ON)
 option(build_docs "Build documentation" OFF)
 
+
+# ---------------------------------          iiwa targets require protobuf
+
 if((build_iiwa_targets) AND (NOT build_protobuf_targets))
 	message(WARNING "iiwa targets cant built without protobuf targets enabled")
 endif()
@@ -12,6 +15,7 @@ endif()
 
 string(REGEX REPLACE "(.*)/" "" THIS_PACKAGE_NAME "${CMAKE_CURRENT_SOURCE_DIR}")
 
+# ---------------------------------          required by c74::min
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
  		if (${XCODE_VERSION} VERSION_LESS 9)
@@ -19,6 +23,9 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 			return ()
 		endif ()
 endif ()
+
+
+# ---------------------------------          Generate Documentation with Doxygen
 
 if(build_docs)
 
@@ -42,6 +49,7 @@ if(build_docs)
 
 endif(build_docs)
 
+# ---------------------------------          build protobuf classes 
 
 if(build_protobuf_targets)
 
@@ -80,11 +88,12 @@ if(build_protobuf_targets)
 
 endif()
 
-# Misc setup and subroutines
+# ---------------------------------          Misc setup and subroutines
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api/script/min-package.cmake)
 
-# Add unit tests for the API
-# enable_testing()
+
+# ---------------------------------          add all the targets
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/optional_locks)
 
@@ -92,7 +101,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/min-api)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto)
+if(build_protobuf_targets)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/shared/proto)
+endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/checked_ptr)
 
@@ -103,13 +114,15 @@ if(build_protobuf_targets)
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient_iiwa")
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/iiwa_move")
 		add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/iiwa_joints")
-		
 	endif()
 	
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketclient")
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/websocketserver")
 
 endif()
+
+
+# ---------------------------------          this is just a small executable for testing stuff
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)	
@@ -125,7 +138,7 @@ add_executable(
     "${CMAKE_CURRENT_SOURCE_DIR}/source/test.cpp"
 )
 
-target_link_libraries(TestApp PUBLIC  websockets_shared)
+target_link_libraries(TestApp PUBLIC  ohlib_include)
 
 
 target_link_libraries(TestApp PUBLIC ${Boost_LIBRARIES})
@@ -135,12 +148,3 @@ set_target_properties(TestApp PROPERTIES
 	CXX_STANDARD_REQUIRED YES
 	CXX_EXTENSIONS YES
 )
-
-# Generate a project for every folder in the "source/projects" folder
-#SUBDIRLIST(PROJECT_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/source)
-#foreach (project_dir ${PROJECT_DIRS})
-#	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/source/${project_dir}/CMakeLists.txt")
-#		message("Generating: ${project_dir}")
-#		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/${project_dir})
-#	endif ()
-#endforeach ()

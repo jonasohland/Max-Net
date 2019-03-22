@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include <string>
 #include <boost/asio/buffer.hpp>
+#include <string>
 
-namespace o::messages {
+namespace o::io::messages {
     class string_message {
         std::string mess;
 
@@ -60,7 +60,7 @@ namespace o::messages {
                 buf.append( static_cast< char const* >( buffer.data() ), buffer.size() );
             }
 
-            return string_message( std::move(buf) );
+            return string_message( std::move( buf ) );
         }
 
         std::string str() const { return mess; }
@@ -71,4 +71,4 @@ namespace o::messages {
 
         const size_t size() const { return mess.size(); }
     };
-}
+} // namespace o::io::messages

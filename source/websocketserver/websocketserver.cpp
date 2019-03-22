@@ -26,7 +26,7 @@
 #include <mutex>
 #include <thread>
 
-#include "o/net.h"
+#include "o.h"
 
 #include "session.h"
 
@@ -51,8 +51,8 @@ class websocketserver : public c74::min::object< websocketserver > {
 
     // the websocket session type
     using websocket_session_type =
-        o::session< boost::beast::websocket::stream< boost::asio::ip::tcp >,
-                         message_type, o::sessions::roles::server >;
+        o::session< boost::beast::websocket::stream< boost::asio::ip::tcp >, message_type,
+                    o::sessions::roles::server >;
 
     // the websocket session type representation as shared_ptr
     using session_type = std::shared_ptr< websocket_session_type >;

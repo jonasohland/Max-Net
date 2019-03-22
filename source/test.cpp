@@ -3,8 +3,8 @@
 
 #include "o.h"
 
-using base_app = o::io::basic_io_app< o::threads::none >;
-using udpin = o::net::udp_receiver< o::threads::none >;
+using base_app = o::io::signal_listener_app< o::threads::none >;
+using udpin = o::io::net::udp_receiver< o::threads::none >;
 
 struct app : public base_app, public udpin {
 
@@ -32,9 +32,14 @@ struct app : public base_app, public udpin {
 
 int main() {
 
-    app a;
+    thread_pool pool{ 4 };
 
-    a.run();
+    pool.start();
+
+    pool.ioc().post(
+        []() { std::this_thread::sleep_for( std::chrono::milliseconds( 2000 ) ); } );
+
+    pool.stop();
 
     return 0;
 }

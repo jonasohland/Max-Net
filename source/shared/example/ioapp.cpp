@@ -89,7 +89,7 @@ int main() {
 //! [basic_io_app_ex]
 int main(){
     
-    o::io::basic_io_app<o::threads::none> app;
+    o::io::signal_listener_app<o::threads::none> app;
     
     // this call will return as soon as the process receives a SIGINT
     app.run();

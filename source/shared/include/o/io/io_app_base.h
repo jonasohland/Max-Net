@@ -72,6 +72,7 @@ namespace o::io {
             thread_base< threads::single >*
             operator=( const thread_base< threads::single >&& other ) = delete;
 
+            thread_base() = default;
             virtual ~thread_base() = default;
 
             /** determine on how many threads this app is running */

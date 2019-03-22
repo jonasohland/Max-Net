@@ -1,31 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api)
-
-if(use_version_tags)
-
-execute_process(COMMAND "git" "describe" "--tags" 
-				OUTPUT_VARIABLE VERSION_TAG 
-				ERROR_VARIABLE VERSION_TAG
-				ERROR_STRIP_TRAILING_WHITESPACE
-				OUTPUT_STRIP_TRAILING_WHITESPACE)
-				
-else()
-
-set(VERSION_TAG "x.x")
-
-endif()
 				
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
+include("../../cmake/cxx17.cmake")
+include("../../cmake/ohlib.cmake")
+include("../../cmake/version_tag.cmake")
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)	
-
-find_package(Boost COMPONENTS 
-					"system" 
-					"date_time" 
-					"regex" 
-					REQUIRED)
+get_version_tag()
 
 find_package(Protobuf REQUIRED)	
 
@@ -45,12 +27,6 @@ include_directories(${C74_INCLUDES})
 
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)	
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED YES
-	CXX_EXTENSIONS YES
-)
-
 target_link_libraries(${PROJECT_NAME} PUBLIC 				
 						${Boost_LIBRARIES})
 
@@ -60,5 +36,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 add_dependencies(${PROJECT_NAME} shared_protos)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC shared_protos)
-target_link_libraries(${PROJECT_NAME} PUBLIC websockets_shared)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ohlib_include)
+
+ohlib_setup(${PROJECT_NAME})
+enable_cxx_17(${PROJECT_NAME})
