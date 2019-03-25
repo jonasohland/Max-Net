@@ -101,10 +101,10 @@ namespace o::io {
             void create_threads(const int num_threads = 1) {
                 for (auto i = 0; i < num_threads; ++i) {
                     worker_threads_.push_back(std::make_unique<std::thread>(
-                                                                            std::bind(&thread_base::do_run, this)));
+                        std::bind(&thread_base::do_run, this)));
                 }
             }
-            
+
             /** implemented by the application to perform actual work */
             virtual void do_run() = 0;
             
@@ -189,15 +189,18 @@ namespace o::io {
     /** base class for applications that want to perform io
      \snippet ioapp.cpp ioapp_base_example
      */
-    template <typename ThreadOption>
-    class io_app_base : public detail::thread_base<ThreadOption> {
+    template <typename ConcurrencyOption>
+    class io_app_base : public detail::thread_base<ConcurrencyOption> {
 
       public:
+        io_app_base() : ctx_(ConcurrencyOption::io_ctx_ccy_hint) {}
+        io_app_base(int ccy_hint) : ctx_(ccy_hint) {}
+
         virtual ~io_app_base() = default;
 
         /** applications thread option (either o::threads::single or
          * o::threads::safe) */
-        using thread_option = ThreadOption;
+        using ccy_option = ConcurrencyOption;
 
         /** underlying io context type */
         using context_type = boost::asio::io_context;
@@ -207,7 +210,7 @@ namespace o::io {
 
         /** Run the application in this thread. This call will return as soon as the
          * application runs out of work. */
-        template <typename Opt = ThreadOption>
+        template <typename Opt = ConcurrencyOption>
         typename ccy::opt_enable_if_ccy_unaware<Opt>::type run() {
             app_prepare();
             do_run();
@@ -238,7 +241,7 @@ namespace o::io {
          *
          * @returns True if it succeeds, false if it fails.
          */
-        template <typename Opt = ThreadOption>
+        template <typename Opt = ConcurrencyOption>
         bool call_is_safe() {
             return call_is_in_app() && !(multithreaded<Opt>);
         }
@@ -250,14 +253,14 @@ namespace o::io {
          *
          * @returns True if it the app is running, false if not.
          */
-        template <typename Opt = ThreadOption>
+        template <typename Opt = ConcurrencyOption>
         typename ccy::opt_enable_if_ccy_aware<Opt, bool>::type running() const {
             return this->thread_count() > 0;
         }
 
       protected:
         /** is this a multithreaded application? */
-        template <typename Opt = ThreadOption>
+        template <typename Opt = ConcurrencyOption>
         static constexpr const bool multithreaded =
             std::is_same<Opt, ccy::safe>::value;
 
@@ -271,7 +274,7 @@ namespace o::io {
          *          the o::threads::single template argument was supplied
          *
          */
-        template <typename Opt = ThreadOption>
+        template <typename Opt = ConcurrencyOption>
         typename ccy::opt_enable_if_ccy_aware<Opt>::type app_launch(int threads = 1) {
             app_prepare();
             this->create_threads(threads);
@@ -373,7 +376,7 @@ namespace o::io {
          */
         virtual void do_run() override {
             
-            if constexpr(ccy::is_safe<ThreadOption>::value){
+            if constexpr(ccy::is_safe<ConcurrencyOption>::value){
                 auto startup_call_lock = std::lock_guard(this->base_mtx());
                 on_app_started();
             } else
@@ -381,7 +384,7 @@ namespace o::io {
             
             this->context().run();
             
-            if constexpr(ccy::is_safe<ThreadOption>::value){
+            if constexpr(ccy::is_safe<ConcurrencyOption>::value){
                 auto startup_call_lock = std::lock_guard(this->base_mtx());
                 on_app_stopped();
             } else
@@ -390,7 +393,6 @@ namespace o::io {
         }
 
       private:
-
         context_type ctx_;
         boost::asio::executor_work_guard<executor_type> object_work_guard_{
             ctx_.get_executor()};

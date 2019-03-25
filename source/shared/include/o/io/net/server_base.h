@@ -33,15 +33,15 @@
 
 namespace o::io::net::server {
 
-    template < typename Session, typename ThreadOption >
-    class server_base : public o::io::io_app_base< ThreadOption > {
+    template < typename Session, typename ConcurrencyOption >
+    class server_base : public o::io::io_app_base< ConcurrencyOption > {
 
       public:
         using sessions_map = std::map< size_t, std::shared_ptr< Session > >;
         using sessions_type =
-            o::ccy::opt_safe_visitable< sessions_map, ThreadOption >;
+            o::ccy::opt_safe_visitable< sessions_map, ConcurrencyOption >;
 
-        template < typename Opt = ThreadOption >
+        template < typename Opt = ConcurrencyOption >
         typename ccy::opt_enable_if_safe< Opt >::type start( int threads ) {
             this->app_begin_op( threads );
         }

@@ -47,8 +47,8 @@ namespace o::io {
      *
      * @tparam  ThreadOption    Type of the thread option.
      */
-    template <typename ThreadOption>
-    class signal_listener_app : public io_app_base<ThreadOption> {
+    template <typename ConcurrencyOption>
+    class signal_listener_app : public io_app_base<ConcurrencyOption> {
 
       public:
         signal_listener_app() : signal_set_(this->context(), 2, 15) {}
