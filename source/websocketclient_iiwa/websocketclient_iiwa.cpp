@@ -47,10 +47,10 @@ namespace iiwa = de::hsmainz::iiwa::messages::protocolbuffers;
 
 class websocketclient_iiwa
     : public object< websocketclient_iiwa >,
-      public o::client< o::io::messages::bytes_message, o::threads::single > {
+      public o::client< o::io::messages::bytes_message, o::ccy::unsafe > {
 
   public:
-    using client_t = o::client< o::io::messages::bytes_message, o::threads::single >;
+    using client_t = o::client< o::io::messages::bytes_message, o::ccy::unsafe >;
 
     MIN_DESCRIPTION{ "WebSockets for Max! (Client)" };
     MIN_TAGS{ "net" };

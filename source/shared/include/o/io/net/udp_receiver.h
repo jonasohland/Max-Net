@@ -3,6 +3,7 @@
 #include "../../types.h"
 #include <boost/asio.hpp>
 #include <functional>
+#include <boost/optional.hpp>
 
 namespace o::io::net {
 
@@ -40,7 +41,7 @@ namespace o::io::net {
          *
          * @param   parameter1  The first parameter.
          */
-        virtual void on_data_received( std::string ) = 0;
+        virtual void on_data_received( std::string&& ) = 0;
 
         /**
          * Executes the UDP error action
@@ -61,21 +62,33 @@ namespace o::io::net {
          *
          * @param   remote_endp The remote endp.
          */
-        void udp_bind( boost::asio::ip::udp::endpoint remote_endp ) {
+        void udp_bind( boost::asio::ip::udp::endpoint local_endp ) {
 
             boost::system::error_code ec;
 
-            sock_.open( remote_endp.protocol() );
+            if(!sock_.is_open())
+                sock_.open( local_endp.protocol() );
 
-            sock_.bind( remote_endp, ec );
+            sock_.bind( local_endp, ec );
 
             if ( ec )
                 return on_udp_error( error_case::bind, ec );
-
-            sock_.async_receive( buf_.prepare( 1024 ),
-                                 std::bind( &udp_receiver::udp_on_data_received, this,
-                                            std::placeholders::_1,
-                                            std::placeholders::_2 ) );
+            
+            impl_udp_do_receive();
+        }
+        
+        void udp_connect( boost::asio::ip::udp::endpoint remote_endp ) {
+            
+            boost::system::error_code ec;
+            
+            if(!sock_.is_open())
+                sock_.open( remote_endp.protocol() );
+            
+            sock_.connect(remote_endp, ec);
+            
+            if(ec)
+                return on_udp_error( error_case::connect, ec );
+            
         }
 
         /**
@@ -85,12 +98,8 @@ namespace o::io::net {
          * @date    16.03.2019
          */
         void udp_close() {
-
-            if ( sock_.is_open() ) {
-                sock_.shutdown(
-                    boost::asio::basic_socket< boost::asio::ip::udp >::shutdown_both );
+            if ( sock_.is_open() )
                 sock_.close();
-            }
         }
 
         void send( std::string thing_to_send ) {
@@ -102,12 +111,16 @@ namespace o::io::net {
                 std::bind( &udp_receiver::impl_udp_on_send_done, this,
                            std::placeholders::_1, output_str ) );
         }
+        
+        boost::asio::ip::udp::endpoint& last_remote(){ return last_endp_; }
 
         boost::asio::basic_datagram_socket< boost::asio::ip::udp >& udp_sock() {
             return sock_;
         }
 
       private:
+        
+        // Data was received. Call the user-handler and do another receive.
         void udp_on_data_received( boost::system::error_code ec, size_t bytes_s ) {
 
             if ( ec )
@@ -117,25 +130,103 @@ namespace o::io::net {
 
             std::string out_bytes;
 
-            std::cout << "bytes: " << bytes_s << std::endl;
-
             on_data_received( boost::beast::buffers_to_string( buf_.data() ) );
 
             buf_.consume( bytes_s );
+            
+            impl_udp_do_receive();
 
-            sock_.async_receive( buf_.prepare( 1024 ),
-                                 std::bind( &udp_receiver::udp_on_data_received, this,
-                                            std::placeholders::_1,
-                                            std::placeholders::_2 ) );
+        }
+        
+        void impl_udp_do_receive(){
+            sock_.async_receive_from( buf_.prepare( 1024 ), last_endp_,
+                                      std::bind( &udp_receiver::udp_on_data_received,
+                                                 this, std::placeholders::_1,
+                                                 std::placeholders::_2 ) );
         }
 
         void impl_udp_on_send_done( boost::system::error_code ec, std::string* out_str ) {
 
             delete out_str;
         }
+        
+        boost::asio::ip::udp::endpoint last_endp_;
 
         boost::asio::streambuf buf_;
         boost::asio::ip::udp::socket sock_;
+    };
+    
+    template<typename ThreadOption>
+    struct udp_port_mtx_base {};
+    
+    template<>
+    struct udp_port_mtx_base<o::ccy::safe>{
+        std::mutex udp_port_handler_mutex_;
+    };
+    
+    template<>
+    struct udp_port_mtx_base<o::ccy::unsafe>{};
+    
+    template<>
+    struct udp_port_mtx_base<o::ccy::none>{};
+    
+    template < typename ThreadOption >
+    class udp_port : public udp_receiver<ThreadOption>, public udp_port_mtx_base<ThreadOption> {
+        
+        using data_handler_type = std::function<void(std::string&&)>;
+        using error_handler_type = std::function<void(boost::system::error_code)>;
+        
+    public:
+        explicit udp_port(boost::asio::io_context& ctx) : udp_receiver<ThreadOption>(ctx) {}
+        
+        virtual void on_data_received(std::string&& data) override {
+            
+            if(data_handler_){
+                
+                opt_do_lock();
+                
+                data_handler_.get()(std::forward<std::string>(data));
+                
+                opt_do_unlock();
+            }
+        }
+        
+        //TODO replace with std::optional and deprecate Xcode 9 (alias buy new macbook)
+        boost::optional<std::function<void(std::string&&)>> data_handler_;
+        boost::optional<std::function<void(boost::system::error_code)>> error_handler_;
+
+        inline void set_data_handler( data_handler_type&& handler ) {
+            
+            opt_do_lock();
+            
+            data_handler_ =
+                boost::make_optional( std::forward< data_handler_type >( handler ));
+            
+            opt_do_unlock();
+            
+        }
+
+        inline void set_error_handler( error_handler_type&& handler ) {
+            
+            opt_do_lock();
+            
+            error_handler_ =
+                boost::make_optional( std::forward< error_handler_type >( handler ) );
+            
+            opt_do_unlock();
+        }
+        
+    private:
+        
+        inline void opt_do_lock(){
+            if constexpr(o::ccy::is_safe<ThreadOption>::value)
+                this->udp_port_handler_mutex_.lock();
+        }
+        
+        inline void opt_do_unlock(){
+            if constexpr(o::ccy::is_safe<ThreadOption>::value)
+                this->udp_port_handler_mutex_.unlock();
+        }
     };
 
 } // namespace o::io::net

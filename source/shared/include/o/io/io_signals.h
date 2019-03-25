@@ -47,11 +47,11 @@ namespace o::io {
      *
      * @tparam  ThreadOption    Type of the thread option.
      */
-    template < typename ThreadOption >
-    class signal_listener_app : public virtual io_app_base< ThreadOption > {
+    template <typename ThreadOption>
+    class signal_listener_app : public io_app_base<ThreadOption> {
 
       public:
-        signal_listener_app() : signal_set_( this->context(), 2, 15 ) {}
+        signal_listener_app() : signal_set_(this->context(), 2, 15) {}
 
       protected:
         /**
@@ -72,7 +72,7 @@ namespace o::io {
          *
          * @param   signal_number   The signal number.
          */
-        virtual void on_signal( int signal_number ) {}
+        virtual void on_signal(int signal_number) {}
 
         /**
          * Sets up the signal listening. The implementation will call this once via the
@@ -84,16 +84,16 @@ namespace o::io {
          */
         void setup_signals() {
             signal_set_.async_wait(
-                [this]( const boost::system::error_code& ec, int signal_number ) {
-                    if ( !ec ) {
-                        if ( signal_number == 2 || signal_number == 15 )
-                            this->app_allow_exit( signal_number );
+                [this](const boost::system::error_code& ec, int signal_number) {
+                    if (!ec) {
+                        if (signal_number == 2 || signal_number == 15)
+                            this->app_allow_exit(signal_number);
                         else {
-                            on_signal( signal_number );
+                            on_signal(signal_number);
                             setup_signals();
                         }
                     }
-                } );
+                });
         }
 
         /**

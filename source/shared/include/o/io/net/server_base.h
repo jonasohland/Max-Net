@@ -39,10 +39,10 @@ namespace o::io::net::server {
       public:
         using sessions_map = std::map< size_t, std::shared_ptr< Session > >;
         using sessions_type =
-            o::threads::opt_safe_visitable< sessions_map, ThreadOption >;
+            o::ccy::opt_safe_visitable< sessions_map, ThreadOption >;
 
         template < typename Opt = ThreadOption >
-        typename threads::opt_enable_if_multi_thread< Opt >::type start( int threads ) {
+        typename ccy::opt_enable_if_safe< Opt >::type start( int threads ) {
             this->app_begin_op( threads );
         }
 

@@ -56,7 +56,7 @@ namespace o {
     class session_threaded_base {};
 
     template <>
-    class session_threaded_base< threads::single > : public status_codes_base {
+    class session_threaded_base< ccy::unsafe > : public status_codes_base {
 
       protected:
         void status_set( status_codes cd ) { opt_at_status_ = cd; }
@@ -65,7 +65,7 @@ namespace o {
     };
 
     template <>
-    class session_threaded_base< threads::multi > : public status_codes_base {
+    class session_threaded_base< ccy::safe > : public status_codes_base {
 
       protected:
         void status_set( status_codes cd ) { opt_at_status_.store( cd ); }
@@ -76,7 +76,7 @@ namespace o {
     template < typename Stream, typename Message,
                typename Role = sessions::roles::client >
     class session : public std::enable_shared_from_this< session< Stream, Message > >,
-                    public session_threaded_base< threads::multi > {
+                    public session_threaded_base< ccy::safe > {
       public:
         typedef std::function< void( boost::system::error_code ) >
             basic_completion_handler_t;

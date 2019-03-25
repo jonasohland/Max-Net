@@ -26,12 +26,13 @@
 #pragma once
 
 #include <mutex>
+#include <boost/asio/io_context.hpp>
 #include <boost/tti/tti.hpp>
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 
-#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #define O_NET_POSIX
 #endif
 
@@ -40,35 +41,35 @@ namespace o {
     namespace messages {
 
         namespace detail {
-            BOOST_TTI_HAS_MEMBER_FUNCTION( set_direction );
-            BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send );
-            BOOST_TTI_HAS_MEMBER_FUNCTION( notify_send_done );
+            BOOST_TTI_HAS_MEMBER_FUNCTION(set_direction);
+            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send);
+            BOOST_TTI_HAS_MEMBER_FUNCTION(notify_send_done);
         } // namespace detail
 
-        template < typename Message >
+        template <typename Message>
         using is_direction_supported = detail::has_member_function_set_direction<
-            Message, void, boost::mpl::vector< bool >,
-            boost::function_types::const_qualified >;
+            Message, void, boost::mpl::vector<bool>,
+            boost::function_types::const_qualified>;
 
-        template < typename Message, typename Ty = void >
+        template <typename Message, typename Ty = void>
         using enable_if_direction_supported =
-            std::enable_if< is_direction_supported< Message >::value >;
+            std::enable_if<is_direction_supported<Message>::value>;
 
-        template < typename Message >
+        template <typename Message>
         using is_notify_send_supported = detail::has_member_function_notify_send<
-            Message, void, boost::mpl::vector<>, boost::function_types::const_qualified >;
+            Message, void, boost::mpl::vector<>, boost::function_types::const_qualified>;
 
-        template < typename Message >
+        template <typename Message>
         using is_notify_send_done_supported =
             detail::has_member_function_notify_send_done<
                 Message, void, boost::mpl::vector<>,
-                boost::function_types::const_qualified >;
+                boost::function_types::const_qualified>;
 
-        template < typename Message >
+        template <typename Message>
         struct is_send_notification_supported {
             static constexpr const bool value =
-                is_notify_send_supported< Message >::value &&
-                is_notify_send_done_supported< Message >::value;
+                is_notify_send_supported<Message>::value &&
+                is_notify_send_done_supported<Message>::value;
         };
     } // namespace messages
 
@@ -84,114 +85,103 @@ namespace o {
             struct statistics {};
         } // namespace features
 
-        template < typename Role, typename T = void >
+        template <typename Role, typename T = void>
         struct enable_for_client {};
 
-        template < typename Ty >
-        struct enable_for_client< roles::client, Ty > {
+        template <typename Ty>
+        struct enable_for_client<roles::client, Ty> {
             using type = Ty;
         };
 
-        template < typename Role, typename T = void >
+        template <typename Role, typename T = void>
         struct enable_for_server {};
 
-        template < typename Ty >
-        struct enable_for_server< roles::server, Ty > {
+        template <typename Ty>
+        struct enable_for_server<roles::server, Ty> {
             using type = Ty;
         };
     } // namespace sessions
 
-    namespace threads {
+    namespace ccy {
 
         // used to indicate that the object will be used in a single threaded context
-        struct single {};
+        struct unsafe {
+            static constexpr const int io_ctx_ccy_hint = 1;
+        };
 
         // obvious
-        struct multi {};
+        struct safe {
+            static constexpr const int io_ctx_ccy_hint = BOOST_ASIO_CONCURRENCY_HINT_SAFE;
+        };
         
-        struct none {};
+        struct none {
+            static constexpr const int io_ctx_ccy_hint = BOOST_ASIO_CONCURRENCY_HINT_SAFE;
+        };
 
-        template < typename T >
-        struct opt_is_multi : public std::false_type {};
+        template <typename T>
+        struct is_safe : public std::false_type {};
 
         template <>
-        struct opt_is_multi< threads::multi > : public std::true_type {};
+        struct is_safe<ccy::safe> : public std::true_type {};
 
-        template < class Op, class Ty = void >
-        struct opt_enable_if_multi_thread {};
+        template <class Op, class Ty = void>
+        struct opt_enable_if_safe {};
 
-        template < class Ty >
-        struct opt_enable_if_multi_thread< threads::multi, Ty > {
-            using type = Ty;
-        };
-
-        template < class Op, class Ty = void >
-        struct opt_enable_if_single_thread {};
-
-        template < class Ty >
-        struct opt_enable_if_single_thread< threads::single, Ty > {
+        template <class Ty>
+        struct opt_enable_if_safe<ccy::safe, Ty> {
             using type = Ty;
         };
 
-        template < class Op, class Ty = void >
-        struct opt_enable_if_no_threads {};
+        template <class Op, class Ty = void>
+        struct opt_enable_if_unsafe {};
 
-        template < class Ty >
-        struct opt_enable_if_no_threads< threads::none, Ty > {
+        template <class Ty>
+        struct opt_enable_if_unsafe<ccy::unsafe, Ty> {
+            using type = Ty;
+        };
+
+        template <class Op, class Ty = void>
+        struct opt_enable_if_ccy_aware {};
+
+        template <class Ty>
+        struct opt_enable_if_ccy_aware<ccy::unsafe, Ty> {
+            using type = Ty;
+        };
+
+        template <class Ty>
+        struct opt_enable_if_ccy_aware<ccy::safe, Ty> {
             using type = Ty;
         };
         
-        template < class Op, class Ty = void >
-        struct opt_enable_if_single_or_none {};
+        template <class Op, class Ty = void>
+        struct opt_enable_if_ccy_unaware {};
         
-        template < class Ty >
-        struct opt_enable_if_single_or_none< threads::single, Ty > {
+        template <class Ty>
+        struct opt_enable_if_ccy_unaware<ccy::none, Ty> {
             using type = Ty;
         };
-        
-        template < class Ty >
-        struct opt_enable_if_single_or_none< threads::none, Ty > {
-            using type = Ty;
-        };
-        
-        template < class Op, class Ty = void >
-        struct opt_enable_if_threads {};
-        
-        template < class Ty >
-        struct opt_enable_if_threads< threads::single, Ty > {
-            using type = Ty;
-        };
-        
-        template < class Ty >
-        struct opt_enable_if_threads< threads::multi, Ty > {
-            using type = Ty;
-        };
-        
+
         namespace detail {
-            BOOST_TTI_HAS_TYPE( thread_option );
+            BOOST_TTI_HAS_TYPE(ccy_option);
         }
 
-        template < typename T >
-        struct is_multi_thread_enabled {
-            static constexpr const bool value = detail::has_type_thread_option<
-                T, boost::is_same< boost::mpl::placeholders::_1, multi > >::value;
+        template <typename T>
+        struct has_safe_opt {
+            static constexpr const bool value = detail::has_type_ccy_option<
+                T, boost::is_same<boost::mpl::placeholders::_1, safe>>::value;
         };
 
-        template < typename T, typename Ty = void >
-        using enable_if_multi_thread_enabled =
-            typename std::enable_if< is_multi_thread_enabled< T >::value, Ty >;
-
-        template < typename T, typename Ty = void >
-        using enable_if_multi_thread_enabled_t =
-            typename enable_if_multi_thread_enabled< T, Ty >::type;
+        template <typename T, typename Ty = void>
+        using enable_if_has_safe_opt =
+            typename std::enable_if<has_safe_opt<T>::value, Ty>;
 
         namespace detail {
 
-            template < bool HasMutex, typename Mutex = std::mutex >
+            template <bool HasMutex, typename Mutex = std::mutex>
             class single_mtx_base;
 
-            template < typename Mutex >
-            class single_mtx_base< true, Mutex > {
+            template <typename Mutex>
+            class single_mtx_base<true, Mutex> {
 
               public:
                 Mutex& mutex() { return opt_mtx_; }
@@ -200,37 +190,36 @@ namespace o {
                 Mutex opt_mtx_;
             };
 
-            template < typename Mutex >
-            class single_mtx_base< false, Mutex > {};
+            template <typename Mutex>
+            class single_mtx_base<false, Mutex> {};
         }
 
     } // namespace threads
 
-    template < typename Thing, bool DoLock, typename Mutex = std::mutex >
-    class safe_visitable : public threads::detail::single_mtx_base< DoLock, Mutex > {
+    template <typename Thing, bool DoLock, typename Mutex = std::mutex>
+    class safe_visitable : public ccy::detail::single_mtx_base<DoLock, Mutex> {
 
         Thing thing;
 
       public:
-        template < typename... Args >
-        explicit safe_visitable( Args... args )
-            : thing( std::forward< Args >( args )... ) {}
+        template <typename... Args>
+        explicit safe_visitable(Args... args) : thing(std::forward<Args>(args)...) {}
 
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< Enable >::type apply( Visitor v ) {
-            std::lock_guard< Mutex > visit_lock( this->mutex() );
-            v( thing );
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<Enable>::type apply(Visitor v) {
+            std::lock_guard<Mutex> visit_lock(this->mutex());
+            v(thing);
         }
 
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< !( Enable ) >::type apply( Visitor v ) {
-            v( thing );
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<!(Enable)>::type apply(Visitor v) {
+            v(thing);
         }
 
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
-            v( thing, this->mutex() );
-            //        ^^^^^^^^^^^^^
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<Enable>::type apply_adopt(Visitor v) {
+            v(thing, this->mutex());
+            //       ^^^^^^^^^^^^^
             // if you are getting an error like: "calling private constructor of 'mutex'"
             // here, you tried to visit the mutex by copying, which is illegal. a legal
             // lambda to use would be:
@@ -251,25 +240,25 @@ namespace o {
         static constexpr bool locks_enabled() { return DoLock; }
     };
 
-    template < typename Visitable, bool DoLock, typename Mutex = std::mutex >
-    class enable_safe_visit : public threads::detail::single_mtx_base< DoLock, Mutex > {
+    template <typename Visitable, bool DoLock, typename Mutex = std::mutex>
+    class enable_safe_visit : public ccy::detail::single_mtx_base<DoLock, Mutex> {
 
       public:
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< Enable >::type apply( Visitor v ) {
-            std::lock_guard< Mutex > visit_lock( this->mutex() );
-            v( *static_cast< Visitable* >( this ) );
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<Enable>::type apply(Visitor v) {
+            std::lock_guard<Mutex> visit_lock(this->mutex());
+            v(*static_cast<Visitable*>(this));
         }
 
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< !( Enable ) >::type apply( Visitor v ) {
-            v( *static_cast< Visitable* >( this ) );
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<!(Enable)>::type apply(Visitor v) {
+            v(*static_cast<Visitable*>(this));
         }
 
-        template < bool Enable = DoLock, typename Visitor >
-        typename std::enable_if< Enable >::type apply_adopt( Visitor v ) {
-            v( *static_cast< Visitable* >( this ), this->mutex() );
-            //                                     ^^^^^^^^^^^^^
+        template <bool Enable = DoLock, typename Visitor>
+        typename std::enable_if<Enable>::type apply_adopt(Visitor v) {
+            v(*static_cast<Visitable*>(this), this->mutex());
+            //                                ^^^^^^^^^^^^^
             // if you are getting an error like: "calling private constructor of 'mutex'"
             // here, you tried to visit the mutex by copying, which is illegal. a legal
             // lambda to use would be:
@@ -282,26 +271,25 @@ namespace o {
         static constexpr bool locks_enabled() { return DoLock; }
     };
 
-    namespace threads {
-        template < typename Thing, typename ThreadOption, typename Mutex = std::mutex >
+    namespace ccy {
+        template <typename Thing, typename ThreadOption, typename Mutex = std::mutex>
         struct opt_safe_visitable
-            : public safe_visitable< Thing, threads::opt_is_multi< ThreadOption >::value,
-                                     Mutex > {
+            : public safe_visitable<Thing, ccy::is_safe<ThreadOption>::value,
+                                    Mutex> {
             using thread_option = ThreadOption;
         };
 
-        template < typename Visitable, typename ThreadOption,
-                   typename Mutex = std::mutex >
+        template <typename Visitable, typename ThreadOption, typename Mutex = std::mutex>
         struct opt_enable_safe_visit
             : public enable_safe_visit<
-                  Visitable, threads::opt_is_multi< ThreadOption >::value, Mutex > {
+                  Visitable, ccy::is_safe<ThreadOption>::value, Mutex> {
             using thread_option = ThreadOption;
         };
     }
 
-    template < typename Visitor, typename SafeVisitable >
-    void safe_visit( Visitor vis, SafeVisitable& svis ) {
-        svis.apply( vis );
+    template <typename Visitor, typename SafeVisitable>
+    void safe_visit(Visitor vis, SafeVisitable& svis) {
+        svis.apply(vis);
     }
 
 } // namespace o
