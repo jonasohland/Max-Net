@@ -8,18 +8,19 @@ namespace o::io {
 
     namespace detail {
 
-        template <typename Duration>
+        template <typename Duration, typename Clock>
         class waiting_timer {
+            
+            using waitable_timer_type = boost::asio::basic_waitable_timer<Clock>;
 
           public:
             waiting_timer(boost::asio::io_context& ctx, Duration d)
-                : temp_timer_(new boost::asio::steady_timer(ctx)) {
-                temp_timer_->expires_after(d);
-            }
+                : wait_time_(d)
+                , temp_timer_(new waitable_timer_type(ctx)) {}
 
             template <typename Handler>
-            std::shared_ptr<boost::asio::steady_timer> then(Handler&& handler) {
-                
+            std::shared_ptr<waitable_timer_type> then(Handler&& handler) {
+
                 // the wait handler must have the following signature:
                 // void(boost::system::error_code)
                 static_assert(o::type_traits::is_invocable<
@@ -27,6 +28,8 @@ namespace o::io {
                               "wait handler requirements not met");
 
                 auto output = temp_timer_;
+                
+                temp_timer_->expires_after(wait_time_);
 
                 temp_timer_->async_wait([
                     handler_l = handler, capt_timer = std::move(temp_timer_)
@@ -36,18 +39,22 @@ namespace o::io {
             }
 
           private:
-            std::shared_ptr<boost::asio::steady_timer> temp_timer_;
+            Duration wait_time_;
+            std::shared_ptr<waitable_timer_type> temp_timer_;
         };
 
-        template <typename Duration>
+        template <typename Duration, typename Clock>
         class repeating_timer {
 
           public:
+        
+            using waitable_timer_type = boost::asio::basic_waitable_timer<Clock>;
+            
             template <typename Handler>
             struct recursor {
 
                 recursor(Handler&& input_handler, Duration input_duration,
-                         std::shared_ptr<boost::asio::steady_timer>&& timer)
+                         std::shared_ptr<waitable_timer_type>&& timer)
                     : handler(std::forward<Handler>(input_handler))
                     , duration(input_duration)
                     , tm_(timer) {}
@@ -82,17 +89,16 @@ namespace o::io {
 
                 Handler handler;
                 Duration duration;
-                std::shared_ptr<boost::asio::steady_timer> tm_;
+                std::shared_ptr<waitable_timer_type> tm_;
             };
 
             repeating_timer(boost::asio::io_context& ctx, Duration d)
-                : temp_timer_(new boost::asio::steady_timer(ctx))
+                : temp_timer_(new waitable_timer_type(ctx))
                 , next_tick_(d) {
-                temp_timer_->expires_after(d);
             }
 
             template <typename Handler>
-            std::shared_ptr<boost::asio::steady_timer>
+            std::shared_ptr<waitable_timer_type>
             repeat(Handler&& handler) {
 
                 // the repeat handler must have the following signature:
@@ -103,6 +109,8 @@ namespace o::io {
                               "repeat handler requirements not met");
 
                 auto output = temp_timer_;
+                
+                temp_timer_->expires_after(next_tick_);
 
                 temp_timer_->async_wait(
                     recursor<Handler>(std::forward<Handler>(handler),
@@ -112,20 +120,20 @@ namespace o::io {
             }
 
           private:
-            std::shared_ptr<boost::asio::steady_timer> temp_timer_;
+            std::shared_ptr<waitable_timer_type> temp_timer_;
             Duration next_tick_;
         };
     }
 
-    template <typename Duration>
-    detail::waiting_timer<Duration> wait(boost::asio::io_context& ctx,
+    template <typename Duration, typename Clock = std::chrono::steady_clock>
+    detail::waiting_timer<Duration, Clock> wait(boost::asio::io_context& ctx,
                                          Duration d) {
-        return detail::waiting_timer<Duration>(ctx, d);
+        return detail::waiting_timer<Duration, Clock>(ctx, d);
     }
 
-    template <typename Duration>
-    detail::repeating_timer<Duration> every(boost::asio::io_context& ctx,
+    template <typename Duration, typename Clock = std::chrono::steady_clock>
+    detail::repeating_timer<Duration, Clock> every(boost::asio::io_context& ctx,
                                             Duration d) {
-        return detail::repeating_timer<Duration>(ctx, d);
+        return detail::repeating_timer<Duration, Clock>(ctx, d);
     }
 }
