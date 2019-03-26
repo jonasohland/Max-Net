@@ -75,15 +75,14 @@ namespace o::io {
             thread_base() = default;
             virtual ~thread_base() = default;
 
-
             /**
              * Determine on how many threads this app is running
              *
              * @returns The number of threads, this application is currently running on.
              */
             size_t thread_count() const { return worker_threads_.size(); }
-            
-        protected:
+
+          protected:
             /** Wait for all threads to exit. */
             void await_threads_end() const {
                 for (auto& thread : worker_threads_) {
@@ -92,7 +91,7 @@ namespace o::io {
                             thread->join();
                 }
             }
-            
+
             /**
              * create x new threads and begin performing work on them
              *
@@ -107,7 +106,7 @@ namespace o::io {
 
             /** implemented by the application to perform actual work */
             virtual void do_run() = 0;
-            
+
             /**
              * Access the mutex that will be used to synchronize  actions
              * on the thread management level.
@@ -115,11 +114,10 @@ namespace o::io {
              * @returns A reference to a std::mutex.
              */
             std::mutex& base_mtx() { return thread_base_mutex_; }
-            
-        private:
+
+          private:
             std::mutex thread_base_mutex_;
             std::vector<std::unique_ptr<std::thread>> worker_threads_;
-            
         };
 
         /** base for classes that want to perform work on one or many threads */
@@ -135,7 +133,7 @@ namespace o::io {
 
             thread_base<ccy::safe>*
             operator=(const thread_base<ccy::safe>&& other) = delete;
-            
+
             thread_base() = default;
 
             virtual ~thread_base() = default;
@@ -261,8 +259,7 @@ namespace o::io {
       protected:
         /** is this a multithreaded application? */
         template <typename Opt = ConcurrencyOption>
-        static constexpr const bool multithreaded =
-            std::is_same<Opt, ccy::safe>::value;
+        static constexpr const bool multithreaded = std::is_same<Opt, ccy::safe>::value;
 
         /**
          * @brief   Launch the application on a specified number of threads.
@@ -375,21 +372,24 @@ namespace o::io {
          * @date    16.03.2019
          */
         virtual void do_run() override {
-            
-            if constexpr(ccy::is_safe<ConcurrencyOption>::value){
-                auto startup_call_lock = std::lock_guard(this->base_mtx());
+
+            if
+                constexpr(ccy::is_safe<ConcurrencyOption>::value) {
+                    auto startup_call_lock = std::lock_guard(this->base_mtx());
+                    on_app_started();
+                }
+            else
                 on_app_started();
-            } else
-                on_app_started();
-            
+
             this->context().run();
-            
-            if constexpr(ccy::is_safe<ConcurrencyOption>::value){
-                auto startup_call_lock = std::lock_guard(this->base_mtx());
+
+            if
+                constexpr(ccy::is_safe<ConcurrencyOption>::value) {
+                    auto startup_call_lock = std::lock_guard(this->base_mtx());
+                    on_app_stopped();
+                }
+            else
                 on_app_stopped();
-            } else
-                on_app_stopped();
-            
         }
 
       private:

@@ -26,4 +26,4 @@
 #pragma once
 
 #include "net/server_base.h"
-#include "net/udp_receiver.h"
+#include "net/udp_device.h"

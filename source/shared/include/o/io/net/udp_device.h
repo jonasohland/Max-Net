@@ -15,13 +15,15 @@ namespace o::io::net {
      *
      * @tparam  ThreadOption    Type of the thread option.
      */
-    template <typename ConcurrencyOption>
-    class udp_receiver {
-
+    template <typename MessageContainer, typename ConcurrencyOption>
+    class udp_device {
+        
       public:
+        struct use_v6 {};
+        
         enum class error_case { connect, bind, read };
 
-        udp_receiver() = delete;
+        udp_device() = delete;
 
         /**
          * Constructor
@@ -31,7 +33,7 @@ namespace o::io::net {
          *
          * @param [in,out]  ctx The context.
          */
-        udp_receiver(boost::asio::io_context& ctx) : sock_(ctx) {}
+        udp_device(boost::asio::io_context& ctx) : sock_(ctx) {}
 
         /**
          * Handles data received signals
@@ -41,7 +43,7 @@ namespace o::io::net {
          *
          * @param   parameter1  The first parameter.
          */
-        virtual void on_data_received(std::string&&) = 0;
+        virtual void on_data_received(MessageContainer&&) = 0;
 
         /**
          * Executes the UDP error action
@@ -76,6 +78,14 @@ namespace o::io::net {
 
             impl_udp_do_receive();
         }
+        
+        void udp_bind(short port) {
+            udp_bind(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
+        }
+        
+        void udp_bind(short port, use_v6 v6hint) {
+            udp_bind(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), port));
+        }
 
         void udp_connect(boost::asio::ip::udp::endpoint remote_endp) {
 
@@ -101,12 +111,13 @@ namespace o::io::net {
                 sock_.close();
         }
 
-        void send(std::string thing_to_send) {
+        void send(MessageContainer&& thing_to_send) {
 
-            std::string* output_str = new std::string(std::move(thing_to_send));
+            MessageContainer* output_str =
+                new MessageContainer(std::forward<MessageContainer>(thing_to_send));
 
             sock_.async_send(boost::asio::buffer(output_str->data(), output_str->size()),
-                             std::bind(&udp_receiver::impl_udp_on_send_done, this,
+                             std::bind(&udp_device::impl_udp_on_send_done, this,
                                        std::placeholders::_1, output_str));
         }
 
@@ -136,13 +147,12 @@ namespace o::io::net {
 
         void impl_udp_do_receive() {
             sock_.async_receive_from(buf_.prepare(1024), last_endp_,
-                                     std::bind(&udp_receiver::udp_on_data_received, this,
+                                     std::bind(&udp_device::udp_on_data_received, this,
                                                std::placeholders::_1,
                                                std::placeholders::_2));
         }
 
         void impl_udp_on_send_done(boost::system::error_code ec, std::string* out_str) {
-
             delete out_str;
         }
 
@@ -166,31 +176,31 @@ namespace o::io::net {
     template <>
     struct udp_port_mtx_base<o::ccy::none> {};
 
-    template <typename ThreadOption>
-    class udp_port : public udp_receiver<ThreadOption>,
-                     public udp_port_mtx_base<ThreadOption> {
+    template <typename MessageContainer, typename ConcurrencyOption>
+    class udp_port : public udp_device<MessageContainer, ConcurrencyOption>,
+                     public udp_port_mtx_base<ConcurrencyOption> {
 
         using data_handler_type = std::function<void(std::string&&)>;
         using error_handler_type = std::function<void(boost::system::error_code)>;
 
       public:
         explicit udp_port(boost::asio::io_context& ctx)
-            : udp_receiver<ThreadOption>(ctx) {}
+            : udp_device<MessageContainer, ConcurrencyOption>(ctx) {}
 
-        virtual void on_data_received(std::string&& data) override {
+        virtual void on_data_received(MessageContainer&& data) override {
 
             if (data_handler_) {
 
                 opt_do_lock();
 
-                data_handler_.get()(std::forward<std::string>(data));
+                data_handler_.get()(std::forward<MessageContainer>(data));
 
                 opt_do_unlock();
             }
         }
 
         // TODO replace with std::optional and deprecate Xcode 9 (alias buy new macbook)
-        boost::optional<std::function<void(std::string&&)>> data_handler_;
+        boost::optional<std::function<void(MessageContainer&&)>> data_handler_;
         boost::optional<std::function<void(boost::system::error_code)>> error_handler_;
 
         inline void set_data_handler(data_handler_type&& handler) {
@@ -216,13 +226,13 @@ namespace o::io::net {
       private:
         inline void opt_do_lock() {
             if
-                constexpr(o::ccy::is_safe<ThreadOption>::value) this
+                constexpr(o::ccy::is_safe<ConcurrencyOption>::value) this
                     ->udp_port_handler_mutex_.lock();
         }
 
         inline void opt_do_unlock() {
             if
-                constexpr(o::ccy::is_safe<ThreadOption>::value) this
+                constexpr(o::ccy::is_safe<ConcurrencyOption>::value) this
                     ->udp_port_handler_mutex_.unlock();
         }
     };
