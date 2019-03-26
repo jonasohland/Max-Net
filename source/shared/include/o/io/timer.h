@@ -77,7 +77,7 @@ namespace o::io {
                             std::is_same<decltype(handler(
                                              boost::system::error_code())),
                                          boost::system::error_code>::value,
-                        "handler must be trivially convertible to bool or of "
+                        "handler must be convertible to bool or of "
                         "type boost::system::error_code");
 
                     if (!handler(ec)) {
