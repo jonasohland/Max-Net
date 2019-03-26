@@ -5,14 +5,10 @@ int main() {
 
     boost::asio::io_context ctx;
 
-    auto repeater =
-        o::io::every(
-            ctx, std::chrono::seconds(3));
-
-    auto timer =
-        repeater.repeat([counter = 0](boost::system::error_code ec) mutable {
+    o::io::every(ctx, std::chrono::seconds(3))
+        .repeat([counter = size_t()](boost::system::error_code ec) mutable {
             if (!ec) std::cout << "Counter is: " << counter << std::endl;
-            return ++counter >= 10;
+            return ++counter >= 10 || ec;
         });
 
     ctx.run();
