@@ -6,7 +6,7 @@ int main() {
 
     o::io::wait(ctx, std::chrono::seconds(5))
         .then([](boost::system::error_code ec) {
-            std::cout << "Hello World!" << std::endl;
+            std::cout << "Hello!" << std::endl;
         });
 
     ctx.run();
