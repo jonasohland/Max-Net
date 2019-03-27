@@ -22,7 +22,7 @@ if(NOT ${CMAKE_THREAD_LIBS_INIT})
     find_package(Threads)
 endif()
 
-if(${CMAKE_USE_PTHREADS_INIT})
+if(${CMAKE_THREAD_LIBS_INIT})
 	target_link_libraries(${input_target} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
