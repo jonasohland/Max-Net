@@ -12,10 +12,6 @@ find_package(Boost COMPONENTS
 					"regex" 
 					REQUIRED)
 
-message(STATUS "shared code")
-message(STATUS ${IO_HEADERS})
-message(STATUS ${CMAKE_GENERATOR})
-
 if ((${CMAKE_GENERATOR} MATCHES "Xcode") OR (${CMAKE_GENERATOR} MATCHES "Visual Studio 15 2017 Win64"))
 
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "o Headers" FILES ${IO_HEADERS})

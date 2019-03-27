@@ -1,6 +1,6 @@
 macro(enable_cxx_17 input_target)
 
-    message(STATUS "got target: ${input_target}")
+    message(STATUS "processing target: ${input_target}")
 
     set_target_properties(${input_target} PROPERTIES
         CXX_STANDARD 17
@@ -17,23 +17,27 @@ macro(enable_cxx_17 input_target)
 endmacro(enable_cxx_17)
 
 macro(ohlib_setup input_target)
-    
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)	
 
-find_package(Threads)
-
+if(NOT ${CMAKE_THREAD_LIBS_INIT})
+    find_package(Threads)
+endif()
 
 if(CMAKE_USE_PTHREADS_INIT)
 	target_link_libraries(${input_target} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
+if(NOT ${Boost_LIBRARIES})
 
-find_package(Boost COMPONENTS 
-					"system" 
-					"date_time" 
-					"regex" 
-                    REQUIRED)
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_MULTITHREADED ON)	
+
+    find_package(Boost COMPONENTS 
+                        "system" 
+                        "date_time" 
+                        "regex" 
+                        REQUIRED)
+
+endif()
                     
                     
 target_link_libraries(${input_target} PUBLIC ${Boost_LIBRARIES})
@@ -69,7 +73,9 @@ endmacro(get_version_tag)
 
 macro(version_tag input_target) 
 
-    get_version_tag()
+    if(NOT ${VERSION_TAG})
+        get_version_tag()
+    endif()
 
     target_compile_definitions(${input_target} PRIVATE VERSION_TAG=${VERSION_TAG})
 
