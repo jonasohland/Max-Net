@@ -95,6 +95,10 @@ namespace o::io {
                     }
                 });
         }
+        
+        void signals_stop() {
+            signal_set_.cancel();
+        }
 
         /**
          * Access the underlying boost::asio::signal_set
