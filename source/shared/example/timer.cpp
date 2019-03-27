@@ -21,12 +21,12 @@ struct app : public app_base {
             .then(o::io::timer_cb_bind(&app::other_op, this));
 
         // bind a third callback to the same timer
-        o::io::new_wait(timer_.lock()).then(example_callback());
+        o::io::timer_add_cb(timer_.lock(), example_callback());
 
         // bind via the regular boost async_wait
         // in this case, you must ensure that the timer will not
         // be deleted as long as the callback is waiting
-        timer_.lock()->async_wait([](sys::error_code) {
+        timer_.lock()->async_wait([capt_timer = timer_](sys::error_code) {
             std::cout << "And i was called last :(" << std::endl;
         });
 
@@ -73,7 +73,7 @@ struct app : public app_base {
 
     // The app was allowed to exit either through a signal from the os or via
     // the app_allow_exit() call
-    virtual void on_app_exit(int reason) override {
+    void on_app_exit(int reason) override {
 
         std::cout << "Exit reason: " << reason << std::endl;
 

@@ -14,13 +14,25 @@
 namespace o::io {
 
     /**
+     * A `a shared_ptr` to a `boost::asio::basic_waitable_timer<Clock>`
+     */
+    template <typename Clock>
+    using timer = std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>;
+
+    /**
+     * A `weak_ptr` to a `boost::asio::basic_waitable_timer<Clock>`
+     */
+    template <typename Clock>
+    using weak_timer = typename timer<Clock>::weak_type;
+
+    /**
      * A `shared_ptr` to a `asio::steady_timer`. Returned by locking a weak_ptr
      * a temporary waiting_timer or repeating_timer returned when scheduling a
      * callback. The callback also owns an instance a shared_ptr to the
      * `asio::steady_timer` it is scheduled on. This makes sure that the timer
      * will not be deleted as long as a callback is scheduled on it
      */
-    using steady_timer = std::shared_ptr<boost::asio::steady_timer>;
+    using steady_timer = timer<std::chrono::steady_clock>;
 
     /**
      * A `weak_ptr` to a `asio::steady_timer`. Returned by a temporary
@@ -40,8 +52,7 @@ namespace o::io {
      * A `shared_ptr` to a
      * `boost::asio::basic_waitable_timer<std::chrono::system_clock>`
      */
-    using system_timer = std::shared_ptr<
-        boost::asio::basic_waitable_timer<std::chrono::system_clock>>;
+    using system_timer = timer<std::chrono::system_clock>;
 
     /**
      * A `weak_ptr` to a
@@ -53,8 +64,7 @@ namespace o::io {
      * A `shared_ptr` to a
      * `boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>`
      */
-    using high_resolution_timer = std::shared_ptr<
-        boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>>;
+    using high_resolution_timer = timer<std::chrono::high_resolution_clock>;
 
     /**
      * A `weak_ptr` to a
@@ -147,9 +157,9 @@ namespace o::io {
              * @param [in,out]  ctx The context.
              * @param           d   A Duration to process.
              */
-            waiting_timer(
-                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>> timer,
-                Duration d)
+            waiting_timer(std::shared_ptr<
+                              boost::asio::basic_waitable_timer<Clock>>&& timer,
+                          Duration d)
                 : wait_time_(d), temp_timer_(timer) {}
 
             /**
@@ -161,8 +171,9 @@ namespace o::io {
              * @param [in,out]  ctx The context.
              * @param           d   A Duration to process.
              */
-            waiting_timer(
-                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>> timer)
+            explicit waiting_timer(
+                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>&&
+                    timer)
                 : wait_time_(Duration::zero()), temp_timer_(timer) {}
 
             /**
@@ -400,9 +411,13 @@ namespace o::io {
      */
     template <typename Duration, typename Clock = std::chrono::steady_clock>
     detail::waiting_timer<Duration, Clock>
-    new_wait(std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>& timer,
+    new_wait(std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>&& timer,
              Duration d) {
-        return detail::waiting_timer<Duration, Clock>(timer, d);
+        return detail::waiting_timer<Duration, Clock>(
+            std::forward<
+                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>>(
+                timer),
+            d);
     }
 
     /**
@@ -421,9 +436,12 @@ namespace o::io {
      */
     template <typename Duration = std::chrono::milliseconds,
               typename Clock = std::chrono::steady_clock>
-    detail::waiting_timer<Duration, Clock>
-    new_wait(std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>& timer) {
-        return detail::waiting_timer<Duration, Clock>(timer);
+    detail::waiting_timer<Duration, Clock> new_wait(
+        std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>&& timer) {
+        return detail::waiting_timer<Duration, Clock>(
+            std::forward<
+                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>>(
+                timer));
     }
 
     /**
@@ -441,7 +459,17 @@ namespace o::io {
     template <typename Duration, typename Clock = std::chrono::steady_clock>
     detail::repeating_timer<Duration, Clock> every(boost::asio::io_context& ctx,
                                                    Duration d) {
+
         return detail::repeating_timer<Duration, Clock>(ctx, d);
+    }
+
+    template <typename Handler, typename Clock>
+    void timer_add_cb(timer<Clock> timer, Handler&& handler) {
+        if (timer)
+            timer->async_wait(
+                [timer, handler](boost::system::error_code ec) mutable {
+                    handler(ec);
+                });
     }
 
     /**
