@@ -22,19 +22,18 @@ macro(ohlib_setup input_target)
 
     target_link_libraries(${input_target} PUBLIC Threads::Threads)
 
-    if(NOT ${Boost_LIBRARIES})
 
-        set(Boost_USE_STATIC_LIBS ON)
-        set(Boost_USE_MULTITHREADED ON)	
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_MULTITHREADED ON)	
 
-        find_package(Boost COMPONENTS 
-                            "system" 
-                            "date_time" 
-                            "regex" 
-                            REQUIRED)
+    find_package(Boost COMPONENTS 
+                        "system" 
+                        "date_time" 
+                        "regex" 
+                        REQUIRED)
 
-    endif()
-                        
+
+    message(STATUS ${Boost_FOUND})
                         
     target_link_libraries(${input_target} PUBLIC ${Boost_LIBRARIES})
 
