@@ -468,6 +468,25 @@ namespace o::io {
         if (timer) timer->cancel();
     }
 
+    /**
+     * bind a member function to one arg.
+     * this is just a shortcut for:
+     * `std::bind(your_args... , std::placeholders::_1)`
+     *
+     * It can be used to generate a timer callback from a member function:
+     *
+     * @code
+     *
+     * o::io::wait(ctx, 5s).then(o::io::timer_cb_bind(&myclass::myfunc, this))
+     *
+     * @endcode
+     *
+     * @author  Jonas Ohland
+     * @date    27.03.2019
+     *
+     * @tparam  Args    Type of the arguments.
+     * @param   parameter1  The first parameter.
+     */
     template <typename... Args>
     decltype(auto) timer_cb_bind(Args... args) {
         return std::bind(std::forward<Args>(args)..., std::placeholders::_1);
