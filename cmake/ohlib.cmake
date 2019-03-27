@@ -18,38 +18,36 @@ endmacro(enable_cxx_17)
 
 macro(ohlib_setup input_target)
 
-if(NOT ${CMAKE_THREAD_LIBS_INIT})
     find_package(Threads)
-endif()
 
-if(${CMAKE_THREAD_LIBS_INIT})
-	target_link_libraries(${input_target} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-endif()
+    if(${CMAKE_THREAD_LIBS_INIT})
+        target_link_libraries(${input_target} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+    endif()
 
-if(NOT ${Boost_LIBRARIES})
+    if(NOT ${Boost_LIBRARIES})
 
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_MULTITHREADED ON)	
+        set(Boost_USE_STATIC_LIBS ON)
+        set(Boost_USE_MULTITHREADED ON)	
 
-    find_package(Boost COMPONENTS 
-                        "system" 
-                        "date_time" 
-                        "regex" 
-                        REQUIRED)
+        find_package(Boost COMPONENTS 
+                            "system" 
+                            "date_time" 
+                            "regex" 
+                            REQUIRED)
 
-endif()
-                    
-                    
-target_link_libraries(${input_target} PUBLIC ${Boost_LIBRARIES})
+    endif()
+                        
+                        
+    target_link_libraries(${input_target} PUBLIC ${Boost_LIBRARIES})
 
-if(WIN32)
-	target_compile_options(${input_target} PUBLIC "/bigobj")
-	target_compile_definitions(${input_target} PRIVATE _WIN32_WINNT=0x0A00)				
-endif()		
+    if(WIN32)
+        target_compile_options(${input_target} PUBLIC "/bigobj")
+        target_compile_definitions(${input_target} PRIVATE _WIN32_WINNT=0x0A00)				
+    endif()		
 
-target_link_libraries(${input_target} PUBLIC ohlib_include)
+    target_link_libraries(${input_target} PUBLIC ohlib_include)
 
-enable_cxx_17(${input_target})
+    enable_cxx_17(${input_target})
 
 endmacro(ohlib_setup)
 
