@@ -4,6 +4,7 @@ option(build_protobuf_targets "build externals that depend on the protobuf libra
 option(build_iiwa_targets "build externals for communicating with iiwa robots" OFF)
 option(use_version_tags "define version tag macros from git tags" ON)
 option(build_docs "Build documentation" OFF)
+option(ohlib_build_examples "build the examples" OFF)
 
 
 # ---------------------------------          iiwa targets require protobuf
@@ -122,17 +123,17 @@ if(build_protobuf_targets)
 endif()
 
 
+if(ohlib_build_examples)
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/shared/example")
+endif()
+
 # ---------------------------------          this is just a small executable for testing stuff
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ohlib.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx17.cmake")
 
 add_executable(
     TestApp
     "${CMAKE_CURRENT_SOURCE_DIR}/source/test.cpp"
 )
 
-target_link_libraries(TestApp PUBLIC  ohlib_include)
-
 ohlib_setup(TestApp)
-enable_cxx_17(TestApp)
