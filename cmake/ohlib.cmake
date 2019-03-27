@@ -11,8 +11,6 @@ macro(enable_cxx_17 input_target)
     target_compile_definitions(${input_target} PRIVATE _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
     target_compile_definitions(${input_target} PRIVATE _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
     target_compile_definitions(${input_target} PRIVATE _SILENCE_CXX17_ADAPTOR_TYPEDEFS_DEPRECATION_WARNING)
-    
-# target_compile_definitions(${target} )
 
 endmacro(enable_cxx_17)
 
@@ -31,9 +29,6 @@ macro(ohlib_setup input_target)
                         "date_time" 
                         "regex" 
                         REQUIRED)
-
-
-    message(STATUS ${Boost_FOUND})
                         
     target_link_libraries(${input_target} PUBLIC ${Boost_LIBRARIES})
 
