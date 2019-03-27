@@ -13,6 +13,20 @@
 
 namespace o::io {
 
+    using steady_timer = std::shared_ptr<boost::asio::steady_timer>;
+
+    using weak_steady_timer = steady_timer::weak_type;
+
+    using system_timer = std::shared_ptr<
+        boost::asio::basic_waitable_timer<std::chrono::system_clock>>;
+
+    using weak_system_timer = system_timer::weak_type;
+
+    using high_resolution_timer = std::shared_ptr<
+        boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>>;
+
+    using weak_high_resolution_timer = high_resolution_timer::weak_type;
+
     namespace detail {
 
         /**
@@ -53,7 +67,7 @@ namespace o::io {
              * @returns A std::shared_ptr&lt;waitable_timer_type&gt;
              */
             template <typename Handler>
-            std::shared_ptr<waitable_timer_type> then(Handler&& handler) {
+            std::weak_ptr<waitable_timer_type> then(Handler&& handler) {
 
                 // the wait handler must have the following signature:
                 // void(boost::system::error_code)
@@ -61,7 +75,7 @@ namespace o::io {
                                   Handler, boost::system::error_code>::value,
                               "wait handler requirements not met");
 
-                auto output = temp_timer_;
+                auto output = std::weak_ptr<waitable_timer_type>(temp_timer_);
 
                 temp_timer_->expires_after(wait_time_);
 
@@ -114,14 +128,17 @@ namespace o::io {
             struct recursor {
 
                 /**
-                 * Constructor
+                 * Construct a new recursor that takes ownership of all
+                 * the resources of the last one.
                  *
                  * @author  Jonas Ohland
                  * @date    27.03.2019
                  *
-                 * @param [in]  input_handler   The input handler.
-                 * @param       input_duration  Duration of the input.
-                 * @param [in]  timer           The timer.
+                 * @param [in]  input_handler   The user-handler.
+                 * @param [in]  input_duration  The duration between repeated
+                 *                              calls.
+                 * @param [in]  timer           The a shared_ptr to the timer
+                 *                              that will call this recursor.
                  */
                 recursor(Handler&& input_handler, Duration&& input_duration,
                          std::shared_ptr<waitable_timer_type>&& timer)
@@ -131,7 +148,7 @@ namespace o::io {
                           timer)) {}
 
                 /**
-                 * Constructor
+                 * default copy constructor
                  *
                  * @author  Jonas Ohland
                  * @date    27.03.2019
@@ -141,7 +158,13 @@ namespace o::io {
                 recursor(const recursor& other) = default;
 
                 /**
-                 * Function call operator
+                 * Function call operator. This will call the user-handler and
+                 * reschedule the call for a new execution if the handler
+                 * returned false. This will transfer ownership of all resources
+                 * of the current instance to the next WaitHandler waiting on
+                 * this timer, leaving this instance in an invalid state.
+                 * Calling this twice from the same instances results in
+                 * undefined behaviour and the end of all life in the universe.
                  *
                  * @author  Jonas Ohland
                  * @date    27.03.2019
@@ -154,7 +177,6 @@ namespace o::io {
                     // forgot to return a value from the wait handler for
                     // .repeat(Handler) In most cases it should be suitable to
                     // simply return the error_code
-
                     static_assert(
                         std::is_convertible<decltype(handler(
                                                 boost::system::error_code())),
@@ -162,8 +184,8 @@ namespace o::io {
                             std::is_same<decltype(handler(
                                              boost::system::error_code())),
                                          boost::system::error_code>::value,
-                        "handler must be convertible to bool or of "
-                        "type boost::system::error_code");
+                        "handler return value must be convertible to bool or "
+                        "of type boost::system::error_code");
 
                     if (!handler(ec)) {
                         tm_->expires_after(duration);
@@ -207,7 +229,7 @@ namespace o::io {
              * which the Handler will be called.
              */
             template <typename Handler>
-            std::shared_ptr<waitable_timer_type> repeat(Handler&& handler) {
+            std::weak_ptr<waitable_timer_type> repeat(Handler&& handler) {
 
                 // the repeat handler must have the following signature:
                 // bool(boost::system::error_code) or
@@ -216,7 +238,7 @@ namespace o::io {
                                   Handler, boost::system::error_code>::value,
                               "repeat handler requirements not met");
 
-                auto output = temp_timer_;
+                auto output = std::weak_ptr<waitable_timer_type>(temp_timer_);
 
                 temp_timer_->expires_after(next_tick_);
 

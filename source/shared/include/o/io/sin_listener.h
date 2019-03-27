@@ -12,8 +12,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,10 +25,10 @@
 
 #pragma once
 
-#if defined( O_NET_POSIX ) || defined( DOXY_GENERATE )
+#if defined(O_NET_POSIX) || defined(DOXY_GENERATE)
 
-#include <boost/asio.hpp>
 #include "../types.h"
+#include <boost/asio.hpp>
 
 #include <cstdlib>
 #include <cstring>
@@ -37,10 +37,9 @@
 
 namespace o::io {
 
-    /** An io application can inherit from this class if it wants to read data from
-     stdin
-     \code{.cpp}
-     using app_base = o::io::simple_io_app<o::threads::none>;
+    /** An io application can inherit from this class if it wants to read data
+     from stdin \code{.cpp} using app_base =
+     o::io::simple_io_app<o::threads::none>;
 
      struct app : public app_base, public o::io::istream_listener {
 
@@ -59,26 +58,26 @@ namespace o::io {
         istream_listener() = delete;
 
         /** construct the stream listener and give it a context to operate on */
-        explicit istream_listener( boost::asio::io_context& ctx )
-            : std_istream_desc_( ctx, ::dup( STDIN_FILENO ) ) {
+        explicit istream_listener(boost::asio::io_context& ctx)
+            : std_istream_desc_(ctx, ::dup(STDIN_FILENO)) {
             do_read();
         }
 
-        /** implement this function to get notified if a complete line was read from
-         * stdin */
-        virtual void on_console_input( std::string ) = 0;
+        /** implement this function to get notified if a complete line was read
+         * from stdin */
+        virtual void on_console_input(std::string) = 0;
 
       private:
-        void handle_istream_read( const boost::system::error_code& ec,
-                                  std::size_t length ) {
+        void handle_istream_read(const boost::system::error_code& ec,
+                                 std::size_t length) {
 
-            if ( !ec ) {
+            if (!ec) {
 
-                on_console_input(
-                    std::string( boost::asio::buffers_begin( input_buffer_.data() ),
-                                 boost::asio::buffers_begin( input_buffer_.data() ) +
-                                     input_buffer_.size() - 1 ) );
-                input_buffer_.consume( input_buffer_.size() );
+                on_console_input(std::string(
+                    boost::asio::buffers_begin(input_buffer_.data()),
+                    boost::asio::buffers_begin(input_buffer_.data()) +
+                        input_buffer_.size() - 1));
+                input_buffer_.consume(input_buffer_.size());
 
                 do_read();
             }
@@ -87,8 +86,8 @@ namespace o::io {
         void do_read() {
             boost::asio::async_read_until(
                 std_istream_desc_, input_buffer_, '\n',
-                std::bind( &istream_listener::handle_istream_read, this,
-                           std::placeholders::_1, std::placeholders::_2 ) );
+                std::bind(&istream_listener::handle_istream_read, this,
+                          std::placeholders::_1, std::placeholders::_2));
         }
 
         boost::asio::streambuf input_buffer_;

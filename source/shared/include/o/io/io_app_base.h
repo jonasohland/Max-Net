@@ -12,8 +12,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,8 +35,8 @@ namespace o::io {
         template <typename ThreadOption>
         class thread_base {};
 
-        /** base for classes that want to handle thread-creation and stuff on their
-         * own */
+        /** base for classes that want to handle thread-creation and stuff on
+         * their own */
         template <>
         class thread_base<ccy::none> {
 
@@ -78,7 +78,8 @@ namespace o::io {
             /**
              * Determine on how many threads this app is running
              *
-             * @returns The number of threads, this application is currently running on.
+             * @returns The number of threads, this application is currently
+             * running on.
              */
             size_t thread_count() const { return worker_threads_.size(); }
 
@@ -87,8 +88,7 @@ namespace o::io {
             void await_threads_end() const {
                 for (auto& thread : worker_threads_) {
                     if (thread)
-                        if (thread->joinable())
-                            thread->join();
+                        if (thread->joinable()) thread->join();
                 }
             }
 
@@ -141,7 +141,8 @@ namespace o::io {
             /**
              * Determine on how many threads this app is running
              *
-             * @returns The number of threads, this application is currently running on.
+             * @returns The number of threads, this application is currently
+             * running on.
              */
             size_t thread_count() const { return worker_threads_.size(); }
 
@@ -150,8 +151,7 @@ namespace o::io {
             void await_threads_end() const {
                 for (auto& thread : worker_threads_) {
                     if (thread)
-                        if (thread->joinable())
-                            thread->join();
+                        if (thread->joinable()) thread->join();
                 }
             }
 
@@ -206,22 +206,23 @@ namespace o::io {
         /** underlying executor type */
         using executor_type = boost::asio::io_context::executor_type;
 
-        /** Run the application in this thread. This call will return as soon as the
-         * application runs out of work. */
+        /** Run the application in this thread. This call will return as soon as
+         * the application runs out of work. */
         template <typename Opt = ConcurrencyOption>
         typename ccy::opt_enable_if_ccy_unaware<Opt>::type run() {
             app_prepare();
             do_run();
         }
 
-        /** Determine if the caller is running in one of the applications threads. */
+        /** Determine if the caller is running in one of the applications
+         * threads. */
         bool call_is_in_app() {
             return context().get_executor().running_in_this_thread();
         }
 
         /**
-         * Determine if the caller is running in the applications thread, and the
-         * call to the apps resources would be safe. \snippet ioapp.cpp
+         * Determine if the caller is running in the applications thread, and
+         * the call to the apps resources would be safe. \snippet ioapp.cpp
          * ioapp_call_is_safe_example
          *
          * @snippet ioapp.cpp ioapp_call_is_safe_example
@@ -259,7 +260,8 @@ namespace o::io {
       protected:
         /** is this a multithreaded application? */
         template <typename Opt = ConcurrencyOption>
-        static constexpr const bool multithreaded = std::is_same<Opt, ccy::safe>::value;
+        static constexpr const bool multithreaded =
+            std::is_same<Opt, ccy::safe>::value;
 
         /**
          * @brief   Launch the application on a specified number of threads.
@@ -272,14 +274,15 @@ namespace o::io {
          *
          */
         template <typename Opt = ConcurrencyOption>
-        typename ccy::opt_enable_if_ccy_aware<Opt>::type app_launch(int threads = 1) {
+        typename ccy::opt_enable_if_ccy_aware<Opt>::type
+        app_launch(int threads = 1) {
             app_prepare();
             this->create_threads(threads);
         }
 
-        /** Allow the application to exit. This will call the on_app_exit handler with
-         * the supplied reason code (or 0 by default) from inside the application and
-         * exit after that. */
+        /** Allow the application to exit. This will call the on_app_exit
+         * handler with the supplied reason code (or 0 by default) from inside
+         * the application and exit after that. */
         bool app_allow_exit(int reason = 0) {
 
             this->dispatch([this, reason]() { this->on_app_exit(reason); });
@@ -292,8 +295,8 @@ namespace o::io {
             return false;
         }
 
-        /** Wait for all threads owned by the app to exit. When this function returns,
-         * it is safe to destroy the app. */
+        /** Wait for all threads owned by the app to exit. When this function
+         * returns, it is safe to destroy the app. */
         void app_join() const { this->await_threads_end(); }
 
         /** post a handler to the apps executor*/
@@ -326,9 +329,9 @@ namespace o::io {
         executor_type& executor() { return ctx_.get_executor(); }
 
         /**
-         * Will be called when the app is started. This Function will be called once
-         * per thread. If the o::ccy::safe template argument was supplied, this
-         * call will be synchronized.
+         * Will be called when the app is started. This Function will be called
+         * once per thread. If the o::ccy::safe template argument was supplied,
+         * this call will be synchronized.
          *
          * @author  Jonas Ohland
          * @date    16.03.2019
@@ -347,9 +350,9 @@ namespace o::io {
         virtual void on_app_exit(int reason) {}
 
         /**
-         * Will be called when the app is stopped. This Function will be called once
-         * per thread. If the o::ccy::safe template argument was supplied, this
-         * call will be synchronized.
+         * Will be called when the app is stopped. This Function will be called
+         * once per thread. If the o::ccy::safe template argument was supplied,
+         * this call will be synchronized.
          *
          * @author  Jonas Ohland
          * @date    16.03.2019
@@ -373,22 +376,18 @@ namespace o::io {
          */
         virtual void do_run() override {
 
-            if
-                constexpr(ccy::is_safe<ConcurrencyOption>::value) {
-                    auto startup_call_lock = std::lock_guard(this->base_mtx());
-                    on_app_started();
-                }
-            else
+            if constexpr (ccy::is_safe<ConcurrencyOption>::value) {
+                auto startup_call_lock = std::lock_guard(this->base_mtx());
+                on_app_started();
+            } else
                 on_app_started();
 
             this->context().run();
 
-            if
-                constexpr(ccy::is_safe<ConcurrencyOption>::value) {
-                    auto startup_call_lock = std::lock_guard(this->base_mtx());
-                    on_app_stopped();
-                }
-            else
+            if constexpr (ccy::is_safe<ConcurrencyOption>::value) {
+                auto startup_call_lock = std::lock_guard(this->base_mtx());
+                on_app_stopped();
+            } else
                 on_app_stopped();
         }
 

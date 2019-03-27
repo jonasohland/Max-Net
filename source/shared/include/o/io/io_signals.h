@@ -12,8 +12,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -55,8 +55,8 @@ namespace o::io {
 
       protected:
         /**
-         * Implemented to setup the signal set. If you override this, make sure you call
-         * setup_signals() yourself.
+         * Implemented to setup the signal set. If you override this, make sure
+         * you call setup_signals() yourself.
          *
          * @author  Jonas Ohland
          * @date    21.03.2019
@@ -75,9 +75,10 @@ namespace o::io {
         virtual void on_signal(int signal_number) {}
 
         /**
-         * Sets up the signal listening. The implementation will call this once via the
-         * overridden app_prepare() method and call it again, whenever a signal was
-         * received. This effectively does an async_wait() on the underlying signal_set.
+         * Sets up the signal listening. The implementation will call this once
+         * via the overridden app_prepare() method and call it again, whenever a
+         * signal was received. This effectively does an async_wait() on the
+         * underlying signal_set.
          *
          * @author  Jonas Ohland
          * @date    21.03.2019
@@ -95,10 +96,8 @@ namespace o::io {
                     }
                 });
         }
-        
-        void signals_stop() {
-            signal_set_.cancel();
-        }
+
+        void signals_stop() { signal_set_.cancel(); }
 
         /**
          * Access the underlying boost::asio::signal_set
