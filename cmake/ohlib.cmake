@@ -20,7 +20,7 @@ macro(ohlib_setup input_target)
 
     find_package(Threads)
 
-    target_link_libraries(${input_target} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${input_target} PUBLIC Threads::Threads)
 
     if(NOT ${Boost_LIBRARIES})
 
