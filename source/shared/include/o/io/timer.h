@@ -13,19 +13,99 @@
 
 namespace o::io {
 
+    /**
+     * A `shared_ptr` to a `asio::steady_timer`. Returned by locking a weak_ptr
+     * a temporary waiting_timer or repeating_timer returned when scheduling a
+     * callback. The callback also owns an instance a shared_ptr to the
+     * `asio::steady_timer` it is scheduled on. This makes sure that the timer
+     * will not be deleted as long as a callback is scheduled on it
+     */
     using steady_timer = std::shared_ptr<boost::asio::steady_timer>;
 
+    /**
+     * A `weak_ptr` to a `asio::steady_timer`. Returned by a temporary
+     * waiting_timer or repeating_timer when scheduling a callback.
+     * The scheduled callback owns the shared_ptr this weak_ptr was created
+     * from. So the weak_ptr could be expired by the time the callback has ran.
+     * A common way to cancel a callback that may has or has not yet run could
+     * look like this:
+     * \code{.cpp}
+     *      auto weak_timer = o::io::wait(ctx, 5s).then(callback())
+     *      if(auto timer = weak_timer.lock()) timer->cancel();
+     * \endcode
+     */
     using weak_steady_timer = steady_timer::weak_type;
 
+    /**
+     * A `shared_ptr` to a
+     * `boost::asio::basic_waitable_timer<std::chrono::system_clock>`
+     */
     using system_timer = std::shared_ptr<
         boost::asio::basic_waitable_timer<std::chrono::system_clock>>;
 
+    /**
+     * A `weak_ptr` to a
+     * `boost::asio::basic_waitable_timer<std::chrono::system_clock>`
+     */
     using weak_system_timer = system_timer::weak_type;
 
+    /**
+     * A `shared_ptr` to a
+     * `boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>`
+     */
     using high_resolution_timer = std::shared_ptr<
         boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>>;
 
+    /**
+     * A `weak_ptr` to a
+     * `boost::asio::basic_waitable_timer<std::chrono::high_resolution_clock>`
+     */
     using weak_high_resolution_timer = high_resolution_timer::weak_type;
+
+    /**
+     * An abstract class that can be implemented for classes that want to act as
+     * a callback for repeating timers.
+     *
+     * @author  Jonas Ohland
+     * @date    27.03.2019
+     */
+    struct repeating_timer_callback {
+
+        /**
+         * Implement to perform the actual callback action.
+         *
+         * @author  Jonas Ohland
+         * @date    27.03.2019
+         *
+         * @param   ec indicates an error or that the operation was cancelled
+         *             from outside.
+         *
+         * @returns True if this should be the last operation.
+         *          False otherwise.
+         */
+        virtual bool operator()(boost::system::error_code ec) = 0;
+    };
+
+    /**
+     * An abstract class that can be implemented for classes that want to act as
+     * a callback for waiting timers.
+     *
+     * @author  Jonas Ohland
+     * @date    27.03.2019
+     */
+    struct timer_callback {
+
+        /**
+         * Implement to perform the actual callback action.
+         *
+         * @author  Jonas Ohland
+         * @date    27.03.2019
+         *
+         * @param   ec indicates an error or that the operation was cancelled
+         *             from outside.
+         */
+        virtual void operator()(boost::system::error_code ec) = 0;
+    };
 
     namespace detail {
 
@@ -59,7 +139,34 @@ namespace o::io {
                 : wait_time_(d), temp_timer_(new waitable_timer_type(ctx)) {}
 
             /**
-             * Thens the given handler
+             * construct by reusing an existing timer object
+             *
+             * @author  Jonas Ohland
+             * @date    27.03.2019
+             *
+             * @param [in,out]  ctx The context.
+             * @param           d   A Duration to process.
+             */
+            waiting_timer(
+                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>> timer,
+                Duration d)
+                : wait_time_(d), temp_timer_(timer) {}
+
+            /**
+             * construct by reusing an existing timer object
+             *
+             * @author  Jonas Ohland
+             * @date    27.03.2019
+             *
+             * @param [in,out]  ctx The context.
+             * @param           d   A Duration to process.
+             */
+            waiting_timer(
+                std::shared_ptr<boost::asio::basic_waitable_timer<Clock>> timer)
+                : wait_time_(Duration::zero()), temp_timer_(timer) {}
+
+            /**
+             * Schedule the given handler
              *
              * @tparam  Handler Type of the handler.
              * @param [in,out]  handler The handler.
@@ -77,11 +184,13 @@ namespace o::io {
 
                 auto output = std::weak_ptr<waitable_timer_type>(temp_timer_);
 
-                temp_timer_->expires_after(wait_time_);
+                if (wait_time_.count()) temp_timer_->expires_after(wait_time_);
 
                 temp_timer_->async_wait(
                     [handler_l = handler, capt_timer = std::move(temp_timer_)](
-                        boost::system::error_code ec) { handler_l(ec); });
+                        boost::system::error_code ec) mutable {
+                        handler_l(ec);
+                    });
 
                 return output;
             }
@@ -278,6 +387,47 @@ namespace o::io {
 
     /**
      * Create a new temporary waiting timer object, that may be used to execute
+     * a callback at later time by reusing an existing timer. The caller must
+     * ensure, that the timer is still valid.
+     *
+     * @tparam  Duration    Type of the duration. Example:
+     *                      std::chrono::milliseconds.
+     * @tparam  Clock       Type of the clock.
+     * @param [in]  ctx The asio::io_context to wait on.
+     * @param           d   The duration to wait between the repeated calls.
+     *
+     * @returns A temporary waiting_timer object.
+     */
+    template <typename Duration, typename Clock = std::chrono::steady_clock>
+    detail::waiting_timer<Duration, Clock>
+    new_wait(std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>& timer,
+             Duration d) {
+        return detail::waiting_timer<Duration, Clock>(timer, d);
+    }
+
+    /**
+     * Create a new temporary waiting timer object, that may be used to execute
+     * a callback at later time by reusing an existing timer. The caller must
+     * ensure, that the timer is still valid. The waiting period will begin when
+     * the callback is assigned to the timer.
+     *
+     * @tparam  Duration    Type of the duration. Example:
+     *                      std::chrono::milliseconds.
+     * @tparam  Clock       Type of the clock.
+     * @param [in]  ctx The asio::io_context to wait on.
+     * @param           d   The duration to wait between the repeated calls.
+     *
+     * @returns A temporary waiting_timer object.
+     */
+    template <typename Duration = std::chrono::milliseconds,
+              typename Clock = std::chrono::steady_clock>
+    detail::waiting_timer<Duration, Clock>
+    new_wait(std::shared_ptr<boost::asio::basic_waitable_timer<Clock>>& timer) {
+        return detail::waiting_timer<Duration, Clock>(timer);
+    }
+
+    /**
+     * Create a new temporary waiting timer object, that may be used to execute
      * a callback repeatedly. Repeated execution will start when the callback is
      * assigned. is assigned to the timer.
      *
@@ -293,4 +443,34 @@ namespace o::io {
                                                    Duration d) {
         return detail::repeating_timer<Duration, Clock>(ctx, d);
     }
+
+    /**
+     * Cancel a weak_timer if it is not expired.
+     * This effectively locks the weak_ptr and checks if it is valid.
+     * If it is it cancels the timer.
+     *
+     * @tparam  Timer   Type of the timer.
+     * @param [in,out]  timer   The timer to cancel.
+     */
+    template <typename Timer>
+    void weak_timer_cancel(Timer& timer) {
+        if (auto locked_timer = timer.lock()) locked_timer->cancel();
+    }
+
+    /**
+     * Cancel a timer if it is not expired.
+     *
+     * @tparam  Timer   Type of the timer.
+     * @param [in,out]  timer   The timer.
+     */
+    template <typename Timer>
+    void timer_cancel(Timer& timer) {
+        if (timer) timer->cancel();
+    }
+
+    template <typename... Args>
+    decltype(auto) timer_cb_bind(Args... args) {
+        return std::bind(std::forward<Args>(args)..., std::placeholders::_1);
+    }
+
 } // namespace o::io
