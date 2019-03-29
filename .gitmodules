@@ -4,3 +4,6 @@
 [submodule "lib/checked_ptr"]
 	path = lib/checked_ptr
 	url = https://github.com/jonasohland/checked_ptr
+[submodule "lib/liboh"]
+	path = lib/liboh
+	url = https://github.com/jonasohland/liboh

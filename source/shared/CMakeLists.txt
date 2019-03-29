@@ -14,36 +14,36 @@ find_package(Boost COMPONENTS
 
 if ((${CMAKE_GENERATOR} MATCHES "Xcode") OR (${CMAKE_GENERATOR} MATCHES "Visual Studio 15 2017 Win64"))
 
-	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "o Headers" FILES ${IO_HEADERS})
+	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "o_legacy_headers" FILES ${IO_HEADERS})
 
-	add_library(ohlib_sources STATIC 
+	add_library(o_legacy_headers STATIC 
 		${IO_HEADERS}
 	)
 
-	set_target_properties(ohlib_sources PROPERTIES LINKER_LANGUAGE CXX)
+	set_target_properties(o_legacy_headers PROPERTIES LINKER_LANGUAGE CXX)
 
-	set_target_properties(ohlib_sources PROPERTIES
+	set_target_properties(o_legacy_headers PROPERTIES
 		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS YES
 	)
 
-	target_include_directories(ohlib_sources INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+	target_include_directories(o_legacy_headers INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-	target_include_directories(ohlib_sources PUBLIC ${Boost_INCLUDE_DIRS})
+	target_include_directories(o_legacy_headers PUBLIC ${Boost_INCLUDE_DIRS})
 
-	target_include_directories(ohlib_sources PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
-	target_include_directories(ohlib_sources PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")
+	target_include_directories(o_legacy_headers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
+	target_include_directories(o_legacy_headers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")
 
 endif()
 
-add_library(ohlib_include INTERFACE)
+add_library(o_legacy_include INTERFACE)
 
-target_link_libraries(ohlib_include INTERFACE optional_locks)
+target_link_libraries(o_legacy_include INTERFACE optional_locks)
 
-target_include_directories(ohlib_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(o_legacy_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_include_directories(ohlib_include INTERFACE ${Boost_INCLUDE_DIRS})
+target_include_directories(o_legacy_include INTERFACE ${Boost_INCLUDE_DIRS})
 
-target_include_directories(ohlib_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
-target_include_directories(ohlib_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")
+target_include_directories(o_legacy_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/include")
+target_include_directories(o_legacy_include INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/min-api/max-api/include")

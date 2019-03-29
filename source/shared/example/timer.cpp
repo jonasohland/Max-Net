@@ -31,8 +31,12 @@ struct app : public app_base {
         });
 
         // Annoy the user every 500 milliseconds
-        o::io::every(this->context(), 500ms)
-            .repeat(o::io::timer_cb_bind(&app::annoy, this));
+        auto tm = o::io::every(this->context(), 500ms)
+                      .repeat(o::io::timer_cb_bind(&app::annoy, this));
+
+        o::io::timer_add_repeat_cb(tm.lock(), [](boost::system::error_code ec) {
+            std::cout << "Hello" << std::endl;
+        });
     }
 
     bool annoy(boost::system::error_code ec) {
